@@ -6,6 +6,16 @@ This project aims to develop a simulation-based aircraft engine monitoring syste
 
 The system will demonstrate how machine learning and explainable AI can enhance aircraft engine health monitoring and decision support.
 
+## Features
+
+- **Remaining Useful Life (RUL) Prediction**: Predicts how many more cycles an engine can operate before failure using Random Forest, XGBoost, and LSTM models
+- **Anomaly Detection**: Identifies unusual engine behavior using Isolation Forest algorithm
+- **Explainable AI**: Provides interpretable explanations for model predictions using SHAP values
+- **Health Score Calculation**: Computes a comprehensive Engine Health Index (0-100) based on multiple factors
+- **Risk Assessment**: Translates health metrics into actionable risk levels (Green/Yellow/Red) with advisory messages
+- **Digital Twin Simulation**: Simulates real-time engine degradation and health trends
+- **Interactive Dashboard**: Visualizes all metrics with interactive charts and real-time monitoring
+
 ## Modules:
 
 1.  **Data Processing Module:** Handles loading, cleaning, normalizing, and feature engineering of the C-MAPSS dataset.
@@ -30,6 +40,44 @@ The EngineSentinel system is designed with a modular architecture, where each co
 -   **Digital Twin Simulation Layer**: A core component that simulates the real-time health state of an engine using a stream of sensor data. It integrates outputs from the prediction, anomaly, health score, and risk modules to provide a dynamic view of engine degradation over time.
 -   **Interactive Dashboard**: Built with Streamlit and Plotly, this module serves as the user interface, displaying all critical insights: current health score, predicted RUL, sensor importance, risk level, and historical trends for various metrics.
 
+## Prerequisites
+
+- **Python**: 3.8 or higher
+- **Operating System**: Windows, macOS, or Linux
+- **Memory**: Minimum 8GB RAM recommended for training models
+- **Disk Space**: At least 2GB for dataset and model storage
+
+## Directory Structure
+
+```
+EngineSentinel/
+├── anomaly_detection/        # Anomaly detection module
+│   └── isolation_forest_detector.py
+├── data_processing/          # Data loading and preprocessing
+│   ├── data_loader.py
+│   ├── data_pipeline.py
+│   ├── feature_engineering.py
+│   └── preprocessor.py
+├── digital_twin/            # Digital twin simulation
+│   └── digital_twin_simulator.py
+├── docs/                    # Documentation
+├── explainable_ai/          # SHAP explanations
+│   └── shap_explainer.py
+├── health_risk/            # Health scoring and risk assessment
+│   ├── health_calculator.py
+│   └── risk_evaluator.py
+├── ml_prediction/          # ML models and training
+│   ├── evaluator.py
+│   ├── lstm_model.py
+│   ├── random_forest_model.py
+│   ├── trainer.py
+│   └── xgboost_model.py
+├── dashboard/              # Streamlit dashboard
+│   └── dashboard_app.py
+├── Dataset/                # C-MAPSS dataset files (you need to create this)
+└── requirements.txt        # Python dependencies
+```
+
 ## Setup
 
 To set up and run the EngineSentinel project locally, follow these steps:
@@ -48,6 +96,44 @@ To set up and run the EngineSentinel project locally, follow these steps:
 
 3.  **Download the Dataset:**
     The NASA C-MAPSS turbofan engine degradation dataset is expected to be in the `Dataset/` directory relative to the project root. Please ensure the dataset files (`train_FD00x.txt`, `test_FD00x.txt`, `RUL_FD00x.txt`) are present in this directory.
+
+    You can download the dataset from: https://ti.arc.nasa.gov/tech/dash/groups/pcoe/prognostic-data-repository/
+
+4.  **Create the Dataset directory (if not exists):**
+    ```bash
+    mkdir -p Dataset
+    # Place your C-MAPSS files (train_FD001.txt, test_FD001.txt, RUL_FD001.txt) in this folder
+    ```
+
+## Configuration
+
+You can customize the system behavior by modifying the following:
+
+### Model Training Configuration
+
+Edit `ml_prediction/trainer.py` to change:
+- **Dataset selection**: Modify `DATASET_IDX = 1` to use FD002, FD003, or FD004
+- **Model parameters**: Adjust hyperparameters for Random Forest, XGBoost, or LSTM
+- **Training settings**: Change number of epochs, batch size, or train/test split ratios
+
+### Anomaly Detection Settings
+
+Edit `anomaly_detection/isolation_forest_detector.py` to adjust:
+- **Contamination level**: Change the expected proportion of anomalies
+- **Number of estimators**: Adjust the number of trees in the forest
+
+### Health Score Calculation
+
+Edit `health_risk/health_calculator.py` to modify:
+- **Weight factors**: Adjust the contribution of RUL, anomaly scores, and degradation trends
+- **Health index formula**: Customize the calculation method
+
+### Dashboard Settings
+
+Edit `dashboard/dashboard_app.py` to customize:
+- **Visualization themes**: Change colors and chart styles
+- **Default engine selection**: Set which engine ID to display by default
+- **Refresh rate**: Adjust how often the digital twin updates
 
 ## Usage
 
@@ -68,4 +154,65 @@ Follow these steps to train the models and run the interactive dashboard:
     streamlit run EngineSentinel/dashboard/dashboard_app.py
     ```
     The dashboard will open in your web browser, allowing you to select an engine and observe its simulated health state, RUL predictions, anomaly scores, and SHAP explanations.
+
+## Understanding the Output
+
+### Risk Levels
+
+| Risk Level | Health Index | Meaning | Action Required |
+|------------|--------------|---------|------------------|
+| 🟢 Green   | 70-100       | Healthy | Normal operation |
+| 🟡 Yellow  | 40-69        | Warning | Monitor closely, schedule maintenance |
+| 🔴 Red     | 0-39         | Critical | Immediate inspection required |
+
+### Key Metrics
+
+- **RUL (Remaining Useful Life)**: Number of cycles until engine failure
+- **Health Index**: Composite score (0-100) based on RUL, anomalies, and degradation
+- **Anomaly Score**: Higher values indicate more unusual behavior
+- **Sensor Importance**: Which sensors contribute most to RUL predictions
+
+## Troubleshooting
+
+### Common Issues
+
+1. **Import Errors**
+   - Ensure all dependencies are installed: `pip install -r requirements.txt`
+   - Verify you're running from the project root directory
+
+2. **Dataset Not Found**
+   - Check that the `Dataset/` folder exists in the project root
+   - Verify file names match expected format (`train_FD001.txt`, etc.)
+   - Ensure files are in the correct location
+
+3. **Model Training Takes Too Long**
+   - Reduce the number of estimators in the model configuration
+   - Use a smaller subset of the data for initial testing
+   - For LSTM, reduce epochs and increase batch size
+
+4. **Dashboard Not Loading**
+   - Check that Streamlit is installed: `pip install streamlit`
+   - Verify port 8501 is not in use by another application
+   - Try running with: `streamlit run dashboard/dashboard_app.py --server.port 8502`
+
+5. **Memory Errors During Training**
+   - Reduce batch size in LSTM configuration
+   - Use fewer features or smaller sliding window size
+   - Close other applications to free up RAM
+
+### Getting Help
+
+If you encounter issues not listed here, check:
+- The error messages in the terminal for specific clues
+- Ensure your Python version is 3.8 or higher
+- Verify all required packages are installed with correct versions
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## Acknowledgments
+
+- NASA for providing the C-MAPSS turbofan engine degradation simulation dataset
+- The open-source community for Streamlit, scikit-learn, XGBoost, TensorFlow, and SHAP libraries
 
