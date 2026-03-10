@@ -36,7 +36,7 @@ def run_data_pipeline(dataset_number, sequence_length=50, data_path="./Dataset")
     )
 
     # For non-sequential models, X_train and y_train are simply the features and RUL
-    X_train_non_seq = train_df_normalized[['engine_id', 'time_cycle'] + feature_cols]
+    X_train_non_seq = train_df_normalized[feature_cols]
     y_train_non_seq = train_df_normalized["RUL"]
 
     # For test data, align RUL correctly for non-sequential models
@@ -63,8 +63,7 @@ def run_data_pipeline(dataset_number, sequence_length=50, data_path="./Dataset")
         true_rul = rul_df.iloc[i][0]
         engine_test_df = calculate_test_rul(engine_test_df, true_rul)
         y_test_non_seq.extend(engine_test_df['RUL'].tolist())
-        # Include engine_id and time_cycle along with features
-        X_test_non_seq_list.append(engine_test_df[['engine_id', 'time_cycle'] + feature_cols])
+        X_test_non_seq_list.append(engine_test_df[feature_cols])
 
     X_test_non_seq = pd.concat(X_test_non_seq_list)
     y_test_non_seq = pd.Series(y_test_non_seq)

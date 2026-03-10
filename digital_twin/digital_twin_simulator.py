@@ -41,6 +41,32 @@ class DigitalTwinSimulator:
             self.feature_cols, self.scaler
         ) = run_data_pipeline(self.dataset_number, self.sequence_length)
 
+        # Also load raw test data for getting engine_ids and apply same preprocessing
+        from data_processing.data_loader import load_cmapss_data
+        from data_processing.preprocessor import remove_constant_sensors
+        from data_processing.feature_engineering import generate_rul_labels
+        
+        train_df_raw, test_df_raw, rul_df = load_cmapss_data(self.dataset_number, f"./Dataset")
+        
+        # Get constant sensors from training to apply to test
+        _, constant_sensors = remove_constant_sensors(train_df_raw.copy())
+        test_df_processed = test_df_raw.drop(columns=constant_sensors, errors='ignore')
+        
+        # Normalize using the same scaler
+        test_df_normalized = test_df_processed.copy()
+        test_df_normalized[self.feature_cols] = self.scaler.transform(test_df_processed[self.feature_cols])
+        
+        # Calculate true RUL for each engine
+        test_rul_list = []
+        for i, engine_id in enumerate(test_df_normalized['engine_id'].unique()):
+            true_rul = rul_df.iloc[i][0]
+            engine_df = test_df_normalized[test_df_normalized['engine_id'] == engine_id].copy()
+            max_time = engine_df['time_cycle'].max()
+            engine_df['RUL'] = true_rul + (max_time - engine_df['time_cycle'])
+            test_rul_list.append(engine_df)
+        
+        self.test_df_with_engine = pd.concat(test_rul_list, ignore_index=True)
+
         # Determine model paths
         model_dir = f"./ml_prediction/models/FD00{self.dataset_number}"
         rf_model_path = os.path.join(model_dir, "random_forest_model.joblib")
@@ -54,9 +80,11 @@ class DigitalTwinSimulator:
             self.rul_prediction_model = load_model_rf(rf_model_path)
         elif self.model_type == 'xgboost':
             self.rul_prediction_model = load_model_xgb(xgb_model_path)
+        elif self.model_type == 'lstm':
+            from ml_prediction.lstm_model import load_model_lstm
+            lstm_model_path = os.path.join(model_dir, "lstm_model.h5")
+            self.rul_prediction_model = load_model_lstm(lstm_model_path)
         # else: # Add LSTM loading if needed
-        #     from ml_prediction.lstm_model import load_model_lstm
-        #     self.rul_prediction_model = load_model_lstm(lstm_model_path)
 
         # Load Anomaly Detection model
         # For anomaly detection, we train IF on the *training data features*.
@@ -75,9 +103,9 @@ class DigitalTwinSimulator:
     def simulate_engine_degradation(self, engine_id):
         print(f"Simulating degradation for engine ID: {engine_id}")
 
-        engine_df = self.X_test_non_seq[self.X_test_non_seq["engine_id"] == engine_id].copy()
-        engine_df["true_RUL"] = self.y_test_non_seq[self.X_test_non_seq["engine_id"] == engine_id].values
-
+        # Use the normalized test data with engine_id and time_cycle
+        engine_df = self.test_df_with_engine[self.test_df_with_engine["engine_id"] == engine_id].copy()
+        
         results = []
         initial_sensor_values = engine_df[self.feature_cols].iloc[0]
 
@@ -89,12 +117,18 @@ class DigitalTwinSimulator:
             current_features = current_cycle_data[self.feature_cols].to_frame().T
 
             # Predict RUL
+            print(f"Using model type: {self.model_type}")
             if self.model_type == 'random_forest':
                 predicted_rul = predict_rul_rf(self.rul_prediction_model, current_features)[0]
             elif self.model_type == 'xgboost':
                 predicted_rul = predict_rul_xgb(self.rul_prediction_model, current_features)[0]
+            elif self.model_type == 'lstm':
+                # LSTM requires sequence data - needs proper implementation
+                # For now, show message that LSTM needs training
+                print("Note: LSTM model needs to be trained separately")
+                predicted_rul = 0  # Placeholder - would need sequence data
             else:
-                predicted_rul = np.nan # Or handle LSTM prediction if implemented
+                predicted_rul = np.nan
 
             # Predict Anomaly Score
             anomaly_score = predict_anomaly_score_if(self.anomaly_detection_model, current_features)[0]
@@ -115,7 +149,7 @@ class DigitalTwinSimulator:
                 "engine_id": engine_id,
                 "time_cycle": current_cycle_data["time_cycle"],
                 "predicted_RUL": predicted_rul,
-                "true_RUL": current_cycle_data["true_RUL"],
+                "true_RUL": current_cycle_data["RUL"],
                 "anomaly_score": anomaly_score,
                 "health_index": health_index,
                 "risk_level": risk_level,

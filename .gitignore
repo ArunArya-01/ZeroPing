@@ -209,3 +209,5 @@ __marimo__/
 .venv
 
 Dataset/
+models/
+isolation_forest_model_FD001.joblib

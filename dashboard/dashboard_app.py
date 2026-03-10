@@ -26,10 +26,17 @@ st.set_page_config(layout="wide", page_title="EngineSentinel Dashboard")
 st.title("EngineSentinel: Aircraft Engine Health Monitoring")
 st.markdown("--- ")
 
-# --- Global Variables and Model Loading (Cached) ---@
-st.cache_resource(show_spinner=False)
+# --- Global Variables and Model Loading ---
+import hashlib
+
+def _make_cache_key(dataset_number, sequence_length, model_type):
+    return f"{dataset_number}_{sequence_length}_{model_type}"
+
+@st.cache_resource(show_spinner=False)
 def load_all_resources(dataset_number, sequence_length, model_type):
-    # Initialize the simulator which loads data and models
+    # Force cache key based on all parameters
+    cache_key = _make_cache_key(dataset_number, sequence_length, model_type)
+    print(f"Loading resources with cache key: {cache_key}")
     simulator = DigitalTwinSimulator(dataset_number=dataset_number, sequence_length=sequence_length, model_type=model_type)
     
     # For SHAP, we need a background dataset from the training data
@@ -55,15 +62,15 @@ def load_all_resources(dataset_number, sequence_length, model_type):
 
 # --- Sidebar for User Inputs ---
 st.sidebar.header("Configuration")
-dataset_choice = st.sidebar.selectbox("Select C-MAPSS Dataset", [1, 2, 3, 4], index=0)
-model_choice = st.sidebar.selectbox("Select RUL Prediction Model", ["random_forest", "xgboost"], index=0)
+dataset_choice = st.sidebar.selectbox("Select C-MAPSS Dataset", [1], index=0)
+model_choice = st.sidebar.selectbox("Select RUL Prediction Model", ["random_forest", "xgboost", "lstm"], index=0)
 sequence_length = st.sidebar.slider("Sequence Length (for LSTM, if implemented)", 10, 100, 50)
 
 # Load resources based on selections
 simulator, shap_explainer, feature_cols = load_all_resources(dataset_choice, sequence_length, model_choice)
 
 # Get available engine IDs for the selected dataset
-available_engine_ids = simulator.X_test_non_seq["engine_id"].unique()
+available_engine_ids = simulator.test_df_with_engine["engine_id"].unique()
 selected_engine_id = st.sidebar.selectbox("Select Engine ID", available_engine_ids)
 
 # --- Simulate and Get Engine Data ---
@@ -119,7 +126,7 @@ fig_rul = px.line(
     height=400
 )
 fig_rul.update_layout(hovermode="x unified")
-st.plotly_chart(fig_rul, use_container_width=True)
+st.plotly_chart(fig_rul, width='stretch')
 
 # Health Index Trend
 fig_health = px.line(
@@ -134,7 +141,7 @@ fig_health = px.line(
 fig_health.update_layout(hovermode="x unified")
 fig_health.add_hline(y=80, line_dash="dot", annotation_text="Healthy Threshold (80)", annotation_position="top left")
 fig_health.add_hline(y=50, line_dash="dot", annotation_text="Warning Threshold (50)", annotation_position="top left", line_color="orange")
-st.plotly_chart(fig_health, use_container_width=True)
+st.plotly_chart(fig_health, width='stretch')
 
 # Anomaly Score Trend
 fig_anomaly = px.line(
@@ -147,7 +154,7 @@ fig_anomaly = px.line(
     height=400
 )
 fig_anomaly.update_layout(hovermode="x unified")
-st.plotly_chart(fig_anomaly, use_container_width=True)
+st.plotly_chart(fig_anomaly, width='stretch')
 
 st.markdown("--- ")
 
@@ -173,7 +180,7 @@ fig_feature_importance = px.bar(
     height=500
 )
 fig_feature_importance.update_layout(showlegend=False, yaxis_autorange="reversed")
-st.plotly_chart(fig_feature_importance, use_container_width=True)
+st.plotly_chart(fig_feature_importance, width='stretch')
 
 # Display individual prediction explanation (force plot is not directly supported by Streamlit/Plotly)
 st.write("**Individual Prediction Explanation (Latest Cycle):**")
