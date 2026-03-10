@@ -1,8 +1,9 @@
 import pandas as pd
+import numpy as np
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error, mean_absolute_error
-import joblib
+from joblib import dump, load
 
 def train_random_forest_model(X_train, y_train, n_estimators=100, random_state=42):
     print("Training Random Forest Regressor...")
@@ -17,11 +18,11 @@ def predict_rul_rf(model, X_test):
     return predictions
 
 def save_model_rf(model, filepath):
-    joblib.dump(model, filepath)
+    dump(model, filepath)
     print(f"Random Forest model saved to {filepath}")
 
 def load_model_rf(filepath):
-    model = joblib.load(filepath)
+    model = load(filepath)
     print(f"Random Forest model loaded from {filepath}")
     return model
 

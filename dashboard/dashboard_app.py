@@ -5,25 +5,29 @@ import pandas as pd
 import numpy as np
 import joblib
 import os
+import sys
+
+# Add project root to Python path
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 # Import modules from our project
-from EngineSentinel.data_processing.data_pipeline import run_data_pipeline
-from EngineSentinel.ml_prediction.random_forest_model import load_model_rf
-from EngineSentinel.ml_prediction.xgboost_model import load_model_xgb
-# from EngineSentinel.ml_prediction.lstm_model import load_model_lstm # Uncomment if LSTM is fully implemented
-from EngineSentinel.anomaly_detection.isolation_forest_detector import load_model_if
-from EngineSentinel.explainable_ai.shap_explainer import initialize_explainer, compute_shap_values, get_feature_importance, explain_single_prediction
-from EngineSentinel.health_risk.health_calculator import compute_engine_health_index
-from EngineSentinel.health_risk.risk_evaluator import assess_risk_level
-from EngineSentinel.digital_twin.digital_twin_simulator import DigitalTwinSimulator
+from data_processing.data_pipeline import run_data_pipeline
+from ml_prediction.random_forest_model import load_model_rf
+from ml_prediction.xgboost_model import load_model_xgb
+# from ml_prediction.lstm_model import load_model_lstm # Uncomment if LSTM is fully implemented
+from anomaly_detection.isolation_forest_detector import load_model_if
+from explainable_ai.shap_explainer import initialize_explainer, compute_shap_values, get_feature_importance, explain_single_prediction
+from health_risk.health_calculator import compute_engine_health_index
+from health_risk.risk_evaluator import assess_risk_level
+from digital_twin.digital_twin_simulator import DigitalTwinSimulator
 
 # --- Streamlit App Configuration ---
 st.set_page_config(layout="wide", page_title="EngineSentinel Dashboard")
 st.title("EngineSentinel: Aircraft Engine Health Monitoring")
 st.markdown("--- ")
 
-# --- Global Variables and Model Loading (Cached) ---
-@st.cache_resource
+# --- Global Variables and Model Loading (Cached) ---@
+st.cache_resource(show_spinner=False)
 def load_all_resources(dataset_number, sequence_length, model_type):
     # Initialize the simulator which loads data and models
     simulator = DigitalTwinSimulator(dataset_number=dataset_number, sequence_length=sequence_length, model_type=model_type)
@@ -64,8 +68,8 @@ selected_engine_id = st.sidebar.selectbox("Select Engine ID", available_engine_i
 
 # --- Simulate and Get Engine Data ---
 @st.cache_data
-def get_simulated_data(engine_id, simulator_instance):
-    return simulator_instance.simulate_engine_degradation(engine_id)
+def get_simulated_data(engine_id, _simulator_instance):
+    return _simulator_instance.simulate_engine_degradation(engine_id)
 
 simulated_data = get_simulated_data(selected_engine_id, simulator)
 
@@ -176,4 +180,4 @@ st.write("**Individual Prediction Explanation (Latest Cycle):**")
 st.dataframe(shap_values_latest.to_frame(name="SHAP Value"))
 
 st.markdown("--- ")
-st.info("To run this dashboard: \n1. Ensure all Python dependencies are installed (`pip install -r EngineSentinel/requirements.txt`).\n2. Run the `trainer.py` script once to train and save the models (`python -m EngineSentinel.ml_prediction.trainer`).\n3. Navigate to the `EngineSentinel/dashboard` directory in your terminal.\n4. Run `streamlit run dashboard_app.py`.")
+st.info("To run this dashboard: \n1. Ensure all Python dependencies are installed (`pip install -r requirements.txt`).\n2. Run the `trainer.py` script once to train and save the models (`python -m ml_prediction.trainer`).\n3. Navigate to the project root directory in your terminal.\n4. Run `streamlit run dashboard/dashboard_app.py`.")

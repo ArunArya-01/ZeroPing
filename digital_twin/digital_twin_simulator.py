@@ -1,11 +1,17 @@
 import pandas as pd
 import numpy as np
-from EngineSentinel.data_processing.data_pipeline import run_data_pipeline
-from EngineSentinel.ml_prediction.random_forest_model import load_model_rf, predict_rul_rf
-from EngineSentinel.ml_prediction.xgboost_model import load_model_xgb, predict_rul_xgb
-from EngineSentinel.anomaly_detection.isolation_forest_detector import load_model_if, predict_anomaly_score_if
-from EngineSentinel.health_risk.health_calculator import compute_engine_health_index
-from EngineSentinel.health_risk.risk_evaluator import assess_risk_level
+import sys
+import os
+
+# Add project root to Python path
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from data_processing.data_pipeline import run_data_pipeline
+from ml_prediction.random_forest_model import load_model_rf, predict_rul_rf
+from ml_prediction.xgboost_model import load_model_xgb, predict_rul_xgb
+from anomaly_detection.isolation_forest_detector import load_model_if, predict_anomaly_score_if, save_model_if
+from health_risk.health_calculator import compute_engine_health_index
+from health_risk.risk_evaluator import assess_risk_level
 import os
 
 class DigitalTwinSimulator:
@@ -36,12 +42,12 @@ class DigitalTwinSimulator:
         ) = run_data_pipeline(self.dataset_number, self.sequence_length)
 
         # Determine model paths
-        model_dir = f"./EngineSentinel/ml_prediction/models/FD00{self.dataset_number}"
+        model_dir = f"./ml_prediction/models/FD00{self.dataset_number}"
         rf_model_path = os.path.join(model_dir, "random_forest_model.joblib")
         xgb_model_path = os.path.join(model_dir, "xgboost_model.joblib")
         # lstm_model_path = os.path.join(model_dir, "lstm_model.h5") # Uncomment and implement if LSTM is to be used
 
-        anomaly_model_path = f"./EngineSentinel/anomaly_detection/isolation_forest_model_FD00{self.dataset_number}.joblib"
+        anomaly_model_path = f"./anomaly_detection/isolation_forest_model_FD00{self.dataset_number}.joblib"
 
         # Load RUL prediction model
         if self.model_type == 'random_forest':
@@ -49,7 +55,7 @@ class DigitalTwinSimulator:
         elif self.model_type == 'xgboost':
             self.rul_prediction_model = load_model_xgb(xgb_model_path)
         # else: # Add LSTM loading if needed
-        #     from EngineSentinel.ml_prediction.lstm_model import load_model_lstm
+        #     from ml_prediction.lstm_model import load_model_lstm
         #     self.rul_prediction_model = load_model_lstm(lstm_model_path)
 
         # Load Anomaly Detection model
@@ -58,7 +64,7 @@ class DigitalTwinSimulator:
         # For now, we will create a dummy if not found.
         if not os.path.exists(anomaly_model_path):
             print("Anomaly detection model not found. Training a new one for simulation.")
-            from EngineSentinel.anomaly_detection.isolation_forest_detector import train_isolation_forest
+            from anomaly_detection.isolation_forest_detector import train_isolation_forest
             self.anomaly_detection_model = train_isolation_forest(X_train_non_seq[self.feature_cols], contamination=0.01)
             save_model_if(self.anomaly_detection_model, anomaly_model_path)
         else:

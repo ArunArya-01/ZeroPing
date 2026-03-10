@@ -1,7 +1,13 @@
 import pandas as pd
-from EngineSentinel.data_processing.data_loader import load_cmapss_data
-from EngineSentinel.data_processing.preprocessor import remove_constant_sensors, normalize_data
-from EngineSentinel.data_processing.feature_engineering import generate_rul_labels, create_sequences
+import os
+import sys
+
+# Add project root to Python path
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from data_processing.data_loader import load_cmapss_data
+from data_processing.preprocessor import remove_constant_sensors, normalize_data
+from data_processing.feature_engineering import generate_rul_labels, create_sequences
 
 def run_data_pipeline(dataset_number, sequence_length=50, data_path="./Dataset"):
 
@@ -30,7 +36,7 @@ def run_data_pipeline(dataset_number, sequence_length=50, data_path="./Dataset")
     )
 
     # For non-sequential models, X_train and y_train are simply the features and RUL
-    X_train_non_seq = train_df_normalized[feature_cols]
+    X_train_non_seq = train_df_normalized[['engine_id', 'time_cycle'] + feature_cols]
     y_train_non_seq = train_df_normalized["RUL"]
 
     # For test data, align RUL correctly for non-sequential models
@@ -57,7 +63,8 @@ def run_data_pipeline(dataset_number, sequence_length=50, data_path="./Dataset")
         true_rul = rul_df.iloc[i][0]
         engine_test_df = calculate_test_rul(engine_test_df, true_rul)
         y_test_non_seq.extend(engine_test_df['RUL'].tolist())
-        X_test_non_seq_list.append(engine_test_df[feature_cols])
+        # Include engine_id and time_cycle along with features
+        X_test_non_seq_list.append(engine_test_df[['engine_id', 'time_cycle'] + feature_cols])
 
     X_test_non_seq = pd.concat(X_test_non_seq_list)
     y_test_non_seq = pd.Series(y_test_non_seq)

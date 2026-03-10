@@ -1,9 +1,15 @@
 import numpy as np
-from EngineSentinel.data_processing.data_pipeline import run_data_pipeline
-from EngineSentinel.ml_prediction.random_forest_model import train_random_forest_model, predict_rul_rf, save_model_rf
-from EngineSentinel.ml_prediction.xgboost_model import train_xgboost_model, predict_rul_xgb, save_model_xgb
-from EngineSentinel.ml_prediction.lstm_model import build_lstm_model, train_lstm_model, predict_rul_lstm, save_model_lstm
-from EngineSentinel.ml_prediction.evaluator import evaluate_model
+import os
+import sys
+
+# Add project root to Python path
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from data_processing.data_pipeline import run_data_pipeline
+from ml_prediction.random_forest_model import train_random_forest_model, predict_rul_rf, save_model_rf
+from ml_prediction.xgboost_model import train_xgboost_model, predict_rul_xgb, save_model_xgb
+from ml_prediction.lstm_model import build_lstm_model, train_lstm_model, predict_rul_lstm, save_model_lstm
+from ml_prediction.evaluator import evaluate_model
 
 def train_and_evaluate_all_models(dataset_number=1, sequence_length=50, data_path="./Dataset"):
     print(f"\n--- Starting Model Training and Evaluation for FD00{dataset_number} ---")
@@ -20,7 +26,7 @@ def train_and_evaluate_all_models(dataset_number=1, sequence_length=50, data_pat
     print(f"\nFeature columns used for training: {feature_cols}")
 
     # Define paths for saving models
-    model_dir = f"./EngineSentinel/ml_prediction/models/FD00{dataset_number}"
+    model_dir = f"./ml_prediction/models/FD00{dataset_number}"
     import os
     os.makedirs(model_dir, exist_ok=True)
     rf_model_path = os.path.join(model_dir, "random_forest_model.joblib")

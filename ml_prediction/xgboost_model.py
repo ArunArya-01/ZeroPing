@@ -1,8 +1,9 @@
 import pandas as pd
+import numpy as np
 import xgboost as xgb
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error, mean_absolute_error
-import joblib
+from joblib import dump, load
 
 def train_xgboost_model(X_train, y_train, **kwargs):
     print("Training XGBoost Regressor...")
@@ -26,11 +27,11 @@ def predict_rul_xgb(model, X_test):
     return predictions
 
 def save_model_xgb(model, filepath):
-    joblib.dump(model, filepath)
+    dump(model, filepath)
     print(f"XGBoost model saved to {filepath}")
 
 def load_model_xgb(filepath):
-    model = joblib.load(filepath)
+    model = load(filepath)
     print(f"XGBoost model loaded from {filepath}")
     return model
 

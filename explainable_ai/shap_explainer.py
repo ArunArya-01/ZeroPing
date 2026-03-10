@@ -12,7 +12,7 @@ def initialize_explainer(model, X_background):
 def compute_shap_values(explainer, X_data):
 
     print("Computing SHAP values...")
-    shap_values = explainer.shap_values(X_data)
+    shap_values = explainer.shap_values(X_data, check_additivity=False)
     print("SHAP values computed.")
     return shap_values
 
@@ -36,7 +36,7 @@ def explain_single_prediction(explainer, X_sample, feature_names):
     elif isinstance(X_sample, np.ndarray):
         X_sample = X_sample.reshape(1, -1) # Reshape for explainer
 
-    single_shap_values = explainer.shap_values(X_sample)[0]
+    single_shap_values = explainer.shap_values(X_sample, check_additivity=False)[0]
     explanation = pd.Series(single_shap_values, index=feature_names)
     return explanation.sort_values(key=abs, ascending=False)
 

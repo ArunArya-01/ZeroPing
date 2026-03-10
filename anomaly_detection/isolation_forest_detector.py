@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 from sklearn.ensemble import IsolationForest
-import joblib
+from joblib import dump, load
 
 def train_isolation_forest(X_train, contamination='auto', random_state=42):
     print("Training Isolation Forest model...")
@@ -25,13 +25,13 @@ def predict_anomaly_score_if(model, X_data):
     return normalized_scores
 
 def save_model_if(model, filepath):
- 
-    joblib.dump(model, filepath)
+    
+    dump(model, filepath)
     print(f"Isolation Forest model saved to {filepath}")
 
 def load_model_if(filepath):
- 
-    model = joblib.load(filepath)
+    
+    model = load(filepath)
     print(f"Isolation Forest model loaded from {filepath}")
     return model
 
