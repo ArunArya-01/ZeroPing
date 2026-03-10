@@ -116,7 +116,7 @@ The project uses the **NASA C-MAPSS turbofan engine degradation simulation datas
 mkdir -p Dataset
 ```
 
-2. Download the dataset from: https://ti.arc.nasa.gov/tech/dash/groups/pcoe/prognostic-data-repository/
+2. Download the dataset from: https://www.kaggle.com/datasets/bishals098/nasa-turbofan-engine-degradation-simulation
 
 3. Place the following files in the `Dataset` folder:
    - `train_FD001.txt`, `test_FD001.txt`, `RUL_FD001.txt` (for FD001)
