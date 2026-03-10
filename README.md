@@ -1,90 +1,71 @@
-# ZeroPing
-# AI-Based Aircraft Engine Health Monitoring and Emergency Pilot Decision Support System
+# EngineSentinel: Intelligent Aircraft Engine Health Monitoring and Emergency Decision Support System
 
-## Overview
-This project aims to develop an intelligent system that monitors aircraft engine health and assists pilots during abnormal situations. The system uses machine learning to analyze engine telemetry data and detect early signs of engine degradation. It also provides decision support to pilots by translating complex engine data into clear warnings and suggested actions.
+This project aims to develop a simulation-based aircraft engine monitoring system that analyzes turbofan engine sensor data to predict Remaining Useful Life (RUL), detect abnormal patterns, explain model predictions, compute engine health risk levels, and display the results through an interactive dashboard.
 
-The goal of this project is to improve aviation safety by enabling early detection of potential engine problems and enhancing pilot situational awareness during emergencies.
+## Project Objective
 
----
+The system will demonstrate how machine learning and explainable AI can enhance aircraft engine health monitoring and decision support.
 
-## Problem Statement
-Modern aircraft engines generate large amounts of sensor data such as vibration, temperature, fuel flow, and pressure. While existing aircraft systems monitor these parameters, many alerts are triggered only when a threshold limit is exceeded. Subtle degradation patterns may remain unnoticed until they become critical.
+## Modules:
 
-This project addresses this problem by using machine learning to detect early anomalies in engine performance and provide predictive insights before serious failures occur.
+1.  **Data Processing Module:** Handles loading, cleaning, normalizing, and feature engineering of the C-MAPSS dataset.
+2.  **Machine Learning Prediction Module:** Implements models (Random Forest, XGBoost/Gradient Boosting, LSTM) for RUL prediction.
+3.  **Anomaly Detection Module:** Detects abnormal engine behavior using methods like Isolation Forest.
+4.  **Explainable AI Module:** Uses SHAP to explain model predictions and identify influential sensors.
+5.  **Engine Health Score Module:** Computes a simplified Engine Health Index (0-100).
+6.  **Risk Assessment Module:** Converts health index into operational risk levels (Green, Yellow, Red) with advisory messages.
+7.  **Digital Twin Simulation Layer:** Simulates and displays engine degradation, health score, and RUL trends over time.
+8.  **Interactive Dashboard:** A Streamlit and Plotly-based dashboard for real-time monitoring and visualization of insights.
 
----
+## System Architecture
 
-## Objectives
-- Develop a machine learning model to analyze aircraft engine telemetry data.
-- Detect early degradation patterns and potential engine anomalies.
-- Provide interpretable insights using explainable AI techniques.
-- Build a simulation dashboard that visualizes engine health status.
-- Provide decision support recommendations for pilots during abnormal conditions.
+The EngineSentinel system is designed with a modular architecture, where each component handles a specific aspect of the engine health monitoring process. The data flows sequentially from raw sensor data through processing, ML prediction, anomaly detection, explainable AI, health scoring, and risk assessment, culminating in an interactive dashboard for visualization and decision support.
 
----
+-   **Data Processing Module**: Responsible for ingesting raw C-MAPSS turbofan engine data, performing necessary cleaning, normalization of sensor values, removal of irrelevant (constant) features, generation of RUL labels, and creation of time-series windows for sequential models.
+-   **Machine Learning Prediction Module**: Houses various RUL prediction models (Random Forest, XGBoost, LSTM). It trains these models on processed data and provides predicted RUL values for engine cycles.
+-   **Anomaly Detection Module**: Utilizes techniques like Isolation Forest to identify unusual patterns or abnormal behavior in sensor data, outputting an anomaly score.
+-   **Explainable AI Module**: Employs SHAP (SHapley Additive Explanations) to provide insights into model predictions, highlighting the most influential sensors and explaining individual degradation forecasts.
+-   **Engine Health Score Module**: Aggregates predicted RUL, anomaly scores, and (simulated) sensor degradation trends to compute a comprehensive Engine Health Index (0-100).
+-   **Risk Assessment Module**: Translates the Engine Health Index into operational risk levels (Green, Yellow, Red) and generates actionable advisory messages.
+-   **Digital Twin Simulation Layer**: A core component that simulates the real-time health state of an engine using a stream of sensor data. It integrates outputs from the prediction, anomaly, health score, and risk modules to provide a dynamic view of engine degradation over time.
+-   **Interactive Dashboard**: Built with Streamlit and Plotly, this module serves as the user interface, displaying all critical insights: current health score, predicted RUL, sensor importance, risk level, and historical trends for various metrics.
 
-## System Components
+## Setup
 
-### 1. Engine Health Monitoring
-The system analyzes engine parameters such as:
-- Vibration
-- Exhaust Gas Temperature (EGT)
-- Fuel Flow
-- Compressor Speed
-- Oil Pressure
+To set up and run the EngineSentinel project locally, follow these steps:
 
-Machine learning models are used to detect anomalies and predict possible engine degradation.
+1.  **Clone the repository (if not already done):**
+    ```bash
+    git clone <repository-url>
+    cd ZeroPing/EngineSentinel
+    ```
 
-### 2. Explainable AI
-Explainable AI techniques help identify which parameters contribute to engine health degradation. This improves trust and interpretability in safety-critical environments.
+2.  **Install Python dependencies:**
+    Ensure you have Python 3.8+ installed. Then install the required libraries:
+    ```bash
+    pip install -r requirements.txt
+    ```
 
-### 3. Risk Assessment
-The system assigns a health score and risk level based on the detected engine conditions.
+3.  **Download the Dataset:**
+    The NASA C-MAPSS turbofan engine degradation dataset is expected to be in the `Dataset/` directory relative to the project root. Please ensure the dataset files (`train_FD00x.txt`, `test_FD00x.txt`, `RUL_FD00x.txt`) are present in this directory.
 
-Example risk levels:
-- Normal
-- Warning
-- Critical
+## Usage
 
-### 4. Emergency Pilot Decision Support
-Based on the detected anomalies, the system provides recommendations such as:
-- Monitor engine parameters
-- Reduce engine thrust
-- Consider diversion to the nearest airport
+Follow these steps to train the models and run the interactive dashboard:
 
----
+1.  **Train Machine Learning Models:**
+    First, you need to train the RUL prediction and anomaly detection models. This script will process the data, train the models, evaluate them, and save the trained models to `./EngineSentinel/ml_prediction/models/FD00x/` and `./EngineSentinel/anomaly_detection/` respectively.
+    Navigate to the project root directory and run:
+    ```bash
+    python -m EngineSentinel.ml_prediction.trainer
+    ```
+    By default, this trains models for FD001. You can modify `trainer.py` to train for other datasets if needed.
 
-## Technologies Used
-- Python
-- Machine Learning (Scikit-learn / TensorFlow / PyTorch)
-- Data Analysis (Pandas, NumPy)
-- Explainable AI (SHAP / LIME)
-- Data Visualization (Matplotlib / Plotly / Dash)
+2.  **Run the Interactive Dashboard:**
+    Once the models are trained, you can launch the Streamlit dashboard to visualize the engine health monitoring system.
+    Navigate to the project root directory and run:
+    ```bash
+    streamlit run EngineSentinel/dashboard/dashboard_app.py
+    ```
+    The dashboard will open in your web browser, allowing you to select an engine and observe its simulated health state, RUL predictions, anomaly scores, and SHAP explanations.
 
----
-
-## Dataset
-The system can be trained using publicly available aircraft engine datasets such as:
-- NASA Turbofan Engine Degradation Dataset
-
----
-
-## Expected Outcomes
-- Early detection of engine anomalies
-- Improved interpretability of engine health data
-- Enhanced pilot situational awareness
-- A prototype AI-based aviation safety monitoring system
-
----
-
-## Future Scope
-- Integration with real-time aircraft telemetry
-- Digital twin simulation of aircraft engines
-- Integration with cockpit decision support systems
-- Real-time monitoring dashboards for aircraft operations
-
----
-
-## Conclusion
-This project explores how artificial intelligence can enhance aircraft engine health monitoring and assist pilots during abnormal situations. By combining predictive analytics, explainable AI, and decision support systems, the project demonstrates a new approach to improving aviation safety.
