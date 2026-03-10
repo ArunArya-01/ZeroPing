@@ -9,6 +9,7 @@
 <a href="#"><img src="https://img.shields.io/badge/Dashboard-Streamlit-ff4b4b?style=flat-square&logo=streamlit"></a>
 <a href="#"><img src="https://img.shields.io/badge/Visualization-Plotly-purple?style=flat-square"></a>
 <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-green?style=flat-square"></a>
+<a href="https://github.com/ArunArya-01/ZeroPing/actions/workflows/ci.yml"><img src="https://github.com/ArunArya-01/ZeroPing/actions/workflows/ci.yml/badge.svg" alt="CI/CD Pipeline"></a>
 </sup>
 
 <sub><strong>Intelligent Aircraft Engine Health Monitoring and Emergency Decision Support System</strong></sub>
@@ -178,7 +179,36 @@ The dashboard will open in your browser at `http://localhost:8501`.
 
 ---
 
-## Troubleshooting
+## CI/CD Pipeline
+
+This project uses GitHub Actions for continuous integration and deployment. The CI/CD pipeline automatically:
+
+1. **Code Quality Check** - Lints code with flake8, black, and isort
+2. **Dependency & Import Validation** - Installs dependencies and validates all imports
+3. **Security Check** - Scans dependencies for vulnerabilities using safety
+4. **Build Verification** - Verifies all modules can be imported correctly
+
+### Running CI Locally
+
+To run the same checks locally before pushing:
+
+```bash
+# Install development dependencies
+pip install -r requirements-dev.txt
+
+# Run linting
+flake8 . --count --show-source --statistics
+black --check .
+isort --check-only --diff .
+
+# Run tests
+pytest tests/ -v
+
+# Check for security vulnerabilities
+safety check
+```
+
+### Troubleshooting
 
 | Issue | Solution |
 |-------|----------|

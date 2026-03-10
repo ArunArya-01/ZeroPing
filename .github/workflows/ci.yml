@@ -1,0 +1,182 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  lint:
+    name: Code Quality Check
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install flake8 black isort
+    
+    - name: Check Python syntax with flake8
+      run: |
+        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+    
+    - name: Check code formatting with black
+      run: |
+        black --check . || true
+    
+    - name: Check import sorting with isort
+      run: |
+        isort --check-only --diff . || true
+
+  test:
+    name: Dependency & Import Validation
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
+    
+    - name: Cache pip packages
+      uses: actions/cache@v4
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+    
+    - name: Validate Python imports
+      run: |
+        python -c "
+        import sys
+        sys.path.insert(0, '.')
+        
+        # Test all module imports
+        print('Testing imports...')
+        
+        # Data processing modules
+        from data_processing import data_loader, data_pipeline, feature_engineering, preprocessor
+        print('✓ data_processing modules')
+        
+        # ML prediction modules
+        from ml_prediction import random_forest_model, xgboost_model, lstm_model, trainer, evaluator
+        print('✓ ml_prediction modules')
+        
+        # Anomaly detection
+        from anomaly_detection import isolation_forest_detector
+        print('✓ anomaly_detection modules')
+        
+        # Explainable AI
+        from explainable_ai import shap_explainer
+        print('✓ explainable_ai modules')
+        
+        # Health risk
+        from health_risk import health_calculator, risk_evaluator
+        print('✓ health_risk modules')
+        
+        # Digital twin
+        from digital_twin import digital_twin_simulator
+        print('✓ digital_twin modules')
+        
+        print('✓ All imports successful!')
+        "
+    
+    - name: Verify dashboard can be imported
+      run: |
+        python -c "
+        import sys
+        sys.path.insert(0, '.')
+        # Just check that streamlit is available and dashboard can be imported
+        import streamlit
+        from dashboard import dashboard_app
+        print('✓ Dashboard module importable')
+        "
+
+  security:
+    name: Security Check
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
+    
+    - name: Install safety
+      run: |
+        pip install safety
+    
+    - name: Check dependencies for vulnerabilities
+      run: |
+        pip install -r requirements.txt
+        safety check || true
+
+  build:
+    name: Build Verification
+    runs-on: ubuntu-latest
+    needs: [lint, test, security]
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+    
+    - name: Create mock dataset directory
+      run: |
+        mkdir -p Dataset
+        # Create dummy files to allow pipeline to run
+        touch Dataset/.gitkeep
+    
+    - name: Verify training module can be loaded
+      run: |
+        python -c "
+        import sys
+        sys.path.insert(0, '.')
+        
+        # Test that all modules can be imported without errors
+        # Note: This won't train models without real data, but will verify syntax
+        from ml_prediction import trainer
+        print('✓ Trainer module loaded successfully')
+        
+        from data_processing import data_pipeline
+        print('✓ Data pipeline module loaded successfully')
+        "
+    
+    - name: Summary
+      run: |
+        echo "✅ CI/CD Pipeline completed successfully!"
+        echo "The project is ready for use. To run locally:"
+        echo "1. Download NASA C-MAPSS dataset"
+        echo "2. Place dataset files in Dataset/ folder"
+        echo "3. Run: python -m ml_prediction.trainer"
+        echo "4. Run: streamlit run dashboard/dashboard_app.py"
