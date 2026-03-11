@@ -7,9 +7,22 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from data_processing.data_pipeline import run_data_pipeline
 from ml_prediction.random_forest_model import train_random_forest_model, predict_rul_rf, save_model_rf
-from ml_prediction.xgboost_model import train_xgboost_model, predict_rul_xgb, save_model_xgb
-from ml_prediction.lstm_model import build_lstm_model, train_lstm_model, predict_rul_lstm, save_model_lstm
 from ml_prediction.evaluator import evaluate_model
+
+# Try to import optional models
+try:
+    from ml_prediction.xgboost_model import train_xgboost_model, predict_rul_xgb, save_model_xgb
+    XGBOOST_AVAILABLE = True
+except ImportError:
+    XGBOOST_AVAILABLE = False
+    print("Warning: XGBoost not available, skipping...")
+
+try:
+    from ml_prediction.lstm_model import build_lstm_model, train_lstm_model, predict_rul_lstm, save_model_lstm
+    LSTM_AVAILABLE = True
+except ImportError:
+    LSTM_AVAILABLE = False
+    print("Warning: LSTM not available, skipping...")
 
 def train_and_evaluate_all_models(dataset_number=1, sequence_length=50, data_path="./Dataset"):
     print(f"\n--- Starting Model Training and Evaluation for FD00{dataset_number} ---")
@@ -41,22 +54,26 @@ def train_and_evaluate_all_models(dataset_number=1, sequence_length=50, data_pat
     save_model_rf(rf_model, rf_model_path)
 
     # 3. Train and Evaluate XGBoost Model
-    print("\n--- XGBoost Model ---")
-    xgb_model = train_xgboost_model(X_train_non_seq, y_train_non_seq)
-    xgb_predictions = predict_rul_xgb(xgb_model, X_test_non_seq)
-    evaluate_model(y_test_non_seq, xgb_predictions, "XGBoost")
-    save_model_xgb(xgb_model, xgb_model_path)
+    if XGBOOST_AVAILABLE:
+        print("\n--- XGBoost Model ---")
+        xgb_model = train_xgboost_model(X_train_non_seq, y_train_non_seq)
+        xgb_predictions = predict_rul_xgb(xgb_model, X_test_non_seq)
+        evaluate_model(y_test_non_seq, xgb_predictions, "XGBoost")
+        save_model_xgb(xgb_model, xgb_model_path)
+    else:
+        print("\n--- XGBoost Model ---")
+        print("Skipping XGBoost training: module not available")
 
     # 4. Train and Evaluate LSTM Model
-    print("\n--- LSTM Model ---")
-    # Ensure X_train_seq and X_test_seq are not None before proceeding
-    if X_train_seq is not None and y_train_seq is not None and X_test_seq is not None and y_test_seq is not None:
+    if LSTM_AVAILABLE and X_train_seq is not None and y_train_seq is not None and X_test_seq is not None and y_test_seq is not None:
+        print("\n--- LSTM Model ---")
         lstm_model = build_lstm_model(input_shape=(sequence_length, len(feature_cols)))
         train_lstm_model(lstm_model, X_train_seq, y_train_seq, epochs=50, batch_size=256, model_save_path=lstm_model_path)
         lstm_predictions = predict_rul_lstm(lstm_model, X_test_seq)
         evaluate_model(y_test_seq, lstm_predictions, "LSTM")
     else:
-        print("Skipping LSTM training: Sequential data not properly generated.")
+        print("\n--- LSTM Model ---")
+        print("Skipping LSTM training: module not available or sequential data not properly generated.")
 
     print(f"\n--- Model Training and Evaluation for FD00{dataset_number} Completed ---")
 

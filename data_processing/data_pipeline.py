@@ -58,9 +58,13 @@ def run_data_pipeline(dataset_number, sequence_length=50, data_path="./Dataset")
     y_test_non_seq = []
     X_test_non_seq_list = []
 
+    # Reset RUL dataframe index to ensure proper indexing
+    rul_df = rul_df.reset_index(drop=True)
+    
     for i, engine_id in enumerate(test_df_normalized['engine_id'].unique()):
         engine_test_df = test_df_normalized[test_df_normalized['engine_id'] == engine_id].copy()
-        true_rul = rul_df.iloc[i][0]
+        # Get RUL value safely
+        true_rul = rul_df['RUL'].iloc[i]
         engine_test_df = calculate_test_rul(engine_test_df, true_rul)
         y_test_non_seq.extend(engine_test_df['RUL'].tolist())
         X_test_non_seq_list.append(engine_test_df[feature_cols])

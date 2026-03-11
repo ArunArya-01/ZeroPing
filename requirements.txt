@@ -5,4 +5,6 @@ tensorflow
 xgboost
 shap
 plotly
-streamlit
+fastapi
+uvicorn
+python-multipart
