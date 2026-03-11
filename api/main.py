@@ -3,13 +3,14 @@ ZeroPing API - FastAPI backend for the Engine Health Monitoring System
 """
 import os
 import sys
+import asyncio
 from typing import List, Dict, Any, Optional
 from contextlib import asynccontextmanager
 
 # Add project root to Python path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import pandas as pd
@@ -285,7 +286,60 @@ def generate_fallback_engine_data(engine_id: int, engine_num: int = 0) -> Engine
     )
 
 
-# API Endpoints
+# --- WEBSOCKET CONNECTION MANAGER & ENDPOINT ---
+
+class ConnectionManager:
+    def __init__(self):
+        self.active_connections: List[WebSocket] = []
+
+    async def connect(self, websocket: WebSocket):
+        await websocket.accept()
+        self.active_connections.append(websocket)
+
+    def disconnect(self, websocket: WebSocket):
+        if websocket in self.active_connections:
+            self.active_connections.remove(websocket)
+
+manager = ConnectionManager()
+
+@app.websocket("/ws/telemetry/{engine_id}")
+async def websocket_telemetry(websocket: WebSocket, engine_id: int):
+    """
+    WebSocket endpoint for real-time engine telemetry streaming.
+    Connects to the dashboard to push continuous updates without HTTP polling.
+    """
+    await manager.connect(websocket)
+    try:
+        engine_num = (engine_id - 1) % 10
+        
+        while True:
+            # Use the existing fallback data generator to simulate live streaming
+            if not model_state.initialized or not model_state.simulator:
+                engine_data = generate_fallback_engine_data(engine_id, engine_num)
+            else:
+                # If ML is ready, we would fetch from the simulator here.
+                # Currently using fallback data to ensure continuous high-frequency streaming.
+                engine_data = generate_fallback_engine_data(engine_id, engine_num)
+            
+            # Send the Pydantic model as a JSON dictionary
+            if hasattr(engine_data, "model_dump"):
+                await websocket.send_json(engine_data.model_dump()) # Pydantic v2
+            else:
+                await websocket.send_json(engine_data.dict()) # Pydantic v1 fallback
+            
+            # Stream at 2 updates per second
+            await asyncio.sleep(0.5) 
+
+    except WebSocketDisconnect:
+        manager.disconnect(websocket)
+        print(f"Client disconnected from engine {engine_id} telemetry stream.")
+    except Exception as e:
+        manager.disconnect(websocket)
+        print(f"WebSocket Error: {e}")
+
+
+# --- REST API ENDPOINTS ---
+
 @app.get("/api/engines", response_model=List[EngineInfo])
 async def get_engines():
     """Get list of all available engines"""
