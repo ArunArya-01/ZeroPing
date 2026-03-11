@@ -62,7 +62,12 @@ export async function fetchEngines(): Promise<EngineData[]> {
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
-    enginesCache = await response.json();
+    const data = await response.json();
+    // Ensure healthIndex is always within 0-100 range
+    enginesCache = data.map((engine: EngineData) => ({
+      ...engine,
+      healthIndex: Math.max(0, Math.min(100, engine.healthIndex))
+    }));
     return enginesCache;
   } catch (error) {
     console.error("Failed to fetch engines:", error);
@@ -90,6 +95,10 @@ export async function fetchEngineDetails(engineId: string): Promise<EngineDetail
     }
     
     const details = await response.json();
+    // Ensure healthIndex is always within 0-100 range
+    if (details.engine) {
+      details.engine.healthIndex = Math.max(0, Math.min(100, details.engine.healthIndex));
+    }
     engineDetailsCache.set(cacheKey, details);
     return details;
   } catch (error) {

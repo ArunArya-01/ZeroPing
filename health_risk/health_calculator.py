@@ -68,7 +68,8 @@ def compute_engine_health_index(predicted_rul, anomaly_score, current_sensor_val
         (degradation_score * weight_degradation)
     )
 
-    return max(0, min(100, health_index)) # Ensure health index is between 0 and 100
+    # Final clamp to ensure health index is always between 0 and 100
+    return float(max(0.0, min(100.0, health_index)))
 
 if __name__ == "__main__":
     # Example usage:

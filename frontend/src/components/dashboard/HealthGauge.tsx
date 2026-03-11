@@ -8,7 +8,9 @@ const HealthGauge = ({ engine }: HealthGaugeProps) => {
   const radius = 80;
   const stroke = 8;
   const circumference = 2 * Math.PI * radius;
-  const progress = (engine.healthIndex / 100) * circumference;
+  // Ensure healthIndex is always within 0-100 range
+  const clampedHealthIndex = Math.max(0, Math.min(100, engine.healthIndex));
+  const progress = (clampedHealthIndex / 100) * circumference;
   const color = getStatusColor(engine.status);
 
   return (
@@ -40,7 +42,7 @@ const HealthGauge = ({ engine }: HealthGaugeProps) => {
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center">
           <span className={`data-value text-5xl font-bold ${getStatusClass(engine.status)}`}>
-            {engine.healthIndex}
+            {clampedHealthIndex}
           </span>
           <span className="label-text mt-1">/ 100</span>
         </div>

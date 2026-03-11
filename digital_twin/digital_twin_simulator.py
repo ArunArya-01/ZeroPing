@@ -56,10 +56,14 @@ class DigitalTwinSimulator:
         test_df_normalized = test_df_processed.copy()
         test_df_normalized[self.feature_cols] = self.scaler.transform(test_df_processed[self.feature_cols])
         
+        # Reset RUL dataframe index to ensure proper indexing
+        rul_df = rul_df.reset_index(drop=True)
+        
         # Calculate true RUL for each engine
         test_rul_list = []
         for i, engine_id in enumerate(test_df_normalized['engine_id'].unique()):
-            true_rul = rul_df.iloc[i][0]
+            # Access the RUL value correctly - use .iloc[i] to get the row, then access the 'RUL' column
+            true_rul = rul_df['RUL'].iloc[i]
             engine_df = test_df_normalized[test_df_normalized['engine_id'] == engine_id].copy()
             max_time = engine_df['time_cycle'].max()
             engine_df['RUL'] = true_rul + (max_time - engine_df['time_cycle'])
