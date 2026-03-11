@@ -6,7 +6,8 @@
 <a href="#"><img src="https://img.shields.io/badge/Python-3.8%2B-blue?style=flat-square&logo=python"></a>
 <a href="#"><img src="https://img.shields.io/badge/Machine%20Learning-Random%20Forest%20%7C%20XGBoost-orange?style=flat-square"></a>
 <a href="#"><img src="https://img.shields.io/badge/Deep%20Learning-LSTM-red?style=flat-square"></a>
-<a href="#"><img src="https://img.shields.io/badge/Dashboard-Streamlit-ff4b4b?style=flat-square&logo=streamlit"></a>
+<a href="#"><img src="https://img.shields.io/badge/Backend-FastAPI-009a49?style=flat-square&logo=fastapi"></a>
+<a href="#"><img src="https://img.shields.io/badge/Frontend-React%2BTypeScript-61dafb?style=flat-square&logo=react"></a>
 <a href="#"><img src="https://img.shields.io/badge/Visualization-Plotly-purple?style=flat-square"></a>
 <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-green?style=flat-square"></a>
 <a href="https://github.com/ArunArya-01/ZeroPing/actions/workflows/ci.yml"><img src="https://github.com/ArunArya-01/ZeroPing/actions/workflows/ci.yml/badge.svg" alt="CI/CD Pipeline"></a>
@@ -22,7 +23,7 @@
 
 ## Overview
 
-EngineSentinel is a comprehensive **aircraft engine health monitoring system** that analyzes turbofan engine sensor data from the NASA C-MAPSS dataset to predict Remaining Useful Life (RUL), detect abnormal patterns, explain model predictions using SHAP, compute engine health indices, and visualize everything through an interactive Streamlit dashboard.
+EngineSentinel is a comprehensive **aircraft engine health monitoring system** that analyzes turbofan engine sensor data from the NASA C-MAPSS dataset to predict Remaining Useful Life (RUL), detect abnormal patterns, explain model predictions using SHAP, compute engine health indices, and visualizes everything through an interactive **React frontend** with a **FastAPI backend**.
 
 The system demonstrates how **machine learning and explainable AI** can enhance aircraft engine health monitoring and decision support in real-world scenarios.
 
@@ -38,7 +39,8 @@ The system demonstrates how **machine learning and explainable AI** can enhance 
 | **Health Score** | Computes a comprehensive Engine Health Index (0-100) based on RUL, anomalies, and degradation trends |
 | **Risk Assessment** | Translates health metrics into actionable risk levels (Green/Yellow/Red) with advisory messages |
 | **Digital Twin** | Simulates real-time engine degradation and health trends over time |
-| **Interactive Dashboard** | Visualizes all metrics with interactive charts using Streamlit and Plotly |
+| **Interactive Dashboard** | Visualizes all metrics with interactive charts using React, TypeScript, and Tailwind CSS |
+| **REST API** | FastAPI-powered backend for engine health predictions and data retrieval |
 
 ---
 
@@ -48,6 +50,8 @@ The system demonstrates how **machine learning and explainable AI** can enhance 
 ZeroPing/
 ├── anomaly_detection/          # Anomaly detection using Isolation Forest
 │   └── isolation_forest_detector.py
+├── api/                        # FastAPI REST API backend
+│   └── main.py
 ├── data_processing/            # Data loading, preprocessing, and feature engineering
 │   ├── data_loader.py          # C-MAPSS dataset loader
 │   ├── data_pipeline.py        # Complete data pipeline
@@ -57,6 +61,13 @@ ZeroPing/
 │   └── digital_twin_simulator.py
 ├── explainable_ai/            # SHAP-based model explanations
 │   └── shap_explainer.py
+├── frontend/                  # React + TypeScript frontend
+│   ├── src/
+│   │   ├── components/        # UI components
+│   │   ├── pages/             # Page components
+│   │   ├── lib/               # Utilities and data
+│   │   └── hooks/             # Custom React hooks
+│   └── package.json
 ├── health_risk/               # Health scoring and risk assessment
 │   ├── health_calculator.py
 │   └── risk_evaluator.py
@@ -66,7 +77,7 @@ ZeroPing/
 │   ├── lstm_model.py
 │   ├── trainer.py             # Model training script
 │   └── evaluator.py
-├── dashboard/                # Streamlit dashboard
+├── dashboard/                # Streamlit dashboard (legacy)
 │   └── dashboard_app.py
 ├── Dataset/                  # C-MAPSS dataset files (you need to add these)
 └── requirements.txt         # Python dependencies
@@ -105,7 +116,7 @@ The following packages will be installed:
 - xgboost
 - shap
 - plotly
-- streamlit
+- fastapi, uvicorn, python-multipart
 - joblib
 
 ### 3. Download the Dataset
@@ -141,16 +152,38 @@ This will:
 - Train the Isolation Forest anomaly detector
 - Save models to `ml_prediction/models/FD001/`
 
-### Step 2: Launch the Dashboard
+### Step 2: Start the FastAPI Backend
 
 ```bash
-streamlit run dashboard/dashboard_app.py
+uvicorn api.main:app --reload
 ```
 
-The dashboard will open in your browser at `http://localhost:8501`.
+The API will be available at `http://localhost:8000`. Visit `http://localhost:8000/docs` for the interactive API documentation.
+
+### Step 3: Launch the Frontend
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+The frontend will open in your browser at `http://localhost:5173`.
+
+### Running with Docker (Optional)
+
+```bash
+# Build and run the backend
+docker build -t zeroping-api .
+docker run -p 8000:8000 zeroping-api
+
+# Frontend (requires Node.js)
+cd frontend && npm run build
+```
 
 ### Dashboard Features
 
+- **API Endpoint**: View REST API docs at `/docs`
 - **Select Dataset**: Choose FD001, FD002, FD003, or FD004
 - **Select Model**: Choose Random Forest or XGBoost for RUL prediction
 - **Select Engine ID**: View specific engine data and predictions
@@ -215,7 +248,8 @@ safety check
 | `ModuleNotFoundError` | Run from project root directory |
 | `Dataset not found` | Ensure C-MAPSS files are in `Dataset/` folder |
 | `Import errors` | Ensure all dependencies are installed: `pip install -r requirements.txt` |
-| `Dashboard not loading` | Verify Streamlit is installed; try `streamlit run dashboard/dashboard_app.py --clear-cache` |
+| `Backend not starting` | Verify FastAPI and uvicorn are installed; try `uvicorn api.main:app --reload --log-level debug` |
+| `Frontend not loading` | Ensure Node.js is installed; run `npm install` in the frontend directory |
 | `Memory errors during training` | Reduce model complexity or use smaller dataset subset |
 | `SHAP errors` | Check that feature columns match between training and prediction |
 
@@ -230,4 +264,4 @@ MIT License - See LICENSE file for details.
 ## Acknowledgments
 
 - **NASA** for providing the C-MAPSS turbofan engine degradation simulation dataset
-- **Open-source community** for Streamlit, scikit-learn, XGBoost, TensorFlow, and SHAP libraries
+- **Open-source community** for FastAPI, React, scikit-learn, XGBoost, TensorFlow, and SHAP libraries
