@@ -2,11 +2,6 @@
 
 ## EngineSentinel
 
-<a href="#"><img src="https://img.shields.io/badge/Python-3.8%2B-blue?style=flat-square&logo=python"></a>
-<a href="#"><img src="https://img.shields.io/badge/Machine%20Learning-Random%20Forest%20%7C%20XGBoost-orange?style=flat-square"></a>
-<a href="#"><img src="https://img.shields.io/badge/Deep%20Learning-LSTM-red?style=flat-square"></a>
-<a href="#"><img src="https://img.shields.io/badge/Backend-FastAPI-009a49?style=flat-square&logo=fastapi"></a>
-<a href="#"><img src="https://img.shields.io/badge/Frontend-React%2BTypeScript-61dafb?style=flat-square&logo=react"></a>
 <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-green?style=flat-square"></a>
 
 <small>**Intelligent Aircraft Engine Health Monitoring & Emergency Decision Support System**</small>
