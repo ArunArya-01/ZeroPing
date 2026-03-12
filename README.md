@@ -28,6 +28,19 @@ EngineSentinel analyzes turbofan engine sensor data from the NASA C-MAPSS datase
 | **Digital Twin** | Simulates real-time engine degradation trends |
 | **Interactive Dashboard** | React + TypeScript + Tailwind CSS visualization |
 
+## Dashboard Overview
+
+The frontend dashboard consists of several components:
+
+- **EngineSelector**: Allows selecting different engines for monitoring.
+- **RemainingLife**: Displays the predicted Remaining Useful Life (RUL) for the selected engine.
+- **HealthGauge**: Shows the engine health index as a gauge.
+- **SensorMonitoring**: Visualizes real-time sensor data.
+- **DegradationSimulation**: Simulates engine degradation trends (digital twin).
+- **ExplainableAI**: Shows SHAP explanations for the predictions.
+- **RiskStatus**: Displays the risk level (Green/Yellow/Red) and advisory messages.
+- **SystemArchitecture**: Provides an overview of the system architecture.
+
 ## Project Structure
 
 ```
