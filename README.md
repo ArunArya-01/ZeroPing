@@ -4,13 +4,11 @@
 
 <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-green?style=flat-square"></a>
 
-<small>**Intelligent Aircraft Engine Health Monitoring & Emergency Decision Support System**</small>
+**Intelligent Aircraft Engine Health Monitoring & Emergency Decision Support System**
 
 </div>
 
 ---
-
-<small>
 
 ## Overview
 
@@ -23,7 +21,7 @@ EngineSentinel analyzes turbofan engine sensor data from the NASA C-MAPSS datase
 | **RUL Prediction** | Predicts remaining cycles before failure using Random Forest, XGBoost, and LSTM |
 | **Anomaly Detection** | Identifies unusual engine behavior using Isolation Forest |
 | **Explainable AI** | SHAP values explain which sensors influence predictions |
-| **Health Score** | Engine Health Index (0-100) based on RUL, anomalies, and degradation |
+| **Health Score** | Engine Health Index (0–100) based on RUL, anomalies, and degradation |
 | **Risk Assessment** | Risk levels (Green/Yellow/Red) with advisory messages |
 | **Digital Twin** | Simulates real-time engine degradation trends |
 | **Interactive Dashboard** | React + TypeScript + Tailwind CSS visualization |
@@ -32,39 +30,40 @@ EngineSentinel analyzes turbofan engine sensor data from the NASA C-MAPSS datase
 
 The frontend dashboard consists of several components:
 
-- **EngineSelector**: Allows selecting different engines for monitoring.
-- **RemainingLife**: Displays the predicted Remaining Useful Life (RUL) for the selected engine.
-- **HealthGauge**: Shows the engine health index as a gauge.
-- **SensorMonitoring**: Visualizes real-time sensor data.
-- **DegradationSimulation**: Simulates engine degradation trends (digital twin).
-- **ExplainableAI**: Shows SHAP explanations for the predictions.
-- **RiskStatus**: Displays the risk level (Green/Yellow/Red) and advisory messages.
-- **SystemArchitecture**: Provides an overview of the system architecture.
+- **EngineSelector** — Allows selecting different engines for monitoring
+- **RemainingLife** — Displays the predicted Remaining Useful Life (RUL) for the selected engine
+- **HealthGauge** — Shows the engine health index as a gauge
+- **SensorMonitoring** — Visualizes real-time sensor data
+- **DegradationSimulation** — Simulates engine degradation trends (digital twin)
+- **ExplainableAI** — Shows SHAP explanations for the predictions
+- **RiskStatus** — Displays the risk level (Green/Yellow/Red) and advisory messages
+- **SystemArchitecture** — Provides an overview of the system architecture
 
 ## Project Structure
 
 ```
-ZeroPing/
+EngineSentinel/
 ├── anomaly_detection/       # Isolation Forest anomaly detection
 ├── api/                     # FastAPI REST API backend
 ├── data_processing/         # Data loading, preprocessing, feature engineering
-├── digital_twin/           # Digital twin simulation
-├── explainable_ai/         # SHAP-based explanations
-├── frontend/               # React + TypeScript frontend
-├── health_risk/            # Health scoring & risk assessment
-├── ml_prediction/          # ML models (RF, XGBoost, LSTM)
-└── requirements.txt        # Python dependencies
+├── digital_twin/            # Digital twin simulation
+├── explainable_ai/          # SHAP-based explanations
+├── frontend/                # React + TypeScript frontend
+├── health_risk/             # Health scoring & risk assessment
+├── ml_prediction/           # ML models (RF, XGBoost, LSTM)
+├── requirements.txt         # Python dependencies
+└── requirements-dev.txt     # Development & CI dependencies
 ```
 
 ## Prerequisites
 
-- **Python**: 3.8+ | **OS**: Windows, macOS, Linux | **RAM**: 8GB+ recommended
+- **Python**: 3.8+ | **Node.js**: 16+ | **OS**: Windows, macOS, Linux | **RAM**: 8 GB+ recommended
 
 ## Installation
 
 ```bash
-git clone https://github.com/ArunArya-01/ZeroPing.git
-cd ZeroPing
+git clone https://github.com/ArunArya-01/EngineSentinel.git
+cd EngineSentinel
 pip install -r requirements.txt
 
 # Create Dataset directory and add C-MAPSS files
@@ -80,7 +79,7 @@ mkdir -p Dataset
 python -m ml_prediction.trainer
 
 # Step 2: Start FastAPI backend
-uvicorn api.main:app --reload     # API at http://localhost:8000/docs
+uvicorn api.main:app --reload     # API docs at http://localhost:8000/docs
 
 # Step 3: Launch frontend
 cd frontend && npm install && npm run dev    # Frontend at http://localhost:5173
@@ -88,17 +87,17 @@ cd frontend && npm install && npm run dev    # Frontend at http://localhost:5173
 
 ## Risk Levels
 
-| Risk Level | Health Index | Meaning | Action |
+| Risk Level | Health Index | Meaning | Recommended Action |
 |------------|--------------|---------|--------|
-| 🟢 Green | 70-100 | Healthy | Normal operation |
-| 🟡 Yellow | 40-69 | Warning | Monitor, schedule maintenance |
-| 🔴 Red | 0-39 | Critical | Immediate inspection |
+| 🟢 Green | 70–100 | Healthy | Normal operation |
+| 🟡 Yellow | 40–69 | Warning | Monitor closely, schedule maintenance |
+| 🔴 Red | 0–39 | Critical | Immediate inspection required |
 
 ## Key Metrics
 
-- **RUL**: Remaining operational cycles until failure
-- **Health Index**: Composite score (0-100) based on RUL, anomalies, degradation
-- **Anomaly Score**: Higher = more unusual behavior
+- **RUL** — Remaining operational cycles until failure
+- **Health Index** — Composite score (0–100) based on RUL, anomalies, and degradation
+- **Anomaly Score** — Higher values indicate more unusual sensor behaviour
 
 ## CI/CD
 
@@ -116,19 +115,17 @@ pytest tests/ -v
 
 | Issue | Solution |
 |-------|----------|
-| `ModuleNotFoundError` | Run from project root |
-| `Dataset not found` | Ensure C-MAPSS files in `Dataset/` |
+| `ModuleNotFoundError` | Run all commands from the project root |
+| `Dataset not found` | Ensure C-MAPSS files are placed in `Dataset/` |
 | `Import errors` | Run `pip install -r requirements.txt` |
 | `Backend not starting` | Try `uvicorn api.main:app --reload --log-level debug` |
-| `Frontend not loading` | Run `npm install` in frontend directory |
+| `Frontend not loading` | Run `npm install` inside the `frontend/` directory |
 
 ## License
 
-MIT License - See [LICENSE](LICENSE) file.
+MIT License — See [LICENSE](LICENSE) file.
 
 ## Acknowledgments
 
-- **NASA** for C-MAPSS turbofan engine degradation simulation dataset
-- **Open-source community** for FastAPI, React, scikit-learn, XGBoost, TensorFlow, SHAP
-
-</small>
+- **NASA** for the C-MAPSS turbofan engine degradation simulation dataset
+- **Open-source community** for FastAPI, React, scikit-learn, XGBoost, TensorFlow, and SHAP
