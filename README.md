@@ -123,9 +123,4 @@ pytest tests/ -v
 
 ## License
 
-MIT License — See [LICENSE](LICENSE) file.
-
-## Acknowledgments
-
-- **NASA** for the C-MAPSS turbofan engine degradation simulation dataset
-- **Open-source community** for FastAPI, React, scikit-learn, XGBoost, TensorFlow, and SHAP
+MIT License 
