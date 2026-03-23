@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip, Cell, ComposedChart, Line, ScatterChart } from "recharts";
+import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip, Cell, ComposedChart, Line, ScatterChart, Scatter } from "recharts";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getFeatureImportance, getShapVisualizations, getSummaryPlot, getDependencePlot, type EngineData, type ShapVisualizationResponse, type SummaryPlotData } from "@/lib/engine-data";
 
@@ -135,7 +135,7 @@ const DependencePlot = ({ data }: { data?: any }) => {
             }}
             cursor={{ strokeDasharray: "3 3" }}
           />
-          <scatter name={data.feature} data={data.data_points} fill="hsl(53, 100%, 50%)" />
+          <Scatter name={data.feature} data={data.data_points} fill="hsl(53, 100%, 50%)" />
         </ScatterChart>
       </ResponsiveContainer>
     </div>
