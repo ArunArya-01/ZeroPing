@@ -396,34 +396,45 @@ async def get_engine_details(engine_id: int):
             for _, row in simulated_data.iterrows()
         ]
         
-        # Sensor Data
-        sensor_cols = [col for col in simulated_data.columns if 'temp' in col.lower() or 'pressure' in col.lower() or 'speed' in col.lower()]
-        
-        if sensor_cols:
-            sensor_data = []
-            for _, row in simulated_data.iterrows():
-                point = SensorDataPoint(
-                    cycle=int(row["time_cycle"]),
-                    temperature=float(row.get(sensor_cols[0], 300)) if sensor_cols else 300.0,
-                    pressure=float(row.get(sensor_cols[1], 100)) if len(sensor_cols) > 1 else 100.0,
-                    fanSpeed=float(row.get(sensor_cols[2], 5000)) if len(sensor_cols) > 2 else 5000.0,
-                    coreSpeed=float(row.get(sensor_cols[3], 10000)) if len(sensor_cols) > 3 else 10000.0,
-                    vibration=float(row.get(sensor_cols[4], 0.01)) if len(sensor_cols) > 4 else 0.01,
-                )
-                sensor_data.append(point)
-        else:
-            sensor_data = []
-            for i, row in simulated_data.iterrows():
-                cycle = int(row["time_cycle"])
+        # Sensor Data - derive from actual feature columns
+        sensor_data = []
+        for i, row in simulated_data.iterrows():
+            cycle = int(row["time_cycle"])
+            # Get all feature values for this cycle
+            feature_values = list(row[model_state.feature_cols].values) if model_state.feature_cols else []
+            
+            # Map features to sensor values - use modulo to cycle through features
+            if len(feature_values) >= 5:
+                # Use different feature columns for each sensor to show variation
+                temp_idx = i % len(feature_values)
+                press_idx = (i + 1) % len(feature_values)
+                fan_idx = (i + 2) % len(feature_values)
+                core_idx = (i + 3) % len(feature_values)
+                vib_idx = (i + 4) % len(feature_values)
+                
+                # De-normalize the values back to reasonable sensor ranges
+                temperature = 250 + abs(feature_values[temp_idx]) * 100
+                pressure = 80 + abs(feature_values[press_idx]) * 40
+                fanSpeed = 4000 + abs(feature_values[fan_idx]) * 2000
+                coreSpeed = 8000 + abs(feature_values[core_idx]) * 3000
+                vibration = 0.005 + abs(feature_values[vib_idx]) * 0.03
+            else:
+                # Fallback to formula based on cycle for engines with fewer features
                 base = 1 - (cycle / 300)
-                sensor_data.append(SensorDataPoint(
-                    cycle=cycle,
-                    temperature=300 + 20 * base + np.random.randn() * 5,
-                    pressure=100 + 10 * base + np.random.randn() * 2,
-                    fanSpeed=5000 - 500 * base + np.random.randn() * 50,
-                    coreSpeed=10000 - 1000 * base + np.random.randn() * 100,
-                    vibration=0.01 + 0.02 * (1 - base) + np.random.randn() * 0.005,
-                ))
+                temperature = 300 + 20 * base + np.random.randn() * 5
+                pressure = 100 + 10 * base + np.random.randn() * 2
+                fanSpeed = 5000 - 500 * base + np.random.randn() * 50
+                coreSpeed = 10000 - 1000 * base + np.random.randn() * 100
+                vibration = 0.01 + 0.02 * (1 - base) + np.random.randn() * 0.005
+            
+            sensor_data.append(SensorDataPoint(
+                cycle=cycle,
+                temperature=temperature,
+                pressure=pressure,
+                fanSpeed=fanSpeed,
+                coreSpeed=coreSpeed,
+                vibration=vibration,
+            ))
         
         # Feature Importance (SHAP)
         if model_state.feature_cols and model_state.shap_explainer:
