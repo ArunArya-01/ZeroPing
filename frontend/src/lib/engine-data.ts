@@ -39,6 +39,71 @@ export interface DegradationDataPoint {
   health: number;
 }
 
+// SHAP Visualization Interfaces
+export interface FeatureContribution {
+  name: string;
+  value: number;
+  impact: number;
+  contribution: "positive" | "negative";
+}
+
+export interface WaterfallData {
+  base_value: number;
+  prediction: number;
+  features: FeatureContribution[];
+}
+
+export interface DependencePoint {
+  feature_value: number;
+  shap_value: number;
+  interaction_value: number;
+}
+
+export interface DependencePlotData {
+  feature: string;
+  interaction_feature: string;
+  data_points: DependencePoint[];
+}
+
+export interface SummaryFeature {
+  name: string;
+  mean_impact: number;
+  value_range: { min: number; max: number };
+  shap_range: { min: number; max: number };
+}
+
+export interface SummaryPlotData {
+  title: string;
+  features: SummaryFeature[];
+}
+
+export interface DecisionStep {
+  feature: string;
+  value: number;
+  contribution: number;
+  cumulative: number;
+}
+
+export interface DecisionPath {
+  prediction: number;
+  steps: DecisionStep[];
+}
+
+export interface DecisionPlotData {
+  base_value: number;
+  paths: DecisionPath[];
+}
+
+export interface ShapVisualizationResponse {
+  sample_index: number;
+  timestamp: string;
+  feature_importance: { [key: string]: number };
+  waterfall?: WaterfallData;
+  summary?: SummaryPlotData;
+  dependence?: { [key: string]: DependencePlotData };
+  decision?: DecisionPlotData;
+}
+
 export interface EngineDetails {
   engine: EngineData;
   rulTrend: RulTrendPoint[];
@@ -168,6 +233,77 @@ export async function getDegradationData(engineId: string): Promise<DegradationD
     return getFallbackDegradationData();
   }
   return details.degradationData;
+}
+
+// Get SHAP visualizations for an engine
+export async function getShapVisualizations(engineId: string, sampleIndex: number = 0): Promise<ShapVisualizationResponse | null> {
+  try {
+    const numericId = engineId.replace("Engine ", "");
+    const response = await fetch(`${API_BASE_URL}/shap/visualizations/${numericId}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        sample_index: sampleIndex,
+        max_features: 15,
+        include_force_plot: false,
+        include_waterfall: true,
+        include_dependence: true,
+        include_decision: true,
+        include_summary: true,
+      }),
+    });
+
+    if (!response.ok) {
+      console.warn(`Failed to fetch SHAP visualizations: ${response.status}`);
+      return null;
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error(`Failed to fetch SHAP visualizations for ${engineId}:`, error);
+    return null;
+  }
+}
+
+// Get summary plot data
+export async function getSummaryPlot(maxFeatures: number = 15): Promise<SummaryPlotData | null> {
+  try {
+    const response = await fetch(`${API_BASE_URL}/shap/summary-plot?max_features=${maxFeatures}`);
+    if (!response.ok) {
+      console.warn(`Failed to fetch summary plot: ${response.status}`);
+      return null;
+    }
+    return await response.json();
+  } catch (error) {
+    console.error("Failed to fetch summary plot:", error);
+    return null;
+  }
+}
+
+// Get dependence plot for a specific feature
+export async function getDependencePlot(engineId: string, featureName: string, maxDisplay: number = 100): Promise<DependencePlotData | null> {
+  try {
+    const numericId = engineId.replace("Engine ", "");
+    const params = new URLSearchParams({
+      engine_id: numericId,
+      feature_name: featureName,
+      max_display: maxDisplay.toString(),
+    });
+
+    const response = await fetch(`${API_BASE_URL}/shap/dependence-plot?${params}`, {
+      method: "POST",
+    });
+
+    if (!response.ok) {
+      console.warn(`Failed to fetch dependence plot: ${response.status}`);
+      return null;
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error(`Failed to fetch dependence plot for ${featureName}:`, error);
+    return null;
+  }
 }
 
 // Fallback data when API is not available
