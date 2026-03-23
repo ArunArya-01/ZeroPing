@@ -1,33 +1,92 @@
 import numpy as np
+import pandas as pd
 from sklearn.metrics import mean_squared_error, mean_absolute_error
+from scipy.stats import ks_2samp # For Drift Detection
 
+# 1.1 Existing Metric Functions
 def calculate_rmse(y_true, y_pred):
-    rmse = np.sqrt(mean_squared_error(y_true, y_pred))
-    return rmse
+    return np.sqrt(mean_squared_error(y_true, y_pred))
 
 def calculate_mae(y_true, y_pred):
-    mae = mean_absolute_error(y_true, y_pred)
-    return mae
+    return mean_absolute_error(y_true, y_pred)
 
+# NEW: Section 1.2 - Requirement #5 (Model Ensemble)
+def get_ensemble_predictions(rf_preds, xgb_preds, lstm_preds, weights=[0.2, 0.3, 0.5]):
+    """
+    Combines predictions from multiple models using a weighted average.
+    Weights give more importance to the LSTM (usually better for sequences).
+    """
+    print("Calculating Ensemble Predictions (RF + XGBoost + LSTM)...")
+    
+    # Ensure all predictions are numpy arrays
+    rf_preds = np.array(rf_preds)
+    xgb_preds = np.array(xgb_preds)
+    lstm_preds = np.array(lstm_preds)
+    
+    # Weighted average: (W1*P1 + W2*P2 + W3*P3)
+    ensemble_pred = (weights[0] * rf_preds) + (weights[1] * xgb_preds) + (weights[2] * lstm_preds)
+    return ensemble_pred
+
+# NEW: Section 1.2 - Requirement #6 (Monitoring for Drift)
+def detect_data_drift(train_data, current_data, threshold=0.05):
+    """
+    Uses the KS-Test to check if the new data distribution matches the training data.
+    If p-value < threshold, drift is detected.
+    """
+    print("\n--- Running Model Monitoring: Drift Detection ---")
+    drift_detected = False
+    
+    # In a real scenario, we check each sensor column
+    # For dummy testing, we'll check the first column
+    p_value = ks_2samp(train_data.flatten(), current_data.flatten()).pvalue
+    
+    if p_value < threshold:
+        print(f"⚠️ ALERT: Data Drift Detected! (p-value: {p_value:.4f})")
+        drift_detected = True
+    else:
+        print(f"✅ Data Stable. No significant drift detected. (p-value: {p_value:.4f})")
+        
+    return drift_detected
+
+def monitor_performance_degradation(current_rmse, baseline_rmse=50.0):
+    """Checks if the model performance has dropped significantly."""
+    if current_rmse > baseline_rmse * 1.5:
+        print(f"⚠️ ALERT: Performance Degradation! Current RMSE ({current_rmse:.2f}) is 50% higher than baseline.")
+        return True
+    return False
+
+# UPDATED: Unified Evaluation Function
 def evaluate_model(y_true, y_pred, model_name="Model"):
     rmse = calculate_rmse(y_true, y_pred)
     mae = calculate_mae(y_true, y_pred)
 
-    print(f"--- {model_name} Evaluation ---")
+    print(f"\n--- {model_name} Evaluation ---")
     print(f"RMSE: {rmse:.4f}")
     print(f"MAE: {mae:.4f}")
-    print("------------------------------")
-
+    
+    # Check for degradation
+    monitor_performance_degradation(rmse)
+    
     return rmse, mae
 
 if __name__ == "__main__":
-    # Dummy data for demonstration
-    y_true_dummy = np.array([100, 90, 80, 70, 60, 50, 40, 30, 20, 10])
-    y_pred_dummy_good = np.array([98, 88, 81, 72, 59, 51, 39, 31, 19, 11])
-    y_pred_dummy_bad = np.array([110, 80, 70, 60, 50, 60, 50, 40, 30, 20])
+    # 1. Dummy data for Ensemble test
+    y_true = np.array([100, 80, 60, 40])
+    rf_p = np.array([95, 85, 55, 45])
+    xgb_p = np.array([98, 82, 58, 42])
+    lstm_p = np.array([101, 79, 61, 39])
 
-    print("Evaluating a good prediction set:")
-    rmse_good, mae_good = evaluate_model(y_true_dummy, y_pred_dummy_good, "Good Predictor")
+    # Test Ensemble
+    ensemble_p = get_ensemble_predictions(rf_p, xgb_p, lstm_p)
+    evaluate_model(y_true, ensemble_p, "Ensemble Super-Model")
 
-    print("\nEvaluating a bad prediction set:")
-    rmse_bad, mae_bad = evaluate_model(y_true_dummy, y_pred_dummy_bad, "Bad Predictor")
+    # 2. Test Drift Detection
+    train_dist = np.random.normal(0, 1, 1000)
+    stable_new_data = np.random.normal(0, 1, 100) # Similar to train
+    drifted_new_data = np.random.normal(5, 2, 100) # Very different (Drift!)
+
+    print("\nChecking Stable Data:")
+    detect_data_drift(train_dist, stable_new_data)
+
+    print("\nChecking Drifting Data:")
+    detect_data_drift(train_dist, drifted_new_data)
