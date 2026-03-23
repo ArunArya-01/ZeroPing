@@ -24,7 +24,10 @@ try:
         explain_single_prediction,
         get_feature_importance,
         generate_waterfall_plot,
-        generate_dependence_plot
+        generate_dependence_plot,
+        generate_summary_plot_data,
+        generate_decision_plot_data,
+        compute_shap_values
     )
     from explainable_ai.shap_visualizations_api import (
         ShapVisualizationRequest,
@@ -499,7 +502,6 @@ async def get_shap_visualizations(engine_id: int, request: ShapVisualizationRequ
         X_data = simulated_data[model_state.feature_cols]
 
         # Compute SHAP values for engine data
-        from explainable_ai.shap_explainer import compute_shap_values
         shap_values = compute_shap_values(model_state.shap_explainer, X_data)
 
         # Ensure sample index is valid
@@ -547,7 +549,6 @@ async def get_global_feature_importance():
         else:
             X_sample = X_train[feature_cols]
 
-        from explainable_ai.shap_explainer import compute_shap_values
         shap_values = compute_shap_values(model_state.shap_explainer, X_sample)
         importance = get_feature_importance(shap_values, feature_cols)
 
@@ -608,7 +609,6 @@ async def get_summary_plot(max_features: int = 15):
         else:
             X_sample = X_train[feature_cols]
 
-        from explainable_ai.shap_explainer import compute_shap_values, generate_summary_plot_data
         shap_values = compute_shap_values(model_state.shap_explainer, X_sample)
         summary_data = generate_summary_plot_data(shap_values, X_sample, max_features)
 

@@ -119,12 +119,12 @@ def generate_waterfall_plot(
         }
 
         # Sort by absolute impact
-        impacts = [(i, sv[i], feature_names[i], sample_data[i]) for i in range(len(sv))]
+        impacts = [(i, sv[i], feature_names[i], sample_data.iloc[i]) for i in range(len(sv))]
         impacts.sort(key=lambda x: abs(x[1]), reverse=True)
 
         for idx, impact, fname, fvalue in impacts[:max_display]:
             waterfall_data["features"].append({
-                "name": fname,
+                "name": str(fname),
                 "value": float(fvalue),
                 "impact": float(impact),
                 "contribution": "positive" if impact > 0 else "negative"
@@ -133,7 +133,12 @@ def generate_waterfall_plot(
         return str(waterfall_plot), waterfall_data
     except Exception as e:
         print(f"Error generating waterfall plot: {e}")
-        return "", {}
+        # Return minimal valid data even on error
+        return "", {
+            "base_value": float(base_value),
+            "prediction": float(base_value + np.sum(sv)),
+            "features": []
+        }
 
 
 def generate_dependence_plot(
@@ -165,9 +170,23 @@ def generate_dependence_plot(
         shap_vals = sv[:, feature_idx]
         sample_X = X_data
 
-    # Find interaction feature (highest correlation with SHAP values)
-    shap_corr = np.corrcoef(sv, X_data.T)
-    interaction_idx = np.argmax(np.abs(shap_corr[feature_idx, len(sv):-1]))
+    # Find interaction feature (highest correlation with SHAP values for this feature)
+    other_features_idx = [i for i in range(len(X_data.columns)) if i != feature_idx]
+    max_corr = -1
+    interaction_idx = 0
+
+    for idx in other_features_idx:
+        try:
+            corr = abs(np.corrcoef(shap_vals, sample_X.iloc[:, idx].values)[0, 1])
+            if corr > max_corr:
+                max_corr = corr
+                interaction_idx = idx
+        except:
+            pass
+
+    if interaction_idx >= len(X_data.columns):
+        interaction_idx = min(feature_idx + 1, len(X_data.columns) - 1)
+
     interaction_feature = X_data.columns[interaction_idx]
     interaction_vals = sample_X.iloc[:, interaction_idx].values
 
@@ -177,10 +196,10 @@ def generate_dependence_plot(
         "data_points": [
             {
                 "feature_value": float(fv),
-                "shap_value": float(sv),
+                "shap_value": float(sv_val),
                 "interaction_value": float(iv)
             }
-            for fv, sv, iv in zip(feature_vals, shap_vals, interaction_vals)
+            for fv, sv_val, iv in zip(feature_vals, shap_vals, interaction_vals)
         ]
     }
 
@@ -197,6 +216,14 @@ def generate_summary_plot_data(
         sv = shap_values[0]
     else:
         sv = shap_values
+
+    # Ensure sv has correct shape
+    if sv.ndim != 2 or sv.shape[1] != len(X_data.columns):
+        print(f"Warning: SHAP values shape {sv.shape} doesn't match features {len(X_data.columns)}")
+        return {
+            "title": "SHAP Summary Plot (Mean |SHAP value|)",
+            "features": []
+        }
 
     # Calculate mean absolute impact
     mean_abs_impact = np.mean(np.abs(sv), axis=0)
@@ -216,7 +243,7 @@ def generate_summary_plot_data(
         shap_feature_values = sv[:, feature_idx]
 
         summary_data["features"].append({
-            "name": feature,
+            "name": str(feature),
             "mean_impact": float(feature_importance[feature]),
             "value_range": {
                 "min": float(np.min(feature_values)),
@@ -264,19 +291,25 @@ def generate_decision_plot_data(
 
     for idx in range(len(sv_sample)):
         shap_vals = sv_sample[idx]
-        cumsum = np.cumsum([base_value] + shap_vals.tolist())
+        # Sort by absolute contribution to show most impactful features first
+        impacts = list(enumerate(shap_vals))
+        impacts.sort(key=lambda x: abs(x[1]), reverse=True)
+
+        cumsum_val = float(base_value)
+        steps = []
+
+        for feature_idx, contribution in impacts[:15]:  # Limit to top 15 features
+            cumsum_val += float(contribution)
+            steps.append({
+                "feature": X_sample.columns[feature_idx],
+                "value": float(X_sample.iloc[idx, feature_idx]),
+                "contribution": float(contribution),
+                "cumulative": cumsum_val
+            })
 
         path = {
-            "prediction": float(cumsum[-1]),
-            "steps": [
-                {
-                    "feature": X_sample.columns[i],
-                    "value": float(X_sample.iloc[idx, i]),
-                    "contribution": float(shap_vals[i]),
-                    "cumulative": float(cumsum[i+1])
-                }
-                for i in range(len(shap_vals))
-            ]
+            "prediction": cumsum_val,
+            "steps": steps
         }
         decision_data["paths"].append(path)
 

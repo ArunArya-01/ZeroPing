@@ -131,10 +131,13 @@ def prepare_shap_visualizations(
     # Generate requested visualizations
     if request.include_waterfall:
         try:
-            _, waterfall_dict = generate_waterfall_plot(
+            html_str, waterfall_dict = generate_waterfall_plot(
                 explainer, shap_values, X_data, sample_idx, request.max_features
             )
-            if waterfall_dict:
+            if waterfall_dict and "features" in waterfall_dict and len(waterfall_dict.get("features", [])) > 0:
+                response_data["waterfall"] = waterfall_dict
+            elif waterfall_dict:
+                # Even if no features, include the base and prediction values
                 response_data["waterfall"] = waterfall_dict
         except Exception as e:
             print(f"Error generating waterfall: {e}")
@@ -142,7 +145,7 @@ def prepare_shap_visualizations(
     if request.include_summary:
         try:
             summary = generate_summary_plot_data(shap_values, X_data, request.max_features)
-            if summary:
+            if summary and "features" in summary and len(summary.get("features", [])) > 0:
                 response_data["summary"] = summary
         except Exception as e:
             print(f"Error generating summary: {e}")
@@ -150,13 +153,13 @@ def prepare_shap_visualizations(
     if request.include_dependence:
         try:
             feature_importance_series = get_feature_importance(shap_values, X_data.columns.tolist())
-            top_features = feature_importance_series.head(3).index.tolist()
+            top_features = feature_importance_series.head(5).index.tolist()  # Get more features
 
             dependence = {}
             for feature in top_features:
                 try:
                     dep_data = generate_dependence_plot(explainer, shap_values, X_data, feature)
-                    if dep_data:
+                    if dep_data and "data_points" in dep_data and len(dep_data.get("data_points", [])) > 0:
                         dependence[feature] = dep_data
                 except Exception as e:
                     print(f"Error generating dependence for {feature}: {e}")
@@ -169,7 +172,7 @@ def prepare_shap_visualizations(
     if request.include_decision:
         try:
             decision = generate_decision_plot_data(explainer, shap_values, X_data, sample_count=10)
-            if decision:
+            if decision and "paths" in decision and len(decision.get("paths", [])) > 0:
                 response_data["decision"] = decision
         except Exception as e:
             print(f"Error generating decision plot: {e}")
