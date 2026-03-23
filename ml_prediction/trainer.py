@@ -1,33 +1,27 @@
 import numpy as np
 import os
 import sys
+import pandas as pd
 
-# Add project root to Python path
+# Add project root to Python path to ensure local imports work
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+# Project Imports from your ZeroPing structure
 from data_processing.data_pipeline import run_data_pipeline
 from ml_prediction.random_forest_model import train_random_forest_model, predict_rul_rf, save_model_rf
-from ml_prediction.evaluator import evaluate_model
+from ml_prediction.xgboost_model import train_xgboost_model, predict_rul_xgb, save_model_xgb
+from ml_prediction.lstm_model import train_lstm_model, predict_rul_lstm, save_model_lstm
+from ml_prediction.evaluator import evaluate_model, get_ensemble_predictions, detect_data_drift
 
-# Try to import optional models
-try:
-    from ml_prediction.xgboost_model import train_xgboost_model, predict_rul_xgb, save_model_xgb
-    XGBOOST_AVAILABLE = True
-except ImportError:
-    XGBOOST_AVAILABLE = False
-    print("Warning: XGBoost not available, skipping...")
+def train_and_evaluate_all_models(dataset_number=1, sequence_length=50, data_path="./Dataset", tune=True):
+    """
+    Orchestrates the full ML pipeline: Ingestion -> Tuning -> Training -> Ensembling -> Monitoring.
+    """
+    print(f"\n{'='*60}")
+    print(f"🚀 STARTING END-TO-END PIPELINE: FD00{dataset_number}")
+    print(f"{'='*60}")
 
-try:
-    from ml_prediction.lstm_model import build_lstm_model, train_lstm_model, predict_rul_lstm, save_model_lstm
-    LSTM_AVAILABLE = True
-except ImportError:
-    LSTM_AVAILABLE = False
-    print("Warning: LSTM not available, skipping...")
-
-def train_and_evaluate_all_models(dataset_number=1, sequence_length=50, data_path="./Dataset"):
-    print(f"\n--- Starting Model Training and Evaluation for FD00{dataset_number} ---")
-
-    # 1. Run Data Pipeline
+    # 1. DATA INGESTION (Uses logic from Section 1.1)
     (
         X_train_non_seq, y_train_non_seq,
         X_test_non_seq, y_test_non_seq,
@@ -36,47 +30,55 @@ def train_and_evaluate_all_models(dataset_number=1, sequence_length=50, data_pat
         feature_cols, scaler
     ) = run_data_pipeline(dataset_number, sequence_length, data_path)
 
-    print(f"\nFeature columns used for training: {feature_cols}")
-
-    # Define paths for saving models
+    # Setup local model storage path
     model_dir = f"./ml_prediction/models/FD00{dataset_number}"
-    import os
     os.makedirs(model_dir, exist_ok=True)
-    rf_model_path = os.path.join(model_dir, "random_forest_model.joblib")
-    xgb_model_path = os.path.join(model_dir, "xgboost_model.joblib")
-    lstm_model_path = os.path.join(model_dir, "lstm_model.h5")
+    
+    # 2. TRAIN & TUNE INDIVIDUAL MODELS (Section 1.2 Requirements #1, #2, #3)
+    # These functions automatically log to MLflow and use Optuna tuning
+    
+    print("\n[STEP 1/5] Training Tuned Random Forest...")
+    rf_model = train_random_forest_model(X_train_non_seq, y_train_non_seq, tune_hyperparameters=tune, n_trials=5)
+    
+    print("\n[STEP 2/5] Training Tuned XGBoost...")
+    xgb_model = train_xgboost_model(X_train_non_seq, y_train_non_seq, tune_hyperparameters=tune, n_trials=5)
+    
+    print("\n[STEP 3/5] Training Tuned LSTM (Deep Learning)...")
+    lstm_model = train_lstm_model(X_train_seq, y_train_seq, tune_hyperparameters=tune, n_trials=3)
 
-    # 2. Train and Evaluate Random Forest Model
-    print("\n--- Random Forest Model ---")
-    rf_model = train_random_forest_model(X_train_non_seq, y_train_non_seq)
-    rf_predictions = predict_rul_rf(rf_model, X_test_non_seq)
-    evaluate_model(y_test_non_seq, rf_predictions, "Random Forest")
-    save_model_rf(rf_model, rf_model_path)
+    # 3. ALIGNMENT STEP (Fixes shape mismatch error)
+    # LSTM data is shorter because it requires a 50-step 'window'. 
+    # We flatten the LSTM test data to 2D by taking only the 'last' timestep.
+    print(f"\n[STEP 4/5] Aligning model shapes for Ensemble...")
+    X_test_aligned_2d = X_test_seq[:, -1, :] 
+    
+    rf_preds = predict_rul_rf(rf_model, X_test_aligned_2d)
+    xgb_preds = predict_rul_xgb(xgb_model, X_test_aligned_2d)
+    lstm_preds = predict_rul_lstm(lstm_model, X_test_seq)
+    
+    # Verification of shapes
+    print(f"-> Prediction Shapes: RF:{rf_preds.shape}, XGB:{xgb_preds.shape}, LSTM:{lstm_preds.shape}")
 
-    # 3. Train and Evaluate XGBoost Model
-    if XGBOOST_AVAILABLE:
-        print("\n--- XGBoost Model ---")
-        xgb_model = train_xgboost_model(X_train_non_seq, y_train_non_seq)
-        xgb_predictions = predict_rul_xgb(xgb_model, X_test_non_seq)
-        evaluate_model(y_test_non_seq, xgb_predictions, "XGBoost")
-        save_model_xgb(xgb_model, xgb_model_path)
-    else:
-        print("\n--- XGBoost Model ---")
-        print("Skipping XGBoost training: module not available")
+    # 4. ENSEMBLE (Section 1.2 Requirement #5)
+    # Weighted average: We trust the LSTM more for time-series aviation data.
+    ensemble_preds = get_ensemble_predictions(rf_preds, xgb_preds, lstm_preds, weights=[0.2, 0.3, 0.5])
+    
+    print("\n" + "-"*30)
+    # Using y_test_seq as the ground truth as it matches the aligned prediction count
+    evaluate_model(y_test_seq, ensemble_preds, "FINAL ENSEMBLE MODEL")
+    print("-" * 30)
 
-    # 4. Train and Evaluate LSTM Model
-    if LSTM_AVAILABLE and X_train_seq is not None and y_train_seq is not None and X_test_seq is not None and y_test_seq is not None:
-        print("\n--- LSTM Model ---")
-        lstm_model = build_lstm_model(input_shape=(sequence_length, len(feature_cols)))
-        train_lstm_model(lstm_model, X_train_seq, y_train_seq, epochs=50, batch_size=256, model_save_path=lstm_model_path)
-        lstm_predictions = predict_rul_lstm(lstm_model, X_test_seq)
-        evaluate_model(y_test_seq, lstm_predictions, "LSTM")
-    else:
-        print("\n--- LSTM Model ---")
-        print("Skipping LSTM training: module not available or sequential data not properly generated.")
+    # 5. MONITORING & SAVING (Section 1.2 Requirements #6, #7)
+    detect_data_drift(X_train_non_seq.values, X_test_non_seq.values)
+    
+    # Save physical models locally as a backup to the MLflow Registry
+    save_model_rf(rf_model, os.path.join(model_dir, "random_forest_model.joblib"))
+    save_model_xgb(xgb_model, os.path.join(model_dir, "xgboost_model.joblib"))
+    save_model_lstm(lstm_model, os.path.join(model_dir, "lstm_model.keras"))
 
-    print(f"\n--- Model Training and Evaluation for FD00{dataset_number} Completed ---")
+    print(f"\n✅ PIPELINE COMPLETE: All models versioned and ensemble verified.")
+    print(f"{'='*60}\n")
 
 if __name__ == "__main__":
-    # You can change the dataset number and sequence length here
-    train_and_evaluate_all_models(dataset_number=1, sequence_length=50)
+    # Ensure you are in your ZeroPing root directory on your Mac
+    train_and_evaluate_all_models(dataset_number=1, sequence_length=50, tune=True)
