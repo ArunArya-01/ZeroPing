@@ -19,11 +19,25 @@ import numpy as np
 try:
     from data_processing.data_pipeline import run_data_pipeline
     from anomaly_detection.isolation_forest_detector import load_model_if
-    from explainable_ai.shap_explainer import initialize_explainer, explain_single_prediction
+    from explainable_ai.shap_explainer import (
+        initialize_explainer,
+        explain_single_prediction,
+        get_feature_importance,
+        generate_waterfall_plot,
+        generate_dependence_plot,
+        generate_summary_plot_data,
+        generate_decision_plot_data,
+        compute_shap_values
+    )
+    from explainable_ai.shap_visualizations_api import (
+        ShapVisualizationRequest,
+        ShapVisualizationResponse,
+        prepare_shap_visualizations
+    )
     from health_risk.health_calculator import compute_engine_health_index
     from health_risk.risk_evaluator import assess_risk_level
     from digital_twin.digital_twin_simulator import DigitalTwinSimulator
-    
+
     ML_MODELS_AVAILABLE = True
 except ImportError as e:
     print(f"Warning: Some ML modules could not be loaded: {e}")
@@ -158,6 +172,17 @@ class EngineDetails(BaseModel):
     sensorData: List[SensorDataPoint]
     featureImportance: List[FeatureImportancePoint]
     degradationData: List[DegradationDataPoint]
+
+
+class ShapExplanationResponse(BaseModel):
+    """Response for SHAP explanation endpoint"""
+    sample_index: int
+    timestamp: str
+    feature_importance: Dict[str, float]
+    waterfall: Optional[Dict[str, Any]] = None
+    summary: Optional[Dict[str, Any]] = None
+    dependence: Optional[Dict[str, Any]] = None
+    decision: Optional[Dict[str, Any]] = None
 
 
 def generate_fallback_engine_data(engine_id: int, engine_num: int = 0) -> EngineDetails:
@@ -371,34 +396,45 @@ async def get_engine_details(engine_id: int):
             for _, row in simulated_data.iterrows()
         ]
         
-        # Sensor Data
-        sensor_cols = [col for col in simulated_data.columns if 'temp' in col.lower() or 'pressure' in col.lower() or 'speed' in col.lower()]
-        
-        if sensor_cols:
-            sensor_data = []
-            for _, row in simulated_data.iterrows():
-                point = SensorDataPoint(
-                    cycle=int(row["time_cycle"]),
-                    temperature=float(row.get(sensor_cols[0], 300)) if sensor_cols else 300.0,
-                    pressure=float(row.get(sensor_cols[1], 100)) if len(sensor_cols) > 1 else 100.0,
-                    fanSpeed=float(row.get(sensor_cols[2], 5000)) if len(sensor_cols) > 2 else 5000.0,
-                    coreSpeed=float(row.get(sensor_cols[3], 10000)) if len(sensor_cols) > 3 else 10000.0,
-                    vibration=float(row.get(sensor_cols[4], 0.01)) if len(sensor_cols) > 4 else 0.01,
-                )
-                sensor_data.append(point)
-        else:
-            sensor_data = []
-            for i, row in simulated_data.iterrows():
-                cycle = int(row["time_cycle"])
+        # Sensor Data - derive from actual feature columns
+        sensor_data = []
+        for i, row in simulated_data.iterrows():
+            cycle = int(row["time_cycle"])
+            # Get all feature values for this cycle
+            feature_values = list(row[model_state.feature_cols].values) if model_state.feature_cols else []
+            
+            # Map features to sensor values - use modulo to cycle through features
+            if len(feature_values) >= 5:
+                # Use different feature columns for each sensor to show variation
+                temp_idx = i % len(feature_values)
+                press_idx = (i + 1) % len(feature_values)
+                fan_idx = (i + 2) % len(feature_values)
+                core_idx = (i + 3) % len(feature_values)
+                vib_idx = (i + 4) % len(feature_values)
+                
+                # De-normalize the values back to reasonable sensor ranges
+                temperature = 250 + abs(feature_values[temp_idx]) * 100
+                pressure = 80 + abs(feature_values[press_idx]) * 40
+                fanSpeed = 4000 + abs(feature_values[fan_idx]) * 2000
+                coreSpeed = 8000 + abs(feature_values[core_idx]) * 3000
+                vibration = 0.005 + abs(feature_values[vib_idx]) * 0.03
+            else:
+                # Fallback to formula based on cycle for engines with fewer features
                 base = 1 - (cycle / 300)
-                sensor_data.append(SensorDataPoint(
-                    cycle=cycle,
-                    temperature=300 + 20 * base + np.random.randn() * 5,
-                    pressure=100 + 10 * base + np.random.randn() * 2,
-                    fanSpeed=5000 - 500 * base + np.random.randn() * 50,
-                    coreSpeed=10000 - 1000 * base + np.random.randn() * 100,
-                    vibration=0.01 + 0.02 * (1 - base) + np.random.randn() * 0.005,
-                ))
+                temperature = 300 + 20 * base + np.random.randn() * 5
+                pressure = 100 + 10 * base + np.random.randn() * 2
+                fanSpeed = 5000 - 500 * base + np.random.randn() * 50
+                coreSpeed = 10000 - 1000 * base + np.random.randn() * 100
+                vibration = 0.01 + 0.02 * (1 - base) + np.random.randn() * 0.005
+            
+            sensor_data.append(SensorDataPoint(
+                cycle=cycle,
+                temperature=temperature,
+                pressure=pressure,
+                fanSpeed=fanSpeed,
+                coreSpeed=coreSpeed,
+                vibration=vibration,
+            ))
         
         # Feature Importance (SHAP)
         if model_state.feature_cols and model_state.shap_explainer:
@@ -451,11 +487,146 @@ async def get_engine_details(engine_id: int):
 async def health_check():
     """Health check endpoint"""
     return {
-        "status": "healthy", 
+        "status": "healthy",
         "service": "ZeroPing API",
         "ml_models_available": ML_MODELS_AVAILABLE,
         "initialized": model_state.initialized
     }
+
+
+@app.post("/api/shap/visualizations/{engine_id}", response_model=ShapExplanationResponse)
+async def get_shap_visualizations(engine_id: int, request: ShapVisualizationRequest):
+    """Get comprehensive SHAP visualizations for an engine"""
+    if not model_state.initialized or not model_state.shap_explainer:
+        return ShapExplanationResponse(
+            sample_index=0,
+            timestamp=pd.Timestamp.now().isoformat(),
+            feature_importance={},
+            waterfall=None,
+            summary=None,
+            dependence=None,
+            decision=None
+        )
+
+    try:
+        simulated_data = model_state.simulator.simulate_engine_degradation(engine_id)
+        X_data = simulated_data[model_state.feature_cols]
+
+        # Compute SHAP values for engine data
+        shap_values = compute_shap_values(model_state.shap_explainer, X_data)
+
+        # Ensure sample index is valid
+        sample_idx = min(request.sample_index, len(X_data) - 1)
+
+        # Get all visualizations
+        response = prepare_shap_visualizations(
+            model_state.shap_explainer,
+            shap_values,
+            X_data,
+            request
+        )
+
+        return response
+    except Exception as e:
+        print(f"Error getting SHAP visualizations: {e}")
+        return ShapExplanationResponse(
+            sample_index=0,
+            timestamp=pd.Timestamp.now().isoformat(),
+            feature_importance={},
+            waterfall=None,
+            summary=None,
+            dependence=None,
+            decision=None
+        )
+
+
+@app.get("/api/shap/feature-importance")
+async def get_global_feature_importance():
+    """Get global feature importance from SHAP analysis"""
+    if not model_state.initialized or not model_state.shap_explainer:
+        return {"error": "Models not initialized"}
+
+    try:
+        # Get a sample of training data for importance calculation
+        dataset_number = 1
+        sequence_length = 50
+        X_train, _, _, _, _, _, _, _, feature_cols, _ = run_data_pipeline(
+            dataset_number, sequence_length
+        )
+
+        # Sample for faster computation
+        if len(X_train) > 500:
+            X_sample = X_train[feature_cols].sample(n=500, random_state=42)
+        else:
+            X_sample = X_train[feature_cols]
+
+        shap_values = compute_shap_values(model_state.shap_explainer, X_sample)
+        importance = get_feature_importance(shap_values, feature_cols)
+
+        return {
+            "feature_importance": importance.head(15).to_dict(),
+            "top_features": importance.head(5).index.tolist()
+        }
+    except Exception as e:
+        print(f"Error computing global feature importance: {e}")
+        return {"error": str(e)}
+
+
+@app.post("/api/shap/dependence-plot")
+async def get_dependence_plot(engine_id: int, feature_name: str, max_display: int = 100):
+    """Get dependence plot data for a specific feature"""
+    if not model_state.initialized or not model_state.shap_explainer:
+        return {"error": "Models not initialized"}
+
+    try:
+        if feature_name not in model_state.feature_cols:
+            return {"error": f"Feature '{feature_name}' not found"}
+
+        simulated_data = model_state.simulator.simulate_engine_degradation(engine_id)
+        X_data = simulated_data[model_state.feature_cols]
+
+        from explainable_ai.shap_explainer import compute_shap_values
+        shap_values = compute_shap_values(model_state.shap_explainer, X_data)
+
+        dependence_data = generate_dependence_plot(
+            model_state.shap_explainer,
+            shap_values,
+            X_data,
+            feature_name,
+            max_display
+        )
+
+        return dependence_data
+    except Exception as e:
+        print(f"Error getting dependence plot: {e}")
+        return {"error": str(e)}
+
+
+@app.get("/api/shap/summary-plot")
+async def get_summary_plot(max_features: int = 15):
+    """Get summary plot data for top features"""
+    if not model_state.initialized or not model_state.shap_explainer:
+        return {"error": "Models not initialized"}
+
+    try:
+        dataset_number = 1
+        sequence_length = 50
+        X_train, _, _, _, _, _, _, _, feature_cols, _ = run_data_pipeline(
+            dataset_number, sequence_length
+        )
+
+        if len(X_train) > 500:
+            X_sample = X_train[feature_cols].sample(n=500, random_state=42)
+        else:
+            X_sample = X_train[feature_cols]
+
+        shap_values = compute_shap_values(model_state.shap_explainer, X_sample)
+        summary_data = generate_summary_plot_data(shap_values, X_sample, max_features)
+
+        return summary_data
+    except Exception as e:
+        print(f"Error getting summary plot: {e}")
+        return {"error": str(e)}
 
 
 if __name__ == "__main__":

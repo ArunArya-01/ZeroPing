@@ -121,6 +121,6 @@ pytest tests/ -v
 | `Backend not starting` | Try `uvicorn api.main:app --reload --log-level debug` |
 | `Frontend not loading` | Run `npm install` inside the `frontend/` directory |
 
-## License
+## MIT License
 
 MIT License 
