@@ -237,3 +237,4 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+mlflow.db

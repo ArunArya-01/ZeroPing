@@ -4,6 +4,7 @@ ZeroPing API - FastAPI backend for the Engine Health Monitoring System
 import os
 import sys
 from typing import List, Dict, Any, Optional
+from explainable_ai.shap_visualizations_api import ShapVisualizationRequest
 from contextlib import asynccontextmanager
 
 # Add project root to Python path
