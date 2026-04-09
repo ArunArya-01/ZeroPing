@@ -1,1 +1,0 @@
-# ZeroPing Test Suite
