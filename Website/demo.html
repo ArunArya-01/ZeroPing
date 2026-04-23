@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AeroTwin - Demo</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">AeroTwin</div>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="demo.html" class="active">Demo</a></li>
+                <li><a href="research.html">Research</a></li>
+                <li><a href="experiments.html">Experiments</a></li>
+                <li><a href="about.html">About</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <section class="hero">
+            <h1>Flight Performance Demo</h1>
+            <p>Interactive demonstration of AeroTwin's hybrid prediction system</p>
+        </section>
+        
+        <section class="content">
+            <h2>Flight Performance Demo</h2>
+            <p>Interactive demonstration of AeroTwin's hybrid prediction system</p>
+            
+            <div class="demo-section">
+                <h3>Flight Input Panel</h3>
+                <div class="input-panel">
+                    <select id="aircraft-type">
+                        <option value="A320">A320</option>
+                        <option value="B737">B737</option>
+                        <option value="B787">B787</option>
+                        <option value="A350">A350</option>
+                    </select>
+                    
+                    <div class="input-group">
+                        <label>Altitude (ft):</label>
+                        <input type="range" id="altitude" min="0" max="43000" value="35000">
+                        <span id="altitude-value">35000</span>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label>Speed (knots):</label>
+                        <input type="range" id="speed" min="0" max="500" value="450">
+                        <span id="speed-value">450</span>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label>Duration (min):</label>
+                        <input type="range" id="duration" min="10" max="600" value="120">
+                        <span id="duration-value">120</span>
+                    </div>
+                    
+                    <button id="predict-btn" class="btn btn-primary">Predict</button>
+                    <button id="reset-btn" class="btn btn-secondary">Reset</button>
+                </div>
+            </div>
+            
+            <div class="demo-section">
+                <h3>Results Dashboard</h3>
+                <div class="results-container" id="results-container" style="display:none;">
+                    <div class="results-grid">
+                        <div class="results-column">
+                            <h4>Physics Model</h4>
+                            <div class="metric">
+                                <span class="metric-label">Predicted Fuel Burn:</span>
+                                <span class="metric-value" id="physics-fuel">-</span>
+                            </div>
+                            <div class="metric">
+                                <span class="metric-label">Error vs Actual:</span>
+                                <span class="metric-value" id="physics-error">-</span>
+                            </div>
+                            <div class="metric">
+                                <span class="metric-label">Physics Consistency:</span>
+                                <span class="metric-value" id="physics-consistency">-</span>
+                            </div>
+                        </div>
+                        
+                        <div class="results-column">
+                            <h4>Pure ML Model</h4>
+                            <div class="metric">
+                                <span class="metric-label">Predicted Fuel Burn:</span>
+                                <span class="metric-value" id="ml-fuel">-</span>
+                            </div>
+                            <div class="metric">
+                                <span class="metric-label">Error vs Actual:</span>
+                                <span class="metric-value" id="ml-error">-</span>
+                            </div>
+                            <div class="metric">
+                                <span class="metric-label">Physics Consistency:</span>
+                                <span class="metric-value" id="ml-consistency">-</span>
+                            </div>
+                        </div>
+                        
+                        <div class="results-column">
+                            <h4>Hybrid Model (AeroTwin)</h4>
+                            <div class="metric">
+                                <span class="metric-label">Predicted Fuel Burn:</span>
+                                <span class="metric-value" id="hybrid-fuel">-</span>
+                            </div>
+                            <div class="metric">
+                                <span class="metric-label">Error vs Actual:</span>
+                                <span class="metric-value" id="hybrid-error">-</span>
+                            </div>
+                            <div class="metric">
+                                <span class="metric-label">Physics Consistency:</span>
+                                <span class="metric-value" id="hybrid-consistency">-</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="charts-section">
+                        <div class="chart-placeholder" id="trajectory-map">
+                            <h4>Flight Trajectory Map</h4>
+                            <p>[Route plotted with altitude color-coded]</p>
+                        </div>
+                        <div class="chart-placeholder" id="fuel-graph">
+                            <h4>Fuel Burn Over Time</h4>
+                            <p>[All 3 model curves overlaid]</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+    <footer>
+        <p>&copy; 2026 AeroTwin. All rights reserved.</p>
+    </footer>
+</body>
+</html>
