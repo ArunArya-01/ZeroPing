@@ -1,18 +1,30 @@
 <div align="center">
 
-## EngineSentinel
+## AeroTwin
 
 <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-green?style=flat-square"></a>
 
-**Intelligent Aircraft Engine Health Monitoring & Emergency Decision Support System**
+**Physics-Informed Aircraft Fuel Burn Prediction (OpenAP + Neural Residual)**
 
 </div>
 
 ---
 
+> **Current focus (2026-06)**: Dataset characterization (Paper 1) + OpenAP physics baseline validation. See `notebooks/` for EDA and `physics/` for baseline. Full hybrid model and training to follow in subsequent phase. This repo was repurposed from EngineSentinel (original RUL/anomaly code and docs retained below for history).
+
 ## Overview
 
-EngineSentinel analyzes turbofan engine sensor data from the NASA C-MAPSS dataset to predict Remaining Useful Life (RUL), detect anomalies, explain predictions using SHAP, compute health indices, and provides an interactive React + FastAPI dashboard.
+AeroTwin predicts aircraft fuel burn (kg per ACARS-derived interval) using:
+- OpenAP physics baseline (fuel flow from kinematics + typecode)
+- Neural residual model (learns real-world deviations, esp. under sparse ACARS air-data or mass uncertainty)
+- Hybrid = physics + residual
+
+Dataset: `aerotwin/aero-data` on Hugging Face (EUROCONTROL PRC 2025 challenge; ACARS fuel telemetry + ADS-B trajectories; remote access via `hf://` + Polars, no full download). See the [challenge paper](https://doi.org/10.59490/joas.2026.8750).
+
+**Key entry points**:
+- `data/loader.py` + `from data import AeroDataLoader` (usable flight filter, sampling, id lookup).
+- `notebooks/01_*.py` ... `04_*` (dataset stats, fuel labels, traj quality, physics residuals).
+- `physics/openap_baseline.py` (TAS inference + FuelFlow for per-interval baseline).
 
 ## Features
 

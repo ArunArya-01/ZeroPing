@@ -1,0 +1,6 @@
+metric,value
+physics_mae,618.51369681355
+physics_rmse,1424.8707860722786
+naive_mae,74.45894017708505
+naive_rmse,136.3951800249928
+n_intervals,563.0
