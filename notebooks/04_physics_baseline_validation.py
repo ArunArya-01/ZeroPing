@@ -1,17 +1,3 @@
-"""
-EDA 04: OpenAP physics baseline validation + residual analysis (the critical "before feature engineering" step).
-
-Enhanced: samples N_SAMPLES usable flights, runs predict_fuel_intervals (with phase now),
-computes:
-- Physics errors overall + by n_traj_pts bins + has_acars + phase (climb/cruise/descent)
-- Naive baseline comparison (simple duration * average rate from data)
-- Scatter plots, error boxplots by category
-- Additional profile examples integrated with physics predictions
-
-This directly supports the Paper 1 narrative that physics baseline has structured residuals
-that a neural model can learn, especially conditioned on data density/phase.
-"""
-
 from __future__ import annotations
 
 import logging
