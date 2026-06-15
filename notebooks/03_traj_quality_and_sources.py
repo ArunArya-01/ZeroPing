@@ -1,16 +1,4 @@
-"""
-EDA 03: trajectory quality, source mix, ACARS completeness, pts-per-interval distribution (CDF),
-example flight profiles with fuel overlays.
 
-Enhanced version: samples N_SAMPLES usable flights (configurable, default 50 for runtime),
-computes per-fuel-interval n_traj_pts + has_acars, generates:
-- CDF + hist of points per labeled interval (key for data density story)
-- Aggregate ACARS air-data completeness across sample
-- 4-5 diverse profile plots (high density, low density/sparse, 0 ACARS if found, mixed)
-
-This produces the core Paper 1 figures on source heterogeneity and coverage.
-Full N=200-300 is possible but slower (remote loads).
-"""
 
 from __future__ import annotations
 
@@ -187,9 +175,7 @@ for fid in profile_fids_to_plot[:5]:
 print("\n03 complete. Key outputs: CDF of interval density, profile examples, ACARS variability stats.")
 print("These highlight the 'data quality is highly variable per label' challenge for hybrid modeling.")
 
-# ============================================================
-# ADDITIONAL COMPLETE PURE-DATA EDA (cheap, no extra heavy traj sampling beyond the main loop)
-# ============================================================
+
 print("\n" + "=" * 60)
 print("COMPLETE DATASET EDA — ADDITIONAL CHARACTERIZATION")
 print("=" * 60)
