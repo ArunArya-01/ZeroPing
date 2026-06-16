@@ -1,13 +1,3 @@
-"""
-EDA Notebook 01: Dataset overview, schemas, filters (usable flights), high-level metadata.
-
-Run: python notebooks/01_overview_and_filters.py
-Saves tables (printed + csv) and simple figs to ../figures/
-Reproducible via loader seeds + polars.
-
-Covers Paper 1 required tables 1-2 + part of 7.
-"""
-
 from __future__ import annotations
 
 import logging

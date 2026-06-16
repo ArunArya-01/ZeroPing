@@ -1,11 +1,3 @@
-"""
-EDA Notebook 02: Fuel label characterization (intervals per flight, fuel_kg distrib,
-interval durations, flight time coverage by labels).
-
-Run via: PYTHONPATH=. python notebooks/02_fuel_labels_and_intervals.py (or exec with path insert)
-Produces key tables + figs for Paper 1 (fuel stats, coverage story, correlations).
-"""
-
 from __future__ import annotations
 
 import logging
@@ -96,17 +88,7 @@ fig.savefig(OUT / "fig_fuel_intervals_and_total.png", bbox_inches="tight")
 plt.close()
 print(f"Saved: {OUT / 'fig_fuel_intervals_and_total.png'}")
 
-# fuel_kg per interval distrib (heavy tail)
-# Why the previous version looked "empty" (user screenshot):
-# The data is extremely right-skewed (median ~200 kg from full train stats, mean ~558,
-# but max >32 000 kg). With linear bins=50 over 0-~32k, the first bin (0-~640 kg)
-# contains the overwhelming majority of the 131k+ intervals. On log y that first bar
-# is extremely tall but only ~2% the width of the x-axis → renders as a 1-2 pixel line
-# at the left edge or is invisible. The tail bins have counts near 1 and disappear on log y.
-#
-# Practical fix for visualization: keep log y (to see the dynamic range), but restrict
-# x to the region containing >99% of the mass (e.g. 0-4000 kg) so individual bins are
-# wide enough to be visible. Add a title note about the tail.
+
 fig, ax = plt.subplots(figsize=(6, 3.5))
 sns.histplot(
     fu["fuel_kg"].to_pandas(),
