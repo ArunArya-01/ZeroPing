@@ -104,8 +104,11 @@ def predict_fuel_intervals(
     traj: pl.DataFrame,
     fuel: pl.DataFrame,
     ac_type: str | None = None,
+    flight_meta: dict | None = None,
 ) -> pl.DataFrame:
     """Predict fuel_kg for each row in fuel using OpenAP enroute at interval rep point.
+
+    Now also computes rich per-interval features for ML training dataset when flight_meta provided.
 
     Parameters
     ----------
@@ -116,13 +119,21 @@ def predict_fuel_intervals(
         The fuel label rows for *this* flight only (start, end, fuel_kg, idx optional).
     ac_type : str | None
         ICAO typecode (e.g. "A320", "B789"). If None, inferred from traj (first non-null).
+    flight_meta : dict | None
+        Optional dict with 'aircraft_type', 'origin_icao', 'destination_icao', 'takeoff', 'landed'
+        to compute flight-relative fractions and attach metadata.
 
     Returns
     -------
     polars.DataFrame
-        One row per fuel interval with:
-        interval_idx, start, end, actual_fuel_kg, physics_fuel_kg,
-        tas_used, alt_used, vs_used, n_traj_pts, has_acars_in_window, method
+        One row per fuel interval with columns including (but not limited to):
+        actual_fuel_kg, physics_fuel_kg, residual_kg (added later),
+        aircraft_type, origin_icao, destination_icao,
+        duration_s, start_fraction_of_flight, end_fraction_of_flight,
+        n_traj_pts, has_acars_in_window,
+        mean/median/max/std for altitude, groundspeed, vertical_rate,
+        climb/cruise/descent_fraction,
+        method, and the original rep fields for compat.
     """
     if traj.is_empty() or fuel.is_empty():
         return pl.DataFrame()
@@ -130,6 +141,19 @@ def predict_fuel_intervals(
     if ac_type is None:
         ac_type = traj["typecode"].drop_nulls().first() if "typecode" in traj.columns else "A320"
     ac_type = str(ac_type)
+
+    # flight meta for features and fractions
+    aircraft_type = origin_icao = destination_icao = None
+    takeoff = landed = None
+    total_dur = 0.0
+    if flight_meta:
+        aircraft_type = flight_meta.get("aircraft_type")
+        origin_icao = flight_meta.get("origin_icao")
+        destination_icao = flight_meta.get("destination_icao")
+        takeoff = flight_meta.get("takeoff")
+        landed = flight_meta.get("landed")
+        if takeoff and landed:
+            total_dur = (landed - takeoff).total_seconds()
 
     try:
         ff = FuelFlow(ac=ac_type)
@@ -158,6 +182,48 @@ def predict_fuel_intervals(
         win = traj.filter(mask)
         n_pts = len(win)
 
+        # Interval metadata and per-window features (computed even for n=0)
+        duration_s = max(0.0, (e - s).total_seconds())
+        start_fraction_of_flight = 0.0
+        end_fraction_of_flight = 0.0
+        if total_dur > 0 and takeoff is not None:
+            start_fraction_of_flight = max(0.0, min(1.0, (s - takeoff).total_seconds() / total_dur))
+            end_fraction_of_flight = max(0.0, min(1.0, (e - takeoff).total_seconds() / total_dur))
+
+        mean_altitude = median_altitude = max_altitude = std_altitude = None
+        mean_groundspeed = std_groundspeed = max_groundspeed = None
+        mean_vertical_rate = std_vertical_rate = None
+        climb_fraction = cruise_fraction = descent_fraction = 0.0
+        if n_pts > 0:
+            alt_col = win["altitude"]
+            gs_col = win["groundspeed"]
+            vr_col = win["vertical_rate"]
+            m_alt = alt_col.mean()
+            mean_altitude = float(m_alt) if m_alt is not None else None
+            med_alt = alt_col.median()
+            median_altitude = float(med_alt) if med_alt is not None else None
+            mx_alt = alt_col.max()
+            max_altitude = float(mx_alt) if mx_alt is not None else None
+            std_a = alt_col.std()
+            std_altitude = float(std_a) if std_a is not None else 0.0
+            m_gs = gs_col.mean()
+            mean_groundspeed = float(m_gs) if m_gs is not None else None
+            std_gs = gs_col.std()
+            std_groundspeed = float(std_gs) if std_gs is not None else 0.0
+            mx_gs = gs_col.max()
+            max_groundspeed = float(mx_gs) if mx_gs is not None else None
+            m_vr = vr_col.mean()
+            mean_vertical_rate = float(m_vr) if m_vr is not None else None
+            std_vr = vr_col.std()
+            std_vertical_rate = float(std_vr) if std_vr is not None else 0.0
+            if "vertical_rate" in win.columns:
+                climb_cnt = win.filter(pl.col("vertical_rate") > 1.5).height
+                descent_cnt = win.filter(pl.col("vertical_rate") < -1.5).height
+                cruise_cnt = n_pts - climb_cnt - descent_cnt
+                climb_fraction = climb_cnt / n_pts
+                descent_fraction = descent_cnt / n_pts
+                cruise_fraction = cruise_cnt / n_pts
+
         if n_pts == 0:
             # no coverage at all; cannot predict meaningfully
             results.append(
@@ -173,6 +239,25 @@ def predict_fuel_intervals(
                     "n_traj_pts": 0,
                     "has_acars_in_window": False,
                     "method": "no_coverage",
+                    # new features
+                    "aircraft_type": aircraft_type,
+                    "origin_icao": origin_icao,
+                    "destination_icao": destination_icao,
+                    "duration_s": duration_s,
+                    "start_fraction_of_flight": start_fraction_of_flight,
+                    "end_fraction_of_flight": end_fraction_of_flight,
+                    "mean_altitude": mean_altitude,
+                    "median_altitude": median_altitude,
+                    "max_altitude": max_altitude,
+                    "std_altitude": std_altitude,
+                    "mean_groundspeed": mean_groundspeed,
+                    "std_groundspeed": std_groundspeed,
+                    "max_groundspeed": max_groundspeed,
+                    "mean_vertical_rate": mean_vertical_rate,
+                    "std_vertical_rate": std_vertical_rate,
+                    "climb_fraction": climb_fraction,
+                    "cruise_fraction": cruise_fraction,
+                    "descent_fraction": descent_fraction,
                 }
             )
             continue
@@ -229,6 +314,25 @@ def predict_fuel_intervals(
                 "has_acars_in_window": has_acars,
                 "phase": phase,
                 "method": method,
+                # new features from window + meta
+                "aircraft_type": aircraft_type,
+                "origin_icao": origin_icao,
+                "destination_icao": destination_icao,
+                "duration_s": duration_s,
+                "start_fraction_of_flight": start_fraction_of_flight,
+                "end_fraction_of_flight": end_fraction_of_flight,
+                "mean_altitude": mean_altitude,
+                "median_altitude": median_altitude,
+                "max_altitude": max_altitude,
+                "std_altitude": std_altitude,
+                "mean_groundspeed": mean_groundspeed,
+                "std_groundspeed": std_groundspeed,
+                "max_groundspeed": max_groundspeed,
+                "mean_vertical_rate": mean_vertical_rate,
+                "std_vertical_rate": std_vertical_rate,
+                "climb_fraction": climb_fraction,
+                "cruise_fraction": cruise_fraction,
+                "descent_fraction": descent_fraction,
             }
         )
 
@@ -287,6 +391,15 @@ def compute_physics_errors(
 
 
 if __name__ == "__main__":
+    # Make the demo runnable from anywhere, including
+    #   python -u "c:\...\ZeroPing\physics\openap_baseline.py"
+    # from a parent directory (the common failure mode).
+    import sys
+    from pathlib import Path
+    project_root = Path(__file__).resolve().parents[1]
+    if str(project_root) not in sys.path:
+        sys.path.insert(0, str(project_root))
+
     # Demo on two flights we probed during audit (known to exist + have labels)
     import logging
     from data import AeroDataLoader
