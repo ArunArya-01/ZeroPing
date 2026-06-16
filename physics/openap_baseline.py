@@ -1,23 +1,3 @@
-"""OpenAP physics baseline for per-interval aircraft fuel burn.
-
-Implements a minimal, observable-features-only baseline suitable for
-characterizing residuals on the aerotwin/aero-data (ACARS+ADS-B) labels.
-
-Design goals (from dataset audit):
-- Never assume full profile or dense air data.
-- TAS inference priority: mach (best) -> CAS -> groundspeed fallback.
-- Mass: weak reference (mtow * 0.75 typical cruise-ish); documented limitation.
-- Works on both dense ADSB windows and 2-pt ACARS-boundary intervals.
-- Returns per-interval predictions + diagnostics for EDA/error analysis.
-
-Usage in EDA:
-    from physics.openap_baseline import predict_fuel_intervals, compute_physics_errors
-    traj = loader.load_flight_by_id(fid)
-    fuel = fuel_df.filter(...)  # the intervals for fid
-    preds = predict_fuel_intervals(traj, fuel, ac_type=traj['typecode'][0])
-    errs = compute_physics_errors(preds, fuel)
-"""
-
 from __future__ import annotations
 
 from pathlib import PurePosixPath
@@ -42,11 +22,6 @@ def _infer_tas(
     row: dict[str, Any] | pl.Series,
     alt: float,
 ) -> float | None:
-    """Best-effort TAS (m/s) from available fields in priority order.
-
-    Prefers mach (ACARS) converted via aero.mach2tas.
-    Falls back to CAS, then groundspeed (biased, no wind).
-    """
     mach = row.get("mach") if isinstance(row, dict) else row["mach"]
     cas = row.get("CAS") if isinstance(row, dict) else row["CAS"]
     gs = row.get("groundspeed") if isinstance(row, dict) else row["groundspeed"]
@@ -68,11 +43,6 @@ def _infer_tas(
 
 
 def _ref_mass(ac_type: str) -> float:
-    """Reference mass (kg) for FuelFlow.enroute.
-
-    Uses openap.prop.aircraft mtow * frac if available; else conservative default.
-    This is the largest source of physics error and should be analyzed in EDA.
-    """
     try:
         ac = prop.aircraft(ac_type)
         mtow = ac.get("mtow") or ac.get("MTOW") or 200_000.0
@@ -83,10 +53,6 @@ def _ref_mass(ac_type: str) -> float:
 
 
 def classify_interval_phase(traj_win: pl.DataFrame) -> str:
-    """Simple phase classification for an interval window based on median vertical rate.
-
-    Used for error breakdown in EDA.
-    """
     if traj_win.is_empty() or "vertical_rate" not in traj_win.columns:
         return "unknown"
     med_vr = traj_win["vertical_rate"].median()
@@ -105,25 +71,6 @@ def predict_fuel_intervals(
     fuel: pl.DataFrame,
     ac_type: str | None = None,
 ) -> pl.DataFrame:
-    """Predict fuel_kg for each row in fuel using OpenAP enroute at interval rep point.
-
-    Parameters
-    ----------
-    traj : polars.DataFrame
-        Full trajectory for the flight (must contain timestamp, altitude, vertical_rate,
-        groundspeed, mach, TAS, CAS, source).
-    fuel : polars.DataFrame
-        The fuel label rows for *this* flight only (start, end, fuel_kg, idx optional).
-    ac_type : str | None
-        ICAO typecode (e.g. "A320", "B789"). If None, inferred from traj (first non-null).
-
-    Returns
-    -------
-    polars.DataFrame
-        One row per fuel interval with:
-        interval_idx, start, end, actual_fuel_kg, physics_fuel_kg,
-        tas_used, alt_used, vs_used, n_traj_pts, has_acars_in_window, method
-    """
     if traj.is_empty() or fuel.is_empty():
         return pl.DataFrame()
 
@@ -239,10 +186,6 @@ def compute_physics_errors(
     preds: pl.DataFrame,
     fuel: pl.DataFrame | None = None,
 ) -> dict[str, Any]:
-    """Aggregate error metrics + breakdown for Paper 1 tables/figs.
-
-    Returns dict with overall mae/rmse, plus per-bin (by n_traj_pts) and by has_acars.
-    """
     if "actual_fuel_kg" not in preds.columns or "physics_fuel_kg" not in preds.columns:
         return {"error": "missing columns"}
 
