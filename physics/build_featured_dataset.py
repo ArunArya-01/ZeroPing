@@ -124,6 +124,11 @@ def main(n: int | None = None):
     print(f"Concatenating {len(all_interval_dfs)} per-flight dataframes...")
     dataset = pl.concat(all_interval_dfs, how="diagonal_relaxed")
 
+    if "energy_change_jpkg" in dataset.columns and "flight_id" in dataset.columns:
+        dataset = dataset.sort("flight_id", "start_fraction_of_flight").with_columns(
+            pl.col("energy_change_jpkg").cum_sum().over("flight_id").alias("cumulative_energy_change_jpkg")
+        )
+
     # Optional: nice column order (target first, then physics, metadata, features)
     preferred_order = [
         # target
@@ -144,6 +149,16 @@ def main(n: int | None = None):
         "mean_vertical_rate", "std_vertical_rate",
         # phase
         "climb_fraction", "cruise_fraction", "descent_fraction",
+        # energy-state (E2)
+        "ref_mass_kg", "mean_potential_energy_j", "mean_kinetic_energy_j",
+        "mean_specific_energy_jpkg", "specific_energy_start", "specific_energy_end",
+        "energy_change_jpkg", "energy_rate_jpkg_s", "climb_efficiency",
+        "energy_efficiency", "cumulative_energy_change_jpkg",
+        # operational (E3)
+        "time_to_cruise_s", "climb_duration_s", "descent_duration_s",
+        "cruise_speed_std", "tas_std", "vertical_rate_std",
+        "number_of_level_segments", "holding_indicator", "path_efficiency",
+        "distance_ratio", "altitude_stability", "segment_acceleration_mean",
         # telemetry / other
         "method",
         # keep a few original for debug if present

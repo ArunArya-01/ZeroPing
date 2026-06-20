@@ -72,38 +72,10 @@ def predict_fuel_intervals(
     ac_type: str | None = None,
     flight_meta: dict | None = None,
 ) -> pl.DataFrame:
-<<<<<<< HEAD
-    """Predict fuel_kg for each row in fuel using OpenAP enroute at interval rep point.
+    """Predict fuel_kg for each fuel interval using OpenAP enroute.
 
-    Now also computes rich per-interval features for ML training dataset when flight_meta provided.
-
-    Parameters
-    ----------
-    traj : polars.DataFrame
-        Full trajectory for the flight (must contain timestamp, altitude, vertical_rate,
-        groundspeed, mach, TAS, CAS, source).
-    fuel : polars.DataFrame
-        The fuel label rows for *this* flight only (start, end, fuel_kg, idx optional).
-    ac_type : str | None
-        ICAO typecode (e.g. "A320", "B789"). If None, inferred from traj (first non-null).
-    flight_meta : dict | None
-        Optional dict with 'aircraft_type', 'origin_icao', 'destination_icao', 'takeoff', 'landed'
-        to compute flight-relative fractions and attach metadata.
-
-    Returns
-    -------
-    polars.DataFrame
-        One row per fuel interval with columns including (but not limited to):
-        actual_fuel_kg, physics_fuel_kg, residual_kg (added later),
-        aircraft_type, origin_icao, destination_icao,
-        duration_s, start_fraction_of_flight, end_fraction_of_flight,
-        n_traj_pts, has_acars_in_window,
-        mean/median/max/std for altitude, groundspeed, vertical_rate,
-        climb/cruise/descent_fraction,
-        method, and the original rep fields for compat.
+    Also computes trajectory-derived ML features (base, energy-state, operational).
     """
-=======
->>>>>>> 0a9d11ca062133865c958189de13bb909282e7fe
     if traj.is_empty() or fuel.is_empty():
         return pl.DataFrame()
 
@@ -269,43 +241,62 @@ def predict_fuel_intervals(
         # Phase for this window (using the same win subset)
         phase = classify_interval_phase(win)
 
-        results.append(
-            {
-                "interval_idx": idx,
-                "start": s,
-                "end": e,
-                "actual_fuel_kg": actual,
-                "physics_fuel_kg": physics_kg,
-                "tas_used": tas,
-                "alt_used": alt,
-                "vs_used": vs,
-                "n_traj_pts": n_pts,
-                "has_acars_in_window": has_acars,
-                "phase": phase,
-                "method": method,
-                # new features from window + meta
-                "aircraft_type": aircraft_type,
-                "origin_icao": origin_icao,
-                "destination_icao": destination_icao,
-                "duration_s": duration_s,
-                "start_fraction_of_flight": start_fraction_of_flight,
-                "end_fraction_of_flight": end_fraction_of_flight,
-                "mean_altitude": mean_altitude,
-                "median_altitude": median_altitude,
-                "max_altitude": max_altitude,
-                "std_altitude": std_altitude,
-                "mean_groundspeed": mean_groundspeed,
-                "std_groundspeed": std_groundspeed,
-                "max_groundspeed": max_groundspeed,
-                "mean_vertical_rate": mean_vertical_rate,
-                "std_vertical_rate": std_vertical_rate,
-                "climb_fraction": climb_fraction,
-                "cruise_fraction": cruise_fraction,
-                "descent_fraction": descent_fraction,
-            }
-        )
+        row_out: dict[str, Any] = {
+            "interval_idx": idx,
+            "start": s,
+            "end": e,
+            "actual_fuel_kg": actual,
+            "physics_fuel_kg": physics_kg,
+            "tas_used": tas,
+            "alt_used": alt,
+            "vs_used": vs,
+            "n_traj_pts": n_pts,
+            "has_acars_in_window": has_acars,
+            "phase": phase,
+            "method": method,
+            "aircraft_type": aircraft_type,
+            "origin_icao": origin_icao,
+            "destination_icao": destination_icao,
+            "duration_s": duration_s,
+            "start_fraction_of_flight": start_fraction_of_flight,
+            "end_fraction_of_flight": end_fraction_of_flight,
+            "mean_altitude": mean_altitude,
+            "median_altitude": median_altitude,
+            "max_altitude": max_altitude,
+            "std_altitude": std_altitude,
+            "mean_groundspeed": mean_groundspeed,
+            "std_groundspeed": std_groundspeed,
+            "max_groundspeed": max_groundspeed,
+            "mean_vertical_rate": mean_vertical_rate,
+            "std_vertical_rate": std_vertical_rate,
+            "climb_fraction": climb_fraction,
+            "cruise_fraction": cruise_fraction,
+            "descent_fraction": descent_fraction,
+        }
 
-    return pl.DataFrame(results)
+        try:
+            from physics.feature_engineering import (
+                compute_energy_features,
+                compute_operational_features,
+            )
+            from physics.weather_features import compute_weather_features
+
+            row_out.update(
+                compute_energy_features(win, ac_type, duration_s, physics_kg)
+            )
+            row_out.update(compute_operational_features(win, duration_s))
+            row_out.update(compute_weather_features(win, mean_altitude))
+        except Exception:
+            pass
+
+        results.append(row_out)
+
+    out = pl.DataFrame(results)
+    if not out.is_empty() and "flight_id" not in out.columns and "energy_change_jpkg" in out.columns:
+        out = out.with_columns(
+            pl.col("energy_change_jpkg").cum_sum().alias("cumulative_energy_change_jpkg")
+        )
+    return out
 
 
 def compute_physics_errors(

@@ -1,0 +1,7 @@
+---
+pid: 20964
+cwd: "C:\Users\mukun\major project\ZeroPing"
+command: "cd \"C:\\Users\\mukun\\major project\\ZeroPing\"; python physics/enrich_featured_dataset.py"
+started_at: 2026-06-20T04:09:26.123Z
+running_for_ms: 5725000  
+---

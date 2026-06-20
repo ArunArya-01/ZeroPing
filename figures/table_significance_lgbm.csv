@@ -1,0 +1,3 @@
+comparison,vs,n_intervals,mae_hybrid,mae_other,delta_mae,bootstrap_mean,bootstrap_median,ci_lower,ci_upper,bootstrap_p,wilcoxon_stat,wilcoxon_p,cohens_d,effect_size,interpretation
+Hybrid LightGBM vs NoPhysics LightGBM,No Physics,23031,89.1253805314312,91.75753040184078,-2.6321498704095774,-2.629163377079885,-2.4592459744597406,-6.119622196040935,0.014036053792801415,0.0259,122473267.0,4.651706825317237e-24,-0.03639233835162884,Negligible,No significant evidence
+Hybrid LightGBM vs Physics Only,Physics Only,23031,89.1253805314312,667.6155755169532,-578.490194985522,-577.8169156911459,-577.3307620880689,-630.0316937945415,-526.4098490663479,0.0,18130244.0,0.0,-0.41662568789537785,Small,Physics significantly helps

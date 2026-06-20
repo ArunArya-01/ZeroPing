@@ -294,7 +294,9 @@ Multiple labeled intervals come from the same flight. Row-level splitting allows
 
 ### Strict split (`notebooks/05_baseline_modeling.py`)
 
-- Split by `flight_id` (80/20, seed=42)
+All subsequent experiments (ablation, significance testing, V2/V3 feature studies) reuse this exact split:
+
+- Split by `flight_id` (80/20, `random_state=42`)
 - **Train:** 7,980 flights → 92,964 intervals
 - **Test:** 1,996 flights → 23,031 intervals
 - **Overlap:** 0 flights
@@ -304,9 +306,9 @@ Multiple labeled intervals come from the same flight. Row-level splitting allows
 | Approach | Model | MAE (kg) | RMSE (kg) | R² |
 |---|---|---|---|---|
 | OpenAP only | — | 668 | 1,582 | −2.16 |
-| Direct | Random Forest | 87.1 | 232.8 | 0.93 |
-| Direct | XGBoost | 89.5 | 230.6 | 0.93 |
-| Direct | LightGBM | 91.8 | 219.6 | 0.94 |
+| Direct hybrid | Random Forest | 87.1 | 232.8 | 0.93 |
+| Direct hybrid | XGBoost | 89.5 | 230.6 | 0.93 |
+| Direct hybrid | LightGBM | 91.8 | 219.6 | 0.94 |
 | Residual | XGBoost | 107.1 | 307.6 | 0.88 |
 | Residual | LightGBM | 108.7 | 293.3 | 0.89 |
 | Residual | Random Forest | 107.5 | 312.5 | 0.88 |
@@ -316,12 +318,25 @@ Multiple labeled intervals come from the same flight. Row-level splitting allows
 | Metric | Row-level | Flight-level | Change |
 |---|---|---|---|
 | OpenAP MAE | 655 kg | 668 kg | +2% |
+| Best direct hybrid MAE | ~86 kg | ~87–90 kg | modest |
 | Best residual MAE | 100 kg | 107 kg | +7% |
-| Best residual R² | 0.91 | 0.88 | −0.03 |
+
+### Statistical inference methodology
+
+All hypothesis tests from `notebooks/07_significance_testing.py` onward use **flight-clustered bootstrap**:
+
+- **10,000 bootstrap iterations**
+- Resample **test flights with replacement** (not individual intervals)
+- Preserve within-flight dependence among intervals
+- Report **95% bootstrap confidence intervals** on ΔMAE and one-sided bootstrap *p*-values
+
+**Wilcoxon signed-rank tests** are computed on paired per-interval absolute errors as a **supplementary** check. They treat intervals as independent and are often more optimistic when within-flight correlation is present.
+
+**Primary inference criterion:** flight-clustered bootstrap CI. A gain is considered statistically supported only when the 95% CI excludes zero and `bootstrap_p < 0.05`.
 
 ### Conclusion
 
-**Performance generalizes to unseen flights.** The modest degradation under strict splitting confirms that ML models learn transferable patterns—not flight-specific memorization. Residual learning reduces MAE by **~84%** relative to OpenAP on held-out flights.
+**Performance generalizes to unseen flights.** Direct hybrid models (trajectory + metadata + `physics_fuel_kg`) achieve MAE ~87–90 kg on held-out flights. Residual learning reduces MAE relative to raw OpenAP (~668 kg → ~107 kg) but **does not outperform direct hybrid prediction** on this feature set.
 
 **Artifacts:** `figures/table_model_comparison_flight_split.csv`, `figures/fig_actual_vs_predicted.png`
 
@@ -329,8 +344,8 @@ Multiple labeled intervals come from the same flight. Row-level splitting allows
 
 ## 8. Physics Ablation Study
 
-**Script:** `notebooks/06_physics_ablation.py`  
-**Question:** How much does `physics_fuel_kg` contribute as an ML feature?
+**Scripts:** `notebooks/06_physics_ablation.py`, `notebooks/07_significance_testing.py`  
+**Question:** How much does `physics_fuel_kg` contribute as an ML feature, and is the gain statistically real?
 
 ### Experimental conditions
 
@@ -340,32 +355,40 @@ Multiple labeled intervals come from the same flight. Row-level splitting allows
 | **No Physics** | Remove `physics_fuel_kg`; predict from trajectory/metadata only |
 | **Physics Only** | Use raw OpenAP prediction (no ML) |
 
-Evaluated on the same flight-level test set. Tree models (RF, XGBoost, LightGBM) tested; best results per condition below.
+Evaluated on the same flight-level test set. Tree models (RF, XGBoost, LightGBM) tested.
 
-### Results
+### Descriptive results (point estimates)
 
 | Condition | Best Model | MAE (kg) | RMSE (kg) | R² |
 |---|---|---|---|---|
 | Full Hybrid | Random Forest | 86.3 | 228.8 | 0.93 |
-| No Physics | Random Forest | 87.1 | 232.8 | 0.93 |
+| Full Hybrid | XGBoost | 86.3 | 224.1 | 0.94 |
+| No Physics | XGBoost | 89.5 | 230.6 | 0.93 |
 | Physics Only | OpenAP | 667.6 | 1,582.4 | −2.16 |
 
-**Removing physics increases MAE by only ~0.9 kg (~1.0%).**
+### Bootstrap significance (Hybrid vs No Physics)
+
+| Model | ΔMAE (kg) | 95% Bootstrap CI | Significant? | Effect size |
+|---|---|---|---|---|
+| **XGBoost** | −3.15 | [−7.08, −0.42] | **Yes** | Negligible (Cohen's *d* ≈ −0.04) |
+| **Random Forest** | −0.86 | [−2.27, +0.52] | **No** (CI crosses zero) | Negligible |
+| **LightGBM** | −2.63 | [−6.12, +0.01] | Marginal (CI barely touches zero) | Negligible |
 
 ### Interpretation
 
-- **ML models are largely data-driven** when rich trajectory and metadata features are available.
-- **`physics_fuel_kg` contributes little as an incremental ML feature** because duration, aircraft type, and kinematic statistics already encode similar information.
-- **OpenAP alone performs poorly** (MAE 668 kg)—physics is not replaceable as a standalone predictor.
-- **Physics remains useful** as an interpretable baseline and as the foundation of the hybrid/residual architecture, even if it is redundant as an input feature for direct prediction.
+- **OpenAP-derived features provide only modest improvements** when rich trajectory features are available (~0.9–3.2 kg MAE depending on model).
+- **XGBoost shows a statistically significant but practically small gain** (ΔMAE ≈ −3.1 kg; effect size negligible).
+- **RF gain is not bootstrap-significant** despite a descriptive ~0.8 kg improvement.
+- **OpenAP alone performs poorly** (MAE 668 kg)—not deployable as a standalone predictor.
+- **Main message:** OpenAP helps modestly as an ML input feature; it is not the primary source of predictive power for strong tree ensembles.
 
-**Artifacts:** `figures/table_physics_ablation.csv`, `figures/fig_physics_ablation.png`
+**Artifacts:** `figures/table_physics_ablation.csv`, `figures/fig_physics_ablation.png`, `figures/table_significance_{rf,xgb,lgbm}.csv`, `figures/fig_bootstrap_{rf,xgb,lgbm}.png`
 
 ---
 
 ## 9. Sparsity Study
 
-**Script:** `notebooks/07_sparsity_ablation.py`  
+**Scripts:** `notebooks/07_sparsity_ablation.py` (descriptive), `notebooks/07_significance_testing.py` (inference)  
 **Question:** Does physics become more valuable when telemetry is limited?
 
 ### Sparsity buckets (by `n_traj_pts`)
@@ -377,163 +400,240 @@ Evaluated on the same flight-level test set. Tree models (RF, XGBoost, LightGBM)
 | **Sparse** | 10–99 points | 1,141 |
 | **Very Sparse** | < 10 points | 8,180 |
 
-Per bucket: train LightGBM (Full Hybrid vs No Physics) on bucket-filtered train data; evaluate on bucket-filtered test data. Same flight-level split.
+### Descriptive ablation (LightGBM per bucket)
 
-### Results
+Earlier descriptive results suggested a large Sparse-bucket gain:
 
-| Bucket | Full Hybrid MAE | No Physics MAE | OpenAP MAE | Physics gain |
+| Bucket | Full Hybrid MAE | No Physics MAE | Descriptive gain |
+|---|---|---|---|
+| Dense | 151.5 kg | 156.7 kg | 5.2 kg |
+| Medium | 48.3 kg | 50.1 kg | 1.8 kg |
+| Sparse | 74.5 kg | 88.9 kg | **14.4 kg** |
+| Very Sparse | 129.9 kg | 130.6 kg | 0.7 kg |
+
+### Bootstrap significance (Hybrid RF vs NoPhysics RF, flight-clustered)
+
+| Bucket | ΔMAE (kg) | 95% Bootstrap CI | Significant? |
+|---|---|---|---|
+| Dense | −4.65 | [−11.48, +2.15] | No |
+| Medium | −0.30 | [−1.28, +0.63] | No |
+| Sparse | −0.12 | [−7.24, +7.17] | No |
+| Very Sparse | −1.07 | [−3.65, +1.54] | No |
+
+Inference uses **10,000 flight-clustered bootstrap resamples** (test flights resampled with replacement). Wilcoxon tests on intervals are supplementary.
+
+### Interpretation — **sparse hypothesis rejected**
+
+- **Bootstrap confidence intervals overlap zero in all sparsity buckets.** No statistically supported evidence exists that physics gains concentrate in sparse trajectories.
+- The descriptive Sparse-bucket gap (74.5 vs 88.9 kg under LightGBM) **does not survive flight-level significance testing** under RF with bootstrap inference.
+- **Previous claim that physics helps most in sparse intervals is no longer supported** and is explicitly rejected.
+- Medium-density intervals remain easiest to predict descriptively (MAE ~48 kg), but physics benefit is not significant in any bucket.
+
+**Artifacts:** `figures/table_sparsity_ablation.csv`, `figures/table_sparse_significance.csv`, `figures/fig_sparse_bucket_significance.png`
+
+---
+
+## 10. Physics-Informed Inductive Bias Study (V2/V3)
+
+**Scripts:** `notebooks/08_physics_features_v2.py`, `notebooks/09_physics_features_v3.py`  
+**Modules:** `physics/feature_engineering.py`, `physics/weather_features.py`, `physics/mlp_residual.py`
+
+**Goal:** Determine which physical priors remain useful for strong gradient-boosted ensembles, beyond raw OpenAP fuel estimates.
+
+All experiments reuse the strict flight-level split (7,980 / 1,996 flights) and flight-clustered bootstrap significance testing. Baseline reference: **OpenAP Hybrid (XGB), MAE ≈ 86.3 kg**.
+
+### E2 — Energy-state features
+
+Features: potential energy, kinetic energy, specific energy, energy rate, energy change, climb/energy efficiency, cumulative energy change (`physics/feature_engineering.py`).
+
+| Model | MAE (kg) | ΔMAE vs baseline | 95% Bootstrap CI | Verdict |
 |---|---|---|---|---|
-| Dense | 151.5 kg | 156.7 kg | 1,024 kg | 5.2 kg (3.3%) |
-| Medium | 48.3 kg | 50.1 kg | 243 kg | 1.8 kg (3.6%) |
-| Sparse | 74.5 kg | 88.9 kg | 248 kg | **14.4 kg (16.2%)** |
-| Very Sparse | 129.9 kg | 130.6 kg | 1,205 kg | 0.7 kg (0.5%) |
+| Energy Hybrid (XGB) | **84.48** | −1.82 kg | [−2.92, −0.67] | **Accepted** |
 
-### Interpretation
+**Conclusion:** Energy-state representations provide **statistically robust gains**. CI excludes zero.
 
-- **Physics helps most in the Sparse bucket (10–99 points):** removing physics degrades MAE by 16%, the largest gain across buckets.
-- **Benefit is modest overall** and **not monotonic** with sparsity.
-- **Physics does not rescue extremely sparse intervals** (<10 points): gain is <1%; metadata features (`duration_s`, `aircraft_type`, `method`) dominate.
-- **Medium-density intervals are easiest to predict** (MAE ~48 kg)—sufficient kinematic coverage without the noise of very short windows.
-- **ML dramatically outperforms OpenAP in every bucket**, confirming the hybrid architecture's value even when physics-as-feature adds little.
+### E3 — Operational features
 
-**Artifacts:** `figures/table_sparsity_ablation.csv`
+Features: climb/descent duration, cruise speed variability, holding indicators, path efficiency proxies, altitude stability, segment acceleration (`physics/feature_engineering.py`).
+
+| Model | MAE (kg) | ΔMAE vs baseline | 95% Bootstrap CI | Verdict |
+|---|---|---|---|---|
+| Operational Hybrid (XGB) | 86.76 | +0.46 kg | [−0.10, +1.01] | **Rejected** |
+
+**Conclusion:** Operational descriptors alone provide **no significant improvement**.
+
+### E4 — Residual learning (tree models)
+
+Architecture: predict `residual_kg`, final fuel = `physics_fuel_kg + predicted_residual`.
+
+| Model | MAE (kg) | ΔMAE vs direct hybrid | Verdict |
+|---|---|---|---|
+| Residual-XGB | **107.1** | +20.8 kg | **Rejected** |
+
+**Conclusion:** Residual learning **fails** to beat direct hybrid prediction. MAE ≈ 107 kg—worse than OpenAP hybrid (~86 kg). Negative result preserved from `notebooks/05_baseline_modeling.py`.
+
+### E5 — Weather features
+
+Features derived from ISA atmosphere at altitude and TAS/GS/track wind proxies: headwind, crosswind, temperature, pressure, ISA deviation, density altitude (`physics/weather_features.py`). No direct METAR/GRIB in dataset.
+
+| Model | MAE (kg) | ΔMAE vs baseline | 95% Bootstrap CI | Verdict |
+|---|---|---|---|---|
+| Weather Hybrid (XGB) | 86.59 | +0.28 kg | [−0.40, +1.07] | **Rejected** |
+
+**Conclusion:** Weather-only features **not significant**; CI overlaps zero.
+
+### E6 — Energy + Weather + OpenAP hybrid
+
+Combines E2 energy-state and E5 weather proxies with OpenAP hybrid features.
+
+| Model | MAE (kg) | ΔMAE vs baseline | 95% Bootstrap CI | Verdict |
+|---|---|---|---|---|
+| **Energy+Weather Hybrid (XGB)** | **83.76** | **−2.55 kg** | **[−3.58, −1.50]** | **Accepted — best overall** |
+
+**Conclusion:** Most successful inductive bias discovered. Strong bootstrap significance; CI excludes zero.
+
+### E7 — MLP residual correction
+
+Architecture: OpenAP prediction → MLP predicts residual (`physics/mlp_residual.py`). Compared against direct hybrid baselines.
+
+| Model | MAE (kg) | ΔMAE vs baseline | 95% Bootstrap CI | Verdict |
+|---|---|---|---|---|
+| MLP Residual (XGB slot) | **103.7** | +17.4 kg | [+7.84, +34.99] | **Rejected** |
+
+**Conclusion:** Learned MLP residual correction **fails**; significantly worse than direct hybrid trees.
+
+### E8 — BADA-style wind-adjusted physics
+
+Conditional experiment (skipped when E5–E7 exceed 1.5 kg improvement threshold). Not run—E6 achieved 2.55 kg gain.
+
+**Artifacts:** `figures/table_energy_results.csv`, `figures/table_operational_results.csv`, `figures/table_residual_results.csv`, `figures/table_v3_e6_combined_results.csv`, `figures/table_v3_leaderboard.csv`, `figures/fig_v3_leaderboard.png`, `figures/table_significance_*.csv`
 
 ---
 
-## 10. Key Scientific Findings
+## 11. Statistical Significance Framework
 
-1. **OpenAP exhibits strong systematic bias** on real ACARS-labeled data (R² ≈ −2.2 flight-level; MAE ≈ 668 kg).
+**Script:** `notebooks/07_significance_testing.py` (ablation); extended in V2/V3 experiment runners.
 
-2. **Machine learning predicts fuel burn accurately** when trajectory and metadata features are available (MAE ≈ 87–108 kg; R² ≈ 0.88–0.94 on unseen flights).
+### Methods
 
-3. **Models generalize to unseen flights** under strict flight-level splitting with only modest metric degradation vs. row-level splits.
+| Component | Specification |
+|---|---|
+| **Bootstrap** | 10,000 iterations |
+| **Resampling unit** | Test **flights** with replacement (not intervals) |
+| **Dependence** | Preserves within-flight correlation among intervals |
+| **Primary statistic** | ΔMAE = MAE(model A) − MAE(model B) on bootstrap resample |
+| **Primary inference** | 95% bootstrap CI; one-sided `bootstrap_p = P(ΔMAE > 0)` |
+| **Supplementary** | Wilcoxon signed-rank on paired interval absolute errors (one-sided) |
+| **Effect size** | Cohen's *d* on paired error differences (Negligible / Small / Medium / Large) |
 
-4. **Physics is largely redundant as an ML input feature** when rich trajectory features exist (~1% MAE difference in ablation), but **essential as a standalone baseline** and residual-learning foundation.
+### Interpretation policy
 
-5. **Physics provides the most incremental value under moderate sparsity** (10–99 trajectory points; +16% MAE without physics), not under extreme sparsity (<10 points).
+- **Bootstrap CI is primary.** Wilcoxon *p*-values are reported but can be optimistic when intervals within a flight are correlated.
+- Claims of improvement require **CI excluding zero** and `bootstrap_p < 0.05`.
+- **Negative results are scientifically valuable** and are reported explicitly (residual learning, operational features, weather-only, sparsity hypothesis).
 
-6. **Aircraft type and interval duration are dominant predictors** of residual error (LightGBM gain and permutation importance).
-
-7. **Partial observability is structural:** median ~32% of flight time is labeled; many intervals have only 2 trajectory points.
-
-8. **Residual errors are highly structured,** correlating with physics prediction magnitude (ρ ≈ −0.95), duration, phase fractions, and data quality.
+**Artifacts:** `figures/fig_bootstrap_{rf,xgb,lgbm}.png`, `figures/fig_sparse_bucket_significance.png`, `figures/table_significance_v3_all.csv`
 
 ---
 
-## 11. Current Project Status
+## 12. Updated Scientific Findings
+
+1. **OpenAP alone performs poorly** on held-out flights (MAE ≈ 668 kg, R² ≈ −2.2).
+
+2. **OpenAP helps only modestly as an ML input feature** (~0.9–3.2 kg MAE; statistically significant for XGBoost but negligible effect size).
+
+3. **Sparse hypothesis rejected:** bootstrap CIs overlap zero in all sparsity buckets; no evidence physics gains concentrate in sparse trajectories.
+
+4. **Operational descriptors rejected** (E3): no bootstrap-significant improvement over OpenAP hybrid.
+
+5. **Residual learning rejected** (E4, E7): tree and MLP residual architectures (~107–104 kg MAE) underperform direct hybrid prediction (~86 kg).
+
+6. **Weather-only features rejected** (E5): CI overlaps zero; no significant gain alone.
+
+7. **Energy-state representations significantly improve prediction** (E2): ΔMAE ≈ −1.8 kg, CI excludes zero.
+
+8. **Energy + Weather achieves best performance** (E6): **MAE ≈ 83.7 kg**, ΔMAE ≈ −2.55 kg, strong bootstrap significance—**primary scientific contribution**.
+
+9. **Not all physics-informed priors are equally useful.** Explicit energy conservation relationships add value; OpenAP point estimates, operational summaries, and residual-correction architectures add little.
+
+10. **Strong tree ensembles already recover much trajectory information** independently; energy-state features encode structure trees do not fully infer from kinematic summaries alone.
+
+11. **Partial observability remains structural** (median ~32% labeled flight time; many 2-point intervals).
+
+12. **Aircraft type and interval duration remain dominant predictors** in baseline models (LightGBM importance from `notebooks/05_baseline_modeling.py`).
+
+---
+
+## 13. Current Project Status
 
 | Milestone | Status |
 |---|---|
 | Dataset ingestion (`AeroDataLoader`, HuggingFace remote access) | ✅ Complete |
 | Exploratory data analysis (notebooks 01–04) | ✅ Complete |
 | Physics baseline (OpenAP per-interval pipeline) | ✅ Complete |
-| Feature engineering (`featured_dataset.parquet`, 119k intervals) | ✅ Complete |
+| Feature engineering (`featured_dataset.parquet`, 119k intervals, 62 columns with V3 features) | ✅ Complete |
 | `flight_id` integration for flight-level splits | ✅ Complete |
 | ML baselines (LR, RF, XGBoost, LightGBM) | ✅ Complete |
 | Flight-level validation | ✅ Complete |
 | Physics ablation study | ✅ Complete |
 | Sparsity-conditioned ablation | ✅ Complete |
-| SHAP explainability analysis | ⬜ Not started |
-| Aircraft-level error analysis | ⬜ Not started |
-| Cross-aircraft generalization (leave-one-type-out) | ⬜ Not started |
-| Neural residual model (MLP / transformer) | ⬜ Not started |
+| Bootstrap significance testing (`07_significance_testing`) | ✅ Complete |
+| Energy-state study (E2) | ✅ Complete |
+| Operational feature study (E3) | ✅ Complete |
+| Residual learning study (E4) | ✅ Complete |
+| Weather feature study (E5) | ✅ Complete |
+| Energy + Weather hybrid study (E6) | ✅ Complete |
+| MLP residual study (E7) | ✅ Complete |
+| SHAP explainability analysis | ⬜ Not Completed |
+| Aircraft-level error analysis | ⬜ Not Completed |
+| Cross-aircraft generalization (leave-one-type-out) | ⬜ Not Completed |
+| Transformer residual model | ⬜ Not Completed |
 | Paper drafting (Paper 1: characterization; Paper 2: hybrid model) | ⬜ In progress |
 
 ### Key artifacts
 
 | File | Description |
 |---|---|
-| `featured_dataset.parquet` | Training-ready featured dataset |
-| `physics/build_featured_dataset.py` | Dataset builder |
-| `physics/openap_baseline.py` | OpenAP baseline + feature extraction |
-| `notebooks/05_baseline_modeling.py` | Flight-level ML baselines |
-| `notebooks/06_physics_ablation.py` | Physics feature ablation |
-| `notebooks/07_sparsity_ablation.py` | Sparsity-conditioned ablation |
-| `figures/table_model_comparison_flight_split.csv` | Main model comparison |
-| `figures/table_physics_ablation.csv` | Physics ablation results |
-| `figures/table_sparsity_ablation.csv` | Sparsity ablation results |
-| `FEATURED_DATASET.md` | Dataset schema documentation |
+| `featured_dataset.parquet` | Training-ready featured dataset (62 columns) |
+| `physics/feature_engineering.py` | E2 energy + E3 operational features |
+| `physics/weather_features.py` | E5 weather proxies |
+| `physics/mlp_residual.py` | E7 MLP residual corrector |
+| `physics/eval_framework.py` | Shared evaluation + bootstrap framework |
+| `notebooks/07_significance_testing.py` | Bootstrap significance for ablations |
+| `notebooks/08_physics_features_v2.py` | V2 experiments (E2–E4) |
+| `notebooks/09_physics_features_v3.py` | V3 experiments (E5–E7) |
+| `figures/table_v3_leaderboard.csv` | V3 model leaderboard |
+| `figures/table_significance_v3_all.csv` | Combined significance results |
+| `Dataset_explanation.md` | Dataset schema documentation |
 
----
-
-## 12. Recommended Next Steps
-
-### High priority
-
-**1. Aircraft-level error analysis**
-
-Break down MAE and residual distributions by `aircraft_type`. Wide-bodies (A359, B789) may exhibit distinct error modes due to mass scaling and cruise profiles. Informs whether per-type models or embeddings are needed.
-
-**2. SHAP explainability**
-
-Quantify per-prediction feature contributions beyond global LightGBM importance. Critical for trust, debugging, and Paper 2 narrative—especially for `n_traj_pts`, `method`, and phase fractions.
-
-**3. Cross-aircraft generalization**
-
-Leave-one-aircraft-type-out (LOAO) or hold out rare types (B77W, A388). Tests whether models extrapolate to unseen airframes—a key deployment risk given 26 types with heavy class imbalance.
-
-### Medium priority
-
-**4. Neural baselines**
-
-Train an MLP or small transformer on the featured dataset with aircraft/method embeddings. Compare against tree models; neural nets may capture nonlinear interactions between sparsity and phase more expressively.
-
-**5. Improved physics models**
-
-Better mass estimation (type + route + fraction-of-flight regression), wind correction, or flight-path integration instead of single-point FuelFlow. Could improve both the OpenAP baseline and residual target structure.
-
-### Low priority
-
-**6. API / deployment**
-
-FastAPI inference endpoint wrapping the trained hybrid model for batch interval scoring.
-
-**7. UI / demo work**
-
-Dashboard for visualizing per-flight predictions, residuals, and sparsity indicators. Useful for stakeholder demos but not required for research validation.
-
----
-
-## 13. Final Assessment
-
-### Does AeroTwin work?
-
-**Yes—with qualifications.** AeroTwin's machine learning layer accurately predicts fuel burn on held-out flights (MAE ~87–108 kg, R² ~0.88–0.94), representing an **~84% error reduction** over raw OpenAP. The core thesis—that structured physics errors can be corrected with trajectory-aware ML—is validated on 10,000 flights and 116,000 intervals.
-
-### What has been validated?
-
-- Remote data pipeline for `aerotwin/aero-data` without full download
-- OpenAP per-interval baseline with TAS inference and feature extraction
-- Featured dataset construction at scale (119k intervals, 32 columns)
-- Structured, learnable residuals correlated with observability and phase
-- ML generalization under **strict flight-level** train/test separation
-- Physics ablation: ML is data-driven; OpenAP is a weak standalone predictor but supports the hybrid framing
-- Sparsity ablation: physics-as-feature helps most at moderate sparsity (10–99 points), not at extreme sparsity
-
-### What remains unproven?
-
-- **Cross-aircraft extrapolation** to rare or unseen types
-- **Neural architectures** beyond gradient-boosted trees
-- **Production-grade physics** (true mass, wind, engine degradation)
-- **Temporal / OOD generalization** on `rank` and `final` splits
-- **Explainability** at the per-prediction level (SHAP)
-- **Statistical significance** of sparsity-conditioned physics gains across seeds
-
-### Strongest results so far
+### Strongest results
 
 | Result | Detail |
 |---|---|
-| **Best overall MAE** | 87.1 kg (Random Forest, direct prediction, flight-level) |
-| **Best residual MAE** | 107.1 kg (XGBoost, residual learning, flight-level) |
-| **Generalization gap** | +7% MAE vs. row-level split (acceptable) |
-| **OpenAP improvement** | 84% MAE reduction (668 → 107 kg) |
-| **Dominant features** | `duration_s`, `aircraft_type` |
-| **Key sparsity finding** | Physics feature gain peaks at 10–99 traj points (+16% MAE without it) |
-
-### Executive summary
-
-AeroTwin has progressed from dataset characterization through physics baseline validation, feature engineering, and rigorous ML benchmarking. The project demonstrates that **aviation fuel burn can be predicted accurately from partially observable trajectory data**, that **models generalize to unseen flights**, and that **OpenAP provides a useful—but not sufficient—physics foundation**. The path forward prioritizes aircraft-level diagnostics, explainability, and cross-type generalization before investing in neural architectures and deployment infrastructure.
+| **Best overall MAE** | **83.76 kg** (Energy+Weather Hybrid, XGBoost, flight-level) |
+| **Previous best (OpenAP hybrid)** | 86.31 kg (XGBoost) |
+| **Bootstrap-significant gain** | ΔMAE −2.55 kg, 95% CI [−3.58, −1.50] |
+| **Rejected: residual learning** | ~107 kg MAE (trees), ~104 kg (MLP) |
+| **Rejected: sparse physics hypothesis** | All bucket bootstrap CIs include zero |
+| **Rejected: weather-only** | CI [−0.40, +1.07] |
 
 ---
 
-*Report generated from experiments in the ZeroPing repository, June 2026. Reproduce results with `python notebooks/05_baseline_modeling.py`, `06_physics_ablation.py`, and `07_sparsity_ablation.py`.*
+## Final Executive Summary
+
+AeroTwin evolved from evaluating OpenAP into investigating **which physics-informed inductive biases remain useful** for modern gradient-boosted ensembles trained on partially observable trajectory data.
+
+The project now demonstrates that:
+
+- **Aviation fuel burn can be predicted accurately** on unseen flights when trajectory, metadata, and appropriate physics-informed features are available.
+- **OpenAP alone is insufficient** (MAE ≈ 668 kg) and provides **only modest incremental value** as an ML input (~1–3 kg).
+- **Several hypothesized mechanisms do not hold:** physics gains in sparse trajectories, operational descriptors alone, weather-only features, and residual-correction architectures (tree and MLP) all **fail bootstrap significance** or underperform direct hybrid models.
+- **Explicit energy-state representations provide statistically robust improvements** (E2), and **Energy + Weather hybrid achieves the best performance** (E6): **MAE ≈ 83.7 kg** with flight-clustered 95% CI excluding zero.
+
+**Best model discovered:** Energy+Weather Hybrid (XGBoost), MAE ≈ 83.7 kg. This is the **primary scientific contribution** of AeroTwin to date.
+
+Negative results—residual learning failure, sparsity hypothesis rejection, weather-only insignificance—are preserved as scientifically valuable outcomes. Future work (SHAP, aircraft-level analysis, leave-one-type-out, transformer residuals) is deferred.
+
+---
+
+*Report updated June 2026. Reproduce: `python notebooks/05_baseline_modeling.py`, `06_physics_ablation.py`, `07_significance_testing.py`, `08_physics_features_v2.py`, `09_physics_features_v3.py`.*

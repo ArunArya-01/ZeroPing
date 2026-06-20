@@ -1,0 +1,3 @@
+comparison,mae_new,mae_baseline,delta_mae,bootstrap_mean,bootstrap_median,ci_lower,ci_upper,bootstrap_p,wilcoxon_stat,wilcoxon_p,cohens_d,effect_size,interpretation
+Energy Hybrid vs OpenAP Hybrid,84.48070967501623,86.30553201747955,-1.824822342463321,-1.8257294033995466,-1.8402907488197258,-2.922318162758914,-0.6659943730569775,0.0017,120195854.0,4.212383937430988e-35,-0.030448346786392754,Negligible,Energy Hybrid significantly better than OpenAP Hybrid
+Energy+Weather Hybrid vs OpenAP Hybrid,83.75996267132038,86.30553201747955,-2.5455693461591693,-2.5472637151512556,-2.553427996473232,-3.57955107325987,-1.5000284208505776,0.0,119959617.5,2.2556678135192656e-36,-0.03963388419914334,Negligible,Energy+Weather Hybrid significantly better than OpenAP Hybrid
