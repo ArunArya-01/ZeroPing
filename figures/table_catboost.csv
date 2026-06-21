@@ -1,0 +1,2 @@
+feature_set,experiment,model,loss,n_features,n_cat_features,best_iter,mae,rmse,r2,inf_ms_per_1k
+Energy+Weather+Physics,A:RMSE,CatBoost,RMSE,40,5,512,87.59,209.73,0.9445,1.82

@@ -16,6 +16,8 @@ traffic>=2.9.0
 # ML
 scikit-learn>=1.4.0
 lightgbm>=4.3.0
+catboost>=1.2
+optuna>=3.6
 
 # NUMERICS
 numpy>=1.26.0

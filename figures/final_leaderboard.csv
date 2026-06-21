@@ -1,0 +1,9 @@
+Model,MAE,RMSE,R2
+LGBM,86.67,208.61,0.9451
+XGB,83.76,212.03,0.9433
+CatBoost,87.59,209.73,0.9445
+Ensemble (Ridge 1-split),85.7,204.9,0.9471
+Aircraft Experts,85.8,206.8,0.9462
+Optuna Best,84.9,204.6,0.9473
+Full 5f GroupKFold LGBM_meta (best),84.3,202.9,0.9481
+Challenge Winner (200.83 RMSE),-,200.83,-

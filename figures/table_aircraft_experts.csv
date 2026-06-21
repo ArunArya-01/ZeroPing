@@ -1,0 +1,5 @@
+approach,model,mae,rmse,r2
+Global,CatBoost,87.59,209.73,0.9445
+Global,LightGBM,86.67,208.61,0.9451
+Experts,CatBoost,86.1,207.2,0.946
+Experts,LightGBM,85.8,206.8,0.9462
