@@ -1,0 +1,3 @@
+experiment,approach,model,mae
+vrate,E+W (no bins),XGB,83.93409170892735
+vrate,E+W + vrate bins,XGB,84.04139238688238

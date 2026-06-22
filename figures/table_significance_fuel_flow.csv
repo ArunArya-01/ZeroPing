@@ -1,0 +1,2 @@
+comparison,mae_new,mae_baseline,delta_mae,bootstrap_mean,bootstrap_median,ci_lower,ci_upper,bootstrap_p,wilcoxon_stat,wilcoxon_p,cohens_d,effect_size,interpretation
+Fuel-Flow (E+W) vs Direct (E+W),80.05567957980793,83.75996267132038,-3.704283091512451,-3.7161852460535534,-3.7032276371893644,-5.103275404180522,-2.455580678903646,0.0,121038205.0,9.224377832349682e-31,-0.04708626504663492,Negligible,Fuel-Flow (E+W) significantly better than Direct (E+W)

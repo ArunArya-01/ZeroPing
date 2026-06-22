@@ -584,11 +584,14 @@ Conditional experiment (skipped when E5–E7 exceed 1.5 kg improvement threshold
 | Weather feature study (E5) | ✅ Complete |
 | Energy + Weather hybrid study (E6) | ✅ Complete |
 | MLP residual study (E7) | ✅ Complete |
-| SHAP explainability analysis | ⬜ Not Completed |
-| Aircraft-level error analysis | ⬜ Not Completed |
-| Cross-aircraft generalization (leave-one-type-out) | ⬜ Not Completed |
-| Transformer residual model | ⬜ Not Completed |
-| Paper drafting (Paper 1: characterization; Paper 2: hybrid model) | ⬜ In progress |
+| SHAP explainability | ⬜ |
+| Aircraft-level analysis | ⬜ |
+| Leave-one-type-out | ⬜ |
+| Transformer residual | ⬜ |
+| Mixture-of-experts | ⬜ |
+| Optuna search | ⬜ |
+| CatBoost tuning | ⬜ |
+| Final paper drafting | ⬜ |
 
 ### Key artifacts
 
@@ -605,6 +608,18 @@ Conditional experiment (skipped when E5–E7 exceed 1.5 kg improvement threshold
 | `figures/table_v3_leaderboard.csv` | V3 model leaderboard |
 | `figures/table_significance_v3_all.csv` | Combined significance results |
 | `Dataset_explanation.md` | Dataset schema documentation |
+| `featured_dataset_mass.parquet` | V4 heuristic mass features (MTOW/MLW/OEW + interval mass trajectory) |
+| `featured_dataset_vrate.parquet` | V4 10-bin vertical rate embeddings |
+| `notebooks/09_mass_features.py` | Heuristic mass + mass ablation (Task 1/4) |
+| `notebooks/10_fuel_flow_target.py` | Fuel flow target + flow ablations (Tasks 2/5) |
+| `notebooks/11_vertical_embeddings.py` | 10-bin vertical embeddings + impact eval (Task 3) |
+| `notebooks/13_flow_vs_prc.py` | Competition benchmarking with 5f OOF pipeline vs PRC winner |
+| `figures/leaderboard_v4.csv` | V4 leaderboard |
+| `figures/table_mass_ablation.csv` | Mass ablation results |
+| `figures/table_fuel_flow.csv` | Fuel flow target comparison |
+| `figures/table_vertical_embeddings.csv` | Vertical embeddings impact |
+| `figures/table_flow_vs_prc.csv` | Flow variants vs 200.83 with bootstrap CIs |
+| `figures/fig_v4_leaderboard.png` | V4 leaderboard visualization |
 
 ### Strongest results
 
@@ -617,23 +632,176 @@ Conditional experiment (skipped when E5–E7 exceed 1.5 kg improvement threshold
 | **Rejected: sparse physics hypothesis** | All bucket bootstrap CIs include zero |
 | **Rejected: weather-only** | CI [−0.40, +1.07] |
 
+### V4 + Ensemble Results (updated 2026-06)
+
+| Result | Detail |
+| **New best AeroTwin** | **RMSE = 202.90 kg** (5f GroupKFold OOF + LGBM_meta ensemble on Energy+Weather+Physics features) |
+| PRC2025 Winner (external) | 200.83 kg RMSE |
+| Gap to official winner | 202.90 − 200.83 = **2.07 kg RMSE** (≈ 1.03 %) |
+| FuelFlow+Energy+Mass (flow target, 5f OOF + LGBM_meta) | 204.18 kg RMSE (MAE 81.34) |
+| FuelFlow (base+phys, flow) | 205.88 kg RMSE |
+| FuelFlow+Energy (flow) | 206.32 kg RMSE |
+| Energy+Weather (single XGB, direct, 1-split) | ~212–224 RMSE (MAE 83.76) |
+| Bootstrap CI note (flow variants) | Wide flight-clustered 95% CIs (~[173–240]); all overlap winner → statistically indistinguishable |
+
+**Key V4 findings preserved:** Heuristic mass features and 10-bin vertical embeddings produced no statistically significant gains and are rejected. Fuel-flow target formulation delivered significant single-model MAE gains (~79.5 kg on Energy features) and competitive ensemble RMSE.
+
 ---
+
+
+
+## 14. Competition Benchmarking
+
+PRC2025 Winner RMSE = 200.83 kg
+
+**Current AeroTwin leaderboard:**
+
+| Model                              | RMSE    |
+|------------------------------------|---------|
+| PRC2025 Winner                     | 200.83  |
+| AeroTwin Ensemble (5f LGBM_meta)   | 202.90  |
+| FuelFlow+Energy+Mass               | 204.18  |
+| FuelFlow                           | 205.88  |
+| FuelFlow+Energy                    | 206.32  |
+| Energy+Weather (direct baseline)   | ~219–224 |
+
+**Gap to winner:**
+
+202.90 - 200.83 = 2.07 kg RMSE
+
+≈1.03%
+
+**Conclusion:**
+
+"AeroTwin achieves competition-level performance and is statistically indistinguishable from the winning PRC2025 solution under current bootstrap uncertainty, although it does not yet surpass the leaderboard winner."
+
+## 15. V4 Experiments
+
+V4 focused on reproducing and extending ideas inspired by PRC2025 winning approaches while preserving AeroTwin's scientific focus on **which physical inductive biases matter**.
+
+### Notebooks
+- `notebooks/09_mass_features.py` — Heuristic mass features (OpenAP MTOW/MLW/OEW → takeoff/landing/mass estimates + interval mass_start/end/mean/std/slope/consumed) + mass ablation (4 models A/B/C/D).
+- `notebooks/10_fuel_flow_target.py` — Fuel flow target (`actual_fuel_kg / duration_s`) instead of direct kg; recovery `fuel_pred = flow * duration_s`; direct vs flow + mass/energy/weather ablations.
+- `notebooks/11_vertical_embeddings.py` — 10-bin vertical rate embeddings (`vr_mean_1..10`, `vr_std_1..10`) from trajectory windows (exact logic + practical approx for scale).
+
+### Deliverables
+- `featured_dataset_mass.parquet`
+- `featured_dataset_vrate.parquet`
+- `leaderboard_v4.csv`
+- `table_mass_ablation.csv`
+- `table_fuel_flow.csv`
+- `table_vertical_embeddings.csv`
+- `fig_mass_ablation.png`, `fig_fuel_vs_flow.png`, `fig_vertical_embeddings.png`
+
+### Results
+
+**Mass Features**
+
+- RMSE ≈204–205 kg range under the ensemble pipeline.
+- No significant gain over Energy+Weather baseline in flight-clustered bootstrap (Δ positive or CI includes zero).
+- **Rejected.**
+
+**Fuel Flow Target**
+
+- Instead of predicting `actual_fuel_kg` directly, predict `fuel_flow_kgps = actual_fuel_kg / duration_s`.
+- Recover via `fuel_kg = fuel_flow * duration_s`.
+- Best single-model (XGB on flow + Energy features): RMSE ≈206 (on 5f pipeline), MAE ≈79.5 on 1-split equivalents.
+- Statistically significant improvement over direct Energy+Weather (MAE) in targeted ablations; flow formulation + energy was the strongest V4 inductive bias.
+- Flow + Energy + Mass also competitive (204.18 under full 5f OOF meta).
+
+**Vertical Embeddings**
+
+- 20 new features from 10 equal bins on per-interval vertical rate series (mean + std per bin).
+- No gain over Energy+Weather (or base mean/std_vr already present); bootstrap CI includes zero.
+- **Rejected.**
+
+All negative findings (mass, vertical embeddings, certain ablations) are preserved.
+
+## 16. Ensemble Study
+
+**Notebook:** `notebooks/08_ensemble.py` (and `11_stacking.py` for full 5f OOF verification).
+
+**Models (Level-1 bases):**
+- LightGBM
+- XGBoost
+- Random Forest
+- CatBoost
+
+**Meta-learners (Level-2):**
+- Ridge
+- ElasticNet
+- LightGBM_meta
+- CatBoost_meta
+- XGB_meta
+
+**Best:**
+LGBM_meta (RidgeStack close second) achieving RMSE=202.90
+
+**Observations:**
+- Stacking improves RMSE substantially over single Energy+Weather models (from ~212–224 down to 202.90).
+- Current best AeroTwin system (prior to further specialization). (See `notebooks/11_stacking.py` and `table_stacking.csv` for full meta comparison; 08_ensemble.py for earlier RidgeStack results.)
+
+## 17. Scientific Narrative V4
+
+**Old narrative:** "Does OpenAP help?"
+
+**Replaced by:**
+
+"AeroTwin investigates which physical inductive biases remain useful for modern gradient-boosted ensembles under partially observable aircraft trajectories."
+
+**Supported hypotheses (✓):**
+- ✓ Energy state representations
+- ✓ Fuel-flow targets
+- ✓ Ensemble stacking
+
+**Rejected hypotheses (✗):**
+- ✗ Sparse hypothesis
+- ✗ Operational descriptors
+- ✗ Weather only
+- ✗ Residual learning
+- ✗ MLP residual
+- ✗ Vertical embeddings
+- ✗ Heuristic mass features
+
+Negative results are retained as core scientific output.
+
+## 18. SOTA Position
+
+| System                  | RMSE    |
+|-------------------------|---------|
+| OpenAP                  | 1582    |
+| Direct Hybrid           | 224     |
+| Energy+Weather          | 219–224 |
+| FuelFlow+Energy         | 206     |
+| Ensemble                | 202.90  |
+| PRC2025 Winner          | 200.83  |
+
+**Conclusion:**
+
+AeroTwin is within 2.07 kg RMSE (~1%) of the official PRC2025 winner.
 
 ## Final Executive Summary
 
-AeroTwin evolved from evaluating OpenAP into investigating **which physics-informed inductive biases remain useful** for modern gradient-boosted ensembles trained on partially observable trajectory data.
+**New best AeroTwin:**
 
-The project now demonstrates that:
+RMSE = 202.90 kg
 
-- **Aviation fuel burn can be predicted accurately** on unseen flights when trajectory, metadata, and appropriate physics-informed features are available.
-- **OpenAP alone is insufficient** (MAE ≈ 668 kg) and provides **only modest incremental value** as an ML input (~1–3 kg).
-- **Several hypothesized mechanisms do not hold:** physics gains in sparse trajectories, operational descriptors alone, weather-only features, and residual-correction architectures (tree and MLP) all **fail bootstrap significance** or underperform direct hybrid models.
-- **Explicit energy-state representations provide statistically robust improvements** (E2), and **Energy + Weather hybrid achieves the best performance** (E6): **MAE ≈ 83.7 kg** with flight-clustered 95% CI excluding zero.
+**Official winner:**
 
-**Best model discovered:** Energy+Weather Hybrid (XGBoost), MAE ≈ 83.7 kg. This is the **primary scientific contribution** of AeroTwin to date.
+RMSE = 200.83 kg
 
-Negative results—residual learning failure, sparsity hypothesis rejection, weather-only insignificance—are preserved as scientifically valuable outcomes. Future work (SHAP, aircraft-level analysis, leave-one-type-out, transformer residuals) is deferred.
+**Gap:**
+
+2.07 kg
+
+AeroTwin achieves competition-level performance and is statistically indistinguishable from the winning PRC2025 solution under current bootstrap uncertainty, although it does not yet surpass the leaderboard winner.
+
+**Primary contribution:**
+
+Identification of which physics-informed inductive biases remain statistically useful for strong tree ensembles trained on partially observable aircraft telemetry.
+
+The project preserves all historical experiments and negative results (mass features rejected, vertical embeddings rejected, sparsity hypothesis rejected, residual learning rejected, etc.).
 
 ---
 
-*Report updated June 2026. Reproduce: `python notebooks/05_baseline_modeling.py`, `06_physics_ablation.py`, `07_significance_testing.py`, `08_physics_features_v2.py`, `09_physics_features_v3.py`.*
+*Report updated June 2026. Reproduce: `python notebooks/05_baseline_modeling.py`, `06_physics_ablation.py`, `07_significance_testing.py`, `08_physics_features_v2.py`, `09_physics_features_v3.py`, `notebooks/09_mass_features.py`, `notebooks/10_fuel_flow_target.py`, `notebooks/11_vertical_embeddings.py`, `notebooks/11_stacking.py`, `notebooks/13_flow_vs_prc.py`.*

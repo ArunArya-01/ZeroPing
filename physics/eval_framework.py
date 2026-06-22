@@ -20,6 +20,12 @@ from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder
 
+try:
+    from catboost import CatBoostRegressor
+    HAS_CATBOOST = True
+except ImportError:
+    HAS_CATBOOST = False
+
 RANDOM_STATE = 42
 TEST_SIZE = 0.2
 N_BOOTSTRAP = 10_000
@@ -116,6 +122,18 @@ def make_pipeline(model_key: str, feature_cols: list[str]) -> Pipeline:
             n_estimators=300, learning_rate=0.05, num_leaves=31,
             subsample=0.8, colsample_bytree=0.8,
             random_state=RANDOM_STATE, verbose=-1,
+        )
+    elif model_key == "cat":
+        if not HAS_CATBOOST:
+            raise ImportError("catboost is required for 'cat' model. pip install catboost")
+        # Use same prep (OHE cats); CatBoost can learn from it (native cats would be better but keeps API uniform)
+        model = CatBoostRegressor(
+            iterations=300,
+            learning_rate=0.05,
+            depth=8,
+            random_seed=RANDOM_STATE,
+            verbose=0,
+            thread_count=-1,
         )
     else:
         raise ValueError(model_key)
@@ -221,6 +239,25 @@ def plot_bootstrap_hist(dist, title, path, color="steelblue"):
     fig.tight_layout()
     fig.savefig(path, bbox_inches="tight")
     plt.close(fig)
+
+
+# V4 feature groups (populated by notebooks 09/10/11)
+MASS_FEATURES: list[str] = [
+    "mtow",
+    "mlw",
+    "oew",
+    "takeoff_mass_est",
+    "landing_mass_est",
+    "mean_mass",
+    "std_mass",
+    "mass_slope",
+    "mass_consumed_est",
+]
+
+VRATE_BIN_FEATURES: list[str] = [
+    *(f"vr_mean_{i}" for i in range(1, 11)),
+    *(f"vr_std_{i}" for i in range(1, 11)),
+]
 
 
 def train_predict(

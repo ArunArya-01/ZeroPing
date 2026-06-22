@@ -1,0 +1,2 @@
+comparison,mae_new,mae_baseline,delta_mae,bootstrap_mean,bootstrap_median,ci_lower,ci_upper,bootstrap_p,wilcoxon_stat,wilcoxon_p,cohens_d,effect_size,interpretation
+E+W + vrate bins vs E+W (no bins),84.04139238688238,83.93409170892735,0.10730067795502407,0.10926600607777737,0.11887261047710496,-0.457749445710985,0.6217389192065418,0.6693,132043961.5,0.2865597191781937,0.0035760017443568883,Negligible,No significant evidence
