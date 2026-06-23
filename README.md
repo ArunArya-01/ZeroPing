@@ -1,138 +1,201 @@
 <div align="center">
 
-## AeroTwin
+# AeroTwin
 
 <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-green?style=flat-square"></a>
 
-**Physics-Informed Aircraft Fuel Burn Prediction (OpenAP + Neural Residual)**
+**Physics-informed aircraft fuel burn prediction with OpenAP and machine learning**
 
 </div>
 
 ---
 
-> **Current focus (2026-06)**: Dataset characterization (Paper 1) + OpenAP physics baseline validation. See `notebooks/` for EDA and `physics/` for baseline. Full hybrid model and training to follow in subsequent phase. This repo was repurposed from EngineSentinel (original RUL/anomaly code and docs retained below for history).
-
 ## Overview
 
-AeroTwin predicts aircraft fuel burn (kg per ACARS-derived interval) using:
-- OpenAP physics baseline (fuel flow from kinematics + typecode)
-- Neural residual model (learns real-world deviations, esp. under sparse ACARS air-data or mass uncertainty)
-- Hybrid = physics + residual
+AeroTwin predicts aircraft fuel burn for labeled ACARS fuel intervals using real-world fused ADS-B and ACARS telemetry from the EUROCONTROL PRC 2025 challenge dataset.
 
-Dataset: `aerotwin/aero-data` on Hugging Face (EUROCONTROL PRC 2025 challenge; ACARS fuel telemetry + ADS-B trajectories; remote access via `hf://` + Polars, no full download). See the [challenge paper](https://doi.org/10.59490/joas.2026.8750).
+The project evaluates a hybrid modeling approach:
 
-**Key entry points**:
-- `data/loader.py` + `from data import AeroDataLoader` (usable flight filter, sampling, id lookup).
-- `notebooks/01_*.py` ... `04_*` (dataset stats, fuel labels, traj quality, physics residuals).
-- `physics/openap_baseline.py` (TAS inference + FuelFlow for per-interval baseline).
-
-## Features
-
-| Feature | Description |
-|---------|-------------|
-| **RUL Prediction** | Predicts remaining cycles before failure using Random Forest, XGBoost, and LSTM |
-| **Anomaly Detection** | Identifies unusual engine behavior using Isolation Forest |
-| **Explainable AI** | SHAP values explain which sensors influence predictions |
-| **Health Score** | Engine Health Index (0–100) based on RUL, anomalies, and degradation |
-| **Risk Assessment** | Risk levels (Green/Yellow/Red) with advisory messages |
-| **Digital Twin** | Simulates real-time engine degradation trends |
-| **Interactive Dashboard** | React + TypeScript + Tailwind CSS visualization |
-
-## Dashboard Overview
-
-The frontend dashboard consists of several components:
-
-- **EngineSelector** — Allows selecting different engines for monitoring
-- **RemainingLife** — Displays the predicted Remaining Useful Life (RUL) for the selected engine
-- **HealthGauge** — Shows the engine health index as a gauge
-- **SensorMonitoring** — Visualizes real-time sensor data
-- **DegradationSimulation** — Simulates engine degradation trends (digital twin)
-- **ExplainableAI** — Shows SHAP explanations for the predictions
-- **RiskStatus** — Displays the risk level (Green/Yellow/Red) and advisory messages
-- **SystemArchitecture** — Provides an overview of the system architecture
-
-## Project Structure
-
-```
-EngineSentinel/
-├── anomaly_detection/       # Isolation Forest anomaly detection
-├── api/                     # FastAPI REST API backend
-├── data_processing/         # Data loading, preprocessing, feature engineering
-├── digital_twin/            # Digital twin simulation
-├── explainable_ai/          # SHAP-based explanations
-├── frontend/                # React + TypeScript frontend
-├── health_risk/             # Health scoring & risk assessment
-├── ml_prediction/           # ML models (RF, XGBoost, LSTM)
-├── requirements.txt         # Python dependencies
-└── requirements-dev.txt     # Development & CI dependencies
+```text
+predicted_fuel_kg = f(trajectory, aircraft, route, physics_fuel_kg, engineered_features)
 ```
 
-## Prerequisites
+OpenAP provides a physics baseline from aircraft type, inferred true airspeed, altitude, vertical rate, and reference mass. Machine learning models then learn the remaining structure in real operational data, including sparse telemetry, missing air-data, and unknown aircraft mass.
 
-- **Python**: 3.8+ | **Node.js**: 16+ | **OS**: Windows, macOS, Linux | **RAM**: 8 GB+ recommended
+Dataset: [`aerotwin/aero-data`](https://huggingface.co/datasets/aerotwin/aero-data) on Hugging Face.
+
+## Current Status
+
+As of June 2026, this repository contains:
+
+- A Hugging Face backed data loader for remote dataset access.
+- OpenAP fuel-flow baseline generation.
+- Feature engineering for trajectory, phase, energy, operational, and weather-proxy features.
+- Experiment scripts for baseline modeling, ablations, stacking, aircraft experts, and verification.
+- Generated tables and figures under `figures/`.
+- Paper-oriented summaries under `papers/`.
+
+Best documented result so far: Energy + Weather Hybrid XGBoost at about **83.76 kg MAE** on a held-out flight-level split. See [PROJECT_STATUS_REPORT.md](PROJECT_STATUS_REPORT.md) and [papers/hybrid_model_summary.md](papers/hybrid_model_summary.md) for details.
+
+## Repository Structure
+
+```text
+ZeroPing/
+├── data/
+│   ├── __init__.py
+│   └── loader.py                    # Remote Hugging Face dataset loader
+├── physics/
+│   ├── openap_baseline.py           # OpenAP interval fuel baseline
+│   ├── feature_engineering.py       # Energy and operational features
+│   ├── weather_features.py          # ISA and wind proxy features
+│   ├── build_featured_dataset.py    # Main featured dataset builder
+│   ├── enrich_featured_dataset.py   # Additional feature enrichment
+│   ├── enrich_v3_features.py        # V3 feature set enrichment
+│   ├── eval_framework.py            # Evaluation and bootstrap utilities
+│   └── mlp_residual.py              # Neural residual experiments
+├── notebooks/                       # Reproducible experiment scripts
+├── figures/                         # Generated plots, leaderboards, tables
+├── papers/                          # Research summaries and paper drafts
+├── featured_dataset*.parquet         # Materialized modeling datasets
+├── requirements.txt                 # Runtime and experiment dependencies
+├── setup.cfg                        # Tool configuration
+└── .github/workflows/ci.yml         # CI/CD workflow
+```
+
+## Key Entry Points
+
+| Path | Purpose |
+|---|---|
+| `data/loader.py` | Load flight lists, fuel labels, and per-flight trajectory parquet files from Hugging Face. |
+| `physics/openap_baseline.py` | Build interval-level OpenAP fuel estimates and base trajectory features. |
+| `physics/build_featured_dataset.py` | Materialize the main featured dataset. |
+| `physics/feature_engineering.py` | Add energy-state and operational features. |
+| `physics/weather_features.py` | Add atmosphere and wind proxy features. |
+| `physics/eval_framework.py` | Train/evaluate models and run flight-clustered bootstrap tests. |
+| `notebooks/05_baseline_modeling.py` | Baseline modeling experiments. |
+| `notebooks/09_physics_features_v3.py` | Energy/weather feature ablations. |
+| `notebooks/12_verify_ensemble.py` | Ensemble verification workflow. |
 
 ## Installation
 
+Use Python 3.11. Some dependencies, including current `openap` releases, require Python 3.11 or newer.
+
 ```bash
-git clone https://github.com/ArunArya-01/EngineSentinel.git
-cd EngineSentinel
+git clone https://github.com/ArunArya-01/ZeroPing.git
+cd ZeroPing
+
+python -m venv .venv
+source .venv/bin/activate
+
+python -m pip install --upgrade pip
 pip install -r requirements.txt
-
-# Create Dataset directory and add C-MAPSS files
-mkdir -p Dataset
-# Download from: https://www.kaggle.com/datasets/bishal098/nasa-turbofan-engine-degradation-simulation
-# Place train_FD001.txt, test_FD001.txt, RUL_FD001.txt in Dataset/
 ```
 
-## How to Run
+Some experimental scripts import optional ML packages that may not be installed by `requirements.txt` in every environment, such as `xgboost`. Install those only when running the corresponding experiments.
+
+## Data Access
+
+The project is designed to read the AeroTwin dataset remotely from Hugging Face using `hf://` paths, Polars, and `huggingface_hub`. A full local dataset download is not required for the loader.
+
+```python
+from data import AeroDataLoader
+
+loader = AeroDataLoader()
+flightlist = loader.get_flightlist("train")
+fuel = loader.get_fuel_labels("train")
+paths = loader.sample_flight_files(split="train", n=5)
+```
+
+If Hugging Face authentication is required, set `HF_TOKEN` in your environment.
+
+## Typical Workflows
+
+Build or refresh the featured dataset:
 
 ```bash
-# Step 1: Train models
-python -m ml_prediction.trainer
-
-# Step 2: Start FastAPI backend
-uvicorn api.main:app --reload     # API docs at http://localhost:8000/docs
-
-# Step 3: Launch frontend
-cd frontend && npm install && npm run dev    # Frontend at http://localhost:5173
+PYTHONPATH=. python physics/build_featured_dataset.py
 ```
 
-## Risk Levels
+Run feature enrichment:
 
-| Risk Level | Health Index | Meaning | Recommended Action |
-|------------|--------------|---------|--------|
-| 🟢 Green | 70–100 | Healthy | Normal operation |
-| 🟡 Yellow | 40–69 | Warning | Monitor closely, schedule maintenance |
-| 🔴 Red | 0–39 | Critical | Immediate inspection required |
+```bash
+PYTHONPATH=. python physics/enrich_featured_dataset.py
+PYTHONPATH=. python physics/enrich_v3_features.py
+```
 
-## Key Metrics
+Run experiment scripts:
 
-- **RUL** — Remaining operational cycles until failure
-- **Health Index** — Composite score (0–100) based on RUL, anomalies, and degradation
-- **Anomaly Score** — Higher values indicate more unusual sensor behaviour
+```bash
+PYTHONPATH=. python notebooks/05_baseline_modeling.py
+PYTHONPATH=. python notebooks/09_physics_features_v3.py
+PYTHONPATH=. python notebooks/12_verify_ensemble.py
+```
+
+Many scripts expect the generated parquet artifacts in the repository root and write outputs to `figures/`.
+
+## Modeling Summary
+
+The main experiments compare:
+
+- OpenAP-only physics baseline.
+- Direct hybrid models that predict `actual_fuel_kg` with `physics_fuel_kg` as an input.
+- Residual models that predict `actual_fuel_kg - physics_fuel_kg`.
+- Feature ablations for energy-state features, operational descriptors, weather proxies, mass features, vertical embeddings, stacking, and aircraft-type experts.
+
+Evaluation uses flight-level train/test splits to avoid leakage between intervals from the same flight. Statistical comparisons use flight-clustered bootstrap tests where applicable.
+
+## Generated Artifacts
+
+Important generated files include:
+
+- `featured_dataset.parquet`
+- `featured_dataset_mass.parquet`
+- `featured_dataset_vrate.parquet`
+- `figures/final_leaderboard.csv`
+- `figures/table_v3_leaderboard.csv`
+- `figures/table_significance_v3_all.csv`
+- `figures/table_verify_ensemble.csv`
+
+These files are experiment artifacts and may be regenerated by the scripts above.
 
 ## CI/CD
 
-GitHub Actions runs linting (flake8, black, isort), dependency validation, security scans (safety), and tests.
+GitHub Actions currently runs:
+
+- Python 3.11 setup.
+- Syntax compilation for `data`, `physics`, and `notebooks`.
+- Strict `flake8` fatal-error checks for importable source under `data` and `physics`.
+- Dependency installation from `requirements.txt`.
+- Smoke imports for lightweight core modules.
+- Security scanning with `safety`.
+- Build verification for core modules and script syntax.
+
+The CI intentionally does not smoke-import heavier experimental modules that require optional packages such as `xgboost`; those modules are still syntax-checked.
+
+Useful local checks:
 
 ```bash
-# Run locally
-pip install -r requirements-dev.txt
-flake8 . --count --show-source --statistics
-black --check .
-pytest tests/ -v
+python -m compileall -q data physics notebooks
+flake8 data physics --count --select=E9,F63,F7,F82 --show-source --statistics
 ```
 
 ## Troubleshooting
 
-| Issue | Solution |
-|-------|----------|
-| `ModuleNotFoundError` | Run all commands from the project root |
-| `Dataset not found` | Ensure C-MAPSS files are placed in `Dataset/` |
-| `Import errors` | Run `pip install -r requirements.txt` |
-| `Backend not starting` | Try `uvicorn api.main:app --reload --log-level debug` |
-| `Frontend not loading` | Run `npm install` inside the `frontend/` directory |
+| Issue | Fix |
+|---|---|
+| `openap` will not install on Python 3.10 | Use Python 3.11 or newer. |
+| `ModuleNotFoundError` for local packages | Run commands from the repo root with `PYTHONPATH=.`. |
+| Hugging Face access fails | Check network access and set `HF_TOKEN` if required. |
+| Experiment script cannot find parquet files | Generate the featured dataset first or confirm the parquet artifacts exist in the repo root. |
+| `ModuleNotFoundError: xgboost` | Install optional experiment dependency with `pip install xgboost`. |
 
-## MIT License
+## References
 
-MIT License 
+- Dataset: [`aerotwin/aero-data`](https://huggingface.co/datasets/aerotwin/aero-data)
+- OpenAP: <https://github.com/junzis/openap>
+- Project status: [PROJECT_STATUS_REPORT.md](PROJECT_STATUS_REPORT.md)
+- Hybrid model summary: [papers/hybrid_model_summary.md](papers/hybrid_model_summary.md)
+
+## License
+
+This repository is released under the MIT License. See [LICENSE](LICENSE).
