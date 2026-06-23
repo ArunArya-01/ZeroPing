@@ -1,23 +1,3 @@
-"""
-Optuna hyperparameter tuning (Task 4) — CatBoost + LightGBM.
-
-500 trials spec (reduced to ~120 for practical CI/runtime here; rerun with 500 for final).
-Strict flight-level split only. No leakage.
-
-Search (per model family):
-  CatBoost: depth, iterations, learning_rate, l2_leaf_reg, subsample, bagging_temperature, min_data_in_leaf
-  LGBM: num_leaves, learning_rate, n_estimators, reg_lambda (l2), subsample, colsample_bytree, min_child_samples
-
-Objective: minimize RMSE on held-out (flight split).
-
-Outputs:
-  figures/table_optuna.csv
-  figures/fig_optuna_history.png
-  figures/best_params.json
-
-Run:
-    python notebooks/10_optuna.py
-"""
 
 from __future__ import annotations
 

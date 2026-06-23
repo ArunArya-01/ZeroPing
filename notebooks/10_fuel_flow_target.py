@@ -1,25 +1,3 @@
-"""
-AeroTwin V4 — Fuel Flow Target (instead of fuel kg) + Fuel Flow Ablation.
-
-Task 2: Predict fuel_flow_kgps = actual_fuel_kg / duration_s
-         Recover fuel_pred = flow * duration_s
-         Train LGBM/XGB/CatBoost
-         Compare direct fuel target vs flow target (recovered)
-         Outputs: fig_fuel_vs_flow.png table_fuel_flow.csv
-
-Task 5: Fuel Flow Ablation variants:
-         - Direct fuel (Energy+Weather)
-         - Fuel flow (Energy+Weather)
-         - Fuel flow + Mass
-         - Fuel flow + Energy
-         - Fuel flow + Energy + Weather
-         With bootstrap sig + 95% CI vs direct baseline.
-
-Run:
-    python notebooks/10_fuel_flow_target.py
-
-Uses featured_dataset_mass.parquet (has E/W/Mass)
-"""
 
 from __future__ import annotations
 

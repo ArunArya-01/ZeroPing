@@ -1,14 +1,3 @@
-"""
-Simple waiter script.
-
-Run this in a terminal (or let the agent run it in background).
-It will:
-- Wait until featured_dataset.parquet exists and stops growing in size (build finished)
-- Then automatically run notebooks/analyze_featured_dataset.py
-- Print the full report
-
-This lets you "fire and forget" after kicking off the full builder in another terminal.
-"""
 
 import time
 from pathlib import Path

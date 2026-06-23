@@ -1,18 +1,3 @@
-"""
-Statistical significance testing for AeroTwin physics ablations.
-
-Uses the exact flight-level split from 05_baseline_modeling.py.
-Bootstrap resamples TEST FLIGHTS (not intervals).
-
-Run:
-    python notebooks/07_significance_testing.py
-
-Output:
-    figures/fig_bootstrap_*.png
-    figures/fig_sparse_bucket_significance.png
-    figures/table_significance_*.csv
-    figures/table_sparse_significance.csv
-"""
 
 from __future__ import annotations
 

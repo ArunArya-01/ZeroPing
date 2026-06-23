@@ -1,7 +1,3 @@
-"""
-E7 learned correction: OpenAP → MLP residual predictor.
-"""
-
 from __future__ import annotations
 
 import numpy as np

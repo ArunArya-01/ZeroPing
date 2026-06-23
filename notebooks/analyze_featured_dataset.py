@@ -1,20 +1,3 @@
-"""
-Standalone script to help you understand the `featured_dataset.parquet`.
-
-Run:
-    python notebooks/analyze_featured_dataset.py
-
-It loads the parquet (must be in project root) and prints:
-- Basic shape, schema, sample
-- Target (actual_fuel_kg) and physics baseline distributions + residuals
-- Key quality signals (n_traj_pts, has_acars_in_window, phase fractions)
-- Correlations between features and the target/residual
-- Breakdowns by aircraft_type, method, phase dominance
-- Simple insights derived from the EDA (sparsity, coverage, etc.)
-
-This is the "one file to understand the training data" after the full EDA.
-All analysis uses Polars for speed/consistency with the rest of the project.
-"""
 
 from __future__ import annotations
 

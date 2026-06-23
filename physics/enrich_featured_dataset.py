@@ -1,10 +1,3 @@
-"""
-Patch featured_dataset.parquet with E2/E3 physics-informed features.
-
-Fast path: derive from existing columns (no trajectory reload).
-Run: python physics/enrich_featured_dataset.py
-"""
-
 from __future__ import annotations
 
 import sys

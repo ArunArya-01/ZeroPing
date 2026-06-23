@@ -1,26 +1,3 @@
-"""
-AeroTwin V4 — FuelFlow variants evaluated with the *exact* 5f flight-group OOF + LGBM_meta
-pipeline that produced the 202.9 ensemble (see notebooks/11_stacking.py and verify_ensemble_v2.md).
-
-Variants (all using *flow target* for L1 bases, recovered to kg for OOF/meta/eval):
-  - FuelFlow               : BASE_NUMERIC + physics_fuel_kg + cats   (flow)
-  - FuelFlow+Energy        : + ENERGY_FEATURES                      (flow)
-  - FuelFlow+Energy+Mass   : + ENERGY + MASS_FEATURES               (flow)
-
-For each: 5-fold flight-grouped KFold OOF on outer-train flights for 4 L1 bases,
-L2 metas (Ridge/EN/LGBM) trained on OOF (in kg space), L1 retrained on full outer-train (flow),
-L2 applied to L1 test kg preds, final metrics on outer held-out test flights.
-
-Then bootstrap flight-clustered 95% CI on RMSE for the LGBM_meta of each.
-Compare point + CI vs PRC2025 winner RMSE=200.83 .
-
-Produces:
-  figures/table_flow_vs_prc.csv
-  figures/fig_prc_comparison.png
-
-Classification (Better / Statistically indistinguishable / Worse) w.r.t. 200.83
-using whether the bootstrap CI lies entirely below / overlaps / entirely above 200.83.
-"""
 
 from __future__ import annotations
 

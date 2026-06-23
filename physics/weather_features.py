@@ -1,12 +1,3 @@
-"""
-E5 weather-informed features for AeroTwin v3.
-
-No direct METAR/GRIB in the dataset. Features are derived from:
-- ISA atmosphere at cruise altitude (temperature, pressure, density altitude)
-- TAS / groundspeed / track decomposition (headwind, crosswind proxies)
-- ISA deviation proxy from kinematic mismatch where air data exists
-"""
-
 from __future__ import annotations
 
 import math

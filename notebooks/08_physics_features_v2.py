@@ -1,26 +1,3 @@
-"""
-AeroTwin v2 — Physics-informed feature experiments E2, E3, E4.
-
-Experiments:
-  E2: Energy-state features
-  E3: Operational behaviour features
-  E4: Residual learning
-
-Run:
-    python physics/enrich_featured_dataset.py   # first time / after rebuild
-    python notebooks/08_physics_features_v2.py
-
-Outputs:
-    figures/fig_energy_features.png
-    figures/fig_operational_features.png
-    figures/fig_residual_learning.png
-    figures/table_energy_results.csv
-    figures/table_operational_results.csv
-    figures/table_residual_results.csv
-    figures/table_significance_energy.csv
-    figures/table_significance_operational.csv
-    figures/table_significance_residual.csv
-"""
 
 from __future__ import annotations
 

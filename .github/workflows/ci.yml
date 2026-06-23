@@ -6,6 +6,9 @@ on:
   pull_request:
     branches: [ main, develop ]
 
+env:
+  PYTHON_VERSION: '3.11'
+
 jobs:
   lint:
     name: Code Quality Check
@@ -18,24 +21,28 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
-        python-version: '3.10'
+        python-version: ${{ env.PYTHON_VERSION }}
     
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         pip install flake8 black isort
     
-    - name: Check Python syntax with flake8
+    - name: Check Python syntax
       run: |
-        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+        python -m compileall -q data physics notebooks
+
+    - name: Check importable source with flake8
+      run: |
+        flake8 data physics --count --select=E9,F63,F7,F82 --show-source --statistics
     
     - name: Check code formatting with black
       run: |
-        black --check . || true
+        black --check data physics || true
     
     - name: Check import sorting with isort
       run: |
-        isort --check-only --diff . || true
+        isort --check-only --diff data physics || true
 
   test:
     name: Dependency & Import Validation
@@ -48,15 +55,15 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
-        python-version: '3.10'
+        python-version: ${{ env.PYTHON_VERSION }}
     
     - name: Cache pip packages
       uses: actions/cache@v4
       with:
         path: ~/.cache/pip
-        key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+        key: ${{ runner.os }}-python-${{ env.PYTHON_VERSION }}-pip-${{ hashFiles('requirements.txt') }}
         restore-keys: |
-          ${{ runner.os }}-pip-
+          ${{ runner.os }}-python-${{ env.PYTHON_VERSION }}-pip-
     
     - name: Install dependencies
       run: |
@@ -66,41 +73,26 @@ jobs:
     - name: Validate Python imports
       run: |
         python -c "
-        import sys
-        sys.path.insert(0, '.')
-        
-        # Test all module imports
-        print('Testing imports...')
-        
-        # Data processing modules
-        from data_processing import data_loader, data_pipeline, feature_engineering, preprocessor
-        print('✓ data_processing modules')
-        
-        # ML prediction modules
-        from ml_prediction import random_forest_model, xgboost_model, lstm_model, trainer, evaluator
-        print('✓ ml_prediction modules')
-        
-        # Anomaly detection
-        from anomaly_detection import isolation_forest_detector
-        print('✓ anomaly_detection modules')
-        
-        # Explainable AI
-        from explainable_ai import shap_explainer
-        print('✓ explainable_ai modules')
-        
-        # Health risk
-        from health_risk import health_calculator, risk_evaluator
-        print('✓ health_risk modules')
-        
-        # Note: dashboard and digital_twin modules require dataset files to import
-        # They will be tested in the build step with mock data
-        print('✓ Core module imports successful!')
-        print('Note: dashboard/digital_twin require dataset - tested separately')
+        import importlib
+
+        modules = [
+            'data.loader',
+            'physics.openap_baseline',
+            'physics.feature_engineering',
+            'physics.weather_features',
+            'physics.eval_framework',
+            'physics.mlp_residual',
+        ]
+
+        print('Testing current project imports...')
+        for module in modules:
+            importlib.import_module(module)
+            print(f'OK {module}')
         "
     
-    - name: Verify dashboard syntax is valid
+    - name: Verify project scripts compile
       run: |
-        python -m py_compile dashboard/dashboard_app.py && echo "✓ Dashboard syntax valid"
+        python -m compileall -q data physics notebooks
 
   security:
     name: Security Check
@@ -113,7 +105,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
-        python-version: '3.10'
+        python-version: ${{ env.PYTHON_VERSION }}
     
     - name: Install safety
       run: |
@@ -136,7 +128,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
-        python-version: '3.10'
+        python-version: ${{ env.PYTHON_VERSION }}
     
     - name: Install dependencies
       run: |
@@ -146,32 +138,28 @@ jobs:
     - name: Verify core modules can be loaded
       run: |
         python -c "
-        import sys
-        sys.path.insert(0, '.')
-        
-        # Test that core modules can be imported without errors
-        # Note: digital_twin requires dataset files - verify syntax only
-        from ml_prediction import trainer
-        print('✓ Trainer module loaded successfully')
-        
-        from data_processing import data_pipeline
-        print('✓ Data pipeline module loaded successfully')
-        
-        # Verify digital_twin syntax (without importing)
         import py_compile
-        py_compile.compile('digital_twin/digital_twin_simulator.py', doraise=True)
-        print('✓ Digital twin module syntax valid')
-        
-        # Verify dashboard syntax
-        py_compile.compile('dashboard/dashboard_app.py', doraise=True)
-        print('✓ Dashboard module syntax valid')
+        import importlib
+
+        importlib.import_module('data.loader')
+        print('OK data.loader loaded successfully')
+
+        importlib.import_module('physics.openap_baseline')
+        print('OK physics.openap_baseline loaded successfully')
+
+        for path in [
+            'physics/build_featured_dataset.py',
+            'physics/enrich_featured_dataset.py',
+            'physics/enrich_v3_features.py',
+        ]:
+            py_compile.compile(path, doraise=True)
+            print(f'OK {path} syntax valid')
         "
     
     - name: Summary
       run: |
-        echo "✅ CI/CD Pipeline completed successfully!"
+        echo "CI/CD Pipeline completed successfully!"
         echo "The project is ready for use. To run locally:"
-        echo "1. Download NASA C-MAPSS dataset"
-        echo "2. Place dataset files in Dataset/ folder"
-        echo "3. Run: python -m ml_prediction.trainer"
-        echo "4. Run: streamlit run dashboard/dashboard_app.py"
+        echo "1. Use Python ${{ env.PYTHON_VERSION }}"
+        echo "2. Run: pip install -r requirements.txt"
+        echo "3. Run the scripts under physics/ or notebooks/ for experiments"

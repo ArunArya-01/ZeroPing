@@ -1,21 +1,3 @@
-"""
-AeroTwin V4 — Heuristic Mass Features (winner-inspired) + Mass Ablation.
-
-Task 1: Implement per-aircraft OpenAP MTOW/MLW/OEW -> takeoff/landing/mass trajectory heuristics.
-Adds 9 mass-derived features.
-
-Task 4: Mass ablation (A: Energy+Weather, B: +Mass, C: Mass only, D: Mass+OpenAP)
-with flight-level split + 10k flight-clustered bootstrap significance.
-
-Run:
-    python notebooks/09_mass_features.py
-
-Outputs:
-    featured_dataset_mass.parquet
-    figures/table_mass_ablation.csv
-    figures/fig_mass_ablation.png
-    (plus bootstrap fig)
-"""
 
 from __future__ import annotations
 
@@ -232,14 +214,6 @@ def run_mass_ablation(pdf, train_idx, test_idx, y_train, y_test, physics_test, t
     print("=" * 70)
 
     energy = avail(ENERGY_FEATURES, pdf)  # wait pdf is pandas, use cols from df later
-    # caller passes, recompute inside
-
-    # We'll receive energy/weather/mass lists from caller
-
-    # Recompute here? No, pass in
-    # Use globals from closure? Better to compute before call.
-
-    # This func will be defined inside main after lists ready. See main.
     pass
 
 
@@ -296,11 +270,6 @@ def main() -> None:
     print("TASK 4 — Mass Ablation (A/B/C/D)")
     print("=" * 70)
 
-    # Define the 4 models + ref
-    # A: Energy+Weather (current)
-    # B: Energy+Weather + Mass
-    # C: Mass only  (base + mass; no physics_fuel to isolate mass signal)
-    # D: Mass + OpenAP  (physics_fuel + mass + base)
     approaches = {
         "OpenAP Hybrid (ref)": (base_feats, False),
         "A: Energy+Weather": (feats(df, ew, True), False),

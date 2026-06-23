@@ -1,28 +1,3 @@
-"""
-Ensemble methods for AeroTwin (Task 2).
-
-Base models: LGBM, XGB, RF, CAT (CatBoost)
-
-Methods:
-  - Simple averaging (equal weights)
-  - Weighted averaging (auto search non-neg weights sum=1 on inner val)
-  - Ridge stacking (meta on base preds)
-  - ElasticNet stacking
-
-Strict flight-level split (outer). Inner flight split on train flights only for
-weight/meta fitting to avoid leakage to held-out test flights.
-
-Feature set: Energy+Weather+Physics (baseline best)
-
-Target: actual_fuel_kg
-
-Outputs:
-  figures/table_ensemble.csv
-  figures/fig_ensemble.png
-
-Run:
-    python notebooks/08_ensemble.py
-"""
 
 from __future__ import annotations
 

@@ -1,15 +1,3 @@
-"""
-Physics ablation study — quantify contribution of physics_fuel_kg.
-
-Uses the same flight-level train/test split as 05_baseline_modeling.py.
-
-Run:
-    python notebooks/06_physics_ablation.py
-
-Output:
-    figures/table_physics_ablation.csv
-    figures/fig_physics_ablation.png
-"""
 
 from __future__ import annotations
 

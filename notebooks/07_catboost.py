@@ -1,32 +1,3 @@
-"""
-CatBoost Regressors for AeroTwin fuel prediction (Task 1).
-
-Target: actual_fuel_kg
-
-Feature sets:
-  - Energy only (BASE_NUMERIC + ENERGY + cats)
-  - Full Energy+Weather (BASE_NUMERIC + ENERGY + WEATHER + cats)
-  - Energy+Weather+Physics ( + physics_fuel_kg )
-
-Cat features: aircraft_type, origin_icao, destination_icao, method, phase
-
-Experiments:
-  A: baseline RMSE loss (spec: iterations=5000, lr=0.03, depth=8, early_stop=200)
-  B: Huber:delta=100
-  C: Quantile:alpha=0.5
-  (current session used reduced 600/40 for practicality; results representative)
-
-Strict flight-level split only. No leakage.
-
-Outputs:
-  figures/table_catboost.csv
-  figures/fig_catboost_importance.png
-  figures/fig_catboost_predictions.png
-
-Run:
-    python notebooks/07_catboost.py
-"""
-
 from __future__ import annotations
 
 import sys

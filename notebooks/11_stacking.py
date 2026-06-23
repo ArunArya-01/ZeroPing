@@ -1,25 +1,3 @@
-"""
-Level-1 + Level-2 Stacking (Task 5).
-
-Level 1 (base): LGBM, XGB, RF, CAT
-  - OOF predictions generated via flight-grouped K-fold (K=5) on train flights only.
-
-Level 2 (meta): Ridge, ElasticNet, LightGBM
-  - Trained on L1 OOF matrix (train) vs actual y.
-
-Final eval: retrain L1 on full train -> L2 on test L1 preds.
-
-Strict flight split everywhere. No leakage.
-
-Feature set: Energy+Weather+Physics
-
-Outputs:
-  figures/table_stacking.csv
-  figures/fig_stacking.png
-
-Run:
-    python notebooks/11_stacking.py
-"""
 
 from __future__ import annotations
 

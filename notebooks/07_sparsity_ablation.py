@@ -1,16 +1,3 @@
-"""
-Physics under sparse observations — sparsity-bucket ablation.
-
-Uses the same flight-level train/test split as 05_baseline_modeling.py.
-For each n_traj_pts bucket, trains Full Hybrid vs No Physics (LightGBM)
-and evaluates OpenAP on held-out intervals in that bucket.
-
-Run:
-    python notebooks/07_sparsity_ablation.py
-
-Output:
-    figures/table_sparsity_ablation.csv
-"""
 
 from __future__ import annotations
 

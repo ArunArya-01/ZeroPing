@@ -1,17 +1,3 @@
-"""
-Build the featured training dataset for the hybrid model.
-
-Each row = one fuel label interval, with target, physics baseline,
-metadata, and rich trajectory-derived features.
-
-Usage:
-    python -u physics\build_featured_dataset.py          # FULL usable set (all 10,000 flights, ~100k+ rows). Slow: expect many hours.
-    python -u physics\build_featured_dataset.py 500      # only first 500 flights for testing (~5-6k rows, much faster)
-    python -u physics\build_featured_dataset.py 10000    # explicitly all (same as no arg)
-
-Output: featured_dataset.parquet (in cwd / project root)
-"""
-
 from __future__ import annotations
 
 import sys

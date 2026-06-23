@@ -1,23 +1,3 @@
-"""
-Aircraft Expert / Specialist Models (Task 3).
-
-Groups: A320, A20N, A359, B738, B788, Other
-
-Specialist models (per group): CatBoost + LightGBM
-
-Inference: route by aircraft_type -> specialist model
-
-Compare experts vs global model on same held-out flights.
-
-Strict flight-level split.
-
-Outputs:
-  figures/table_aircraft_experts.csv
-  figures/fig_aircraft_errors.png
-
-Run:
-    python notebooks/09_aircraft_experts.py
-"""
 
 from __future__ import annotations
 

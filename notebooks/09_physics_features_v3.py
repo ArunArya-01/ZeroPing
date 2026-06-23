@@ -1,15 +1,3 @@
-"""
-AeroTwin v3 — Weather, combined hybrids, MLP correction, conditional BADA path.
-
-E5: Weather features
-E6: Energy + Weather + OpenAP hybrid
-E7: MLP residual correction
-E8: Wind-adjusted physics (BADA-style) if E5–E7 lack substantial gains
-
-Run:
-    python physics/enrich_v3_features.py
-    python notebooks/09_physics_features_v3.py
-"""
 
 from __future__ import annotations
 

@@ -1,9 +1,3 @@
-"""
-Add AeroTwin v3 weather features to featured_dataset.parquet.
-
-Run: python physics/enrich_v3_features.py
-"""
-
 from __future__ import annotations
 
 import sys

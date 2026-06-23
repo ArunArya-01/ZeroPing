@@ -1,13 +1,3 @@
-"""
-Physics-informed feature families for AeroTwin v2.
-
-E2: Energy-state features (PE, KE, SE, rates, efficiency)
-E3: Operational behaviour features (phase timing, stability, path metrics)
-
-Functions operate on trajectory windows during dataset build, or on existing
-parquet rows via enrich_from_columns() for fast offline enrichment.
-"""
-
 from __future__ import annotations
 
 import math

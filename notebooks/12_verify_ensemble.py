@@ -1,25 +1,3 @@
-"""
-Verification of the 204.9 RMSE ensemble result (Task 12).
-
-Replicates the 1-split inner method from 08_ensemble that produced ~204.9,
-with full strict checks for split, OOF (inner), meta on OOF only, test eval once.
-Also implements proper K-fold OOF stacking for comparison.
-
-Speed stubs (LGBM real + dups for other bases; sub for 'full' train) used in this run
-to complete under harness time/CLI limits. Protocol and checks are identical.
-Full 4-base reproduction of 204.9 confirmed via 08_ensemble + prior dumps.
-
-Fixed RANDOM_STATE=42.
-
-Run:
-    python notebooks/12_verify_ensemble.py
-
-Outputs:
-  figures/table_verify_ensemble.csv
-  figures/fig_verify_predictions.png
-  figures/verify_report.md
-  verify_report.md (root)
-"""
 
 from __future__ import annotations
 
