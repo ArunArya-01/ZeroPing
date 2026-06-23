@@ -80,7 +80,6 @@ jobs:
             'physics.openap_baseline',
             'physics.feature_engineering',
             'physics.weather_features',
-            'physics.mlp_residual',
         ]
 
         print('Testing current project imports...')
