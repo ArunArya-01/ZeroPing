@@ -560,7 +560,7 @@ Conditional experiment (skipped when E5–E7 exceed 1.5 kg improvement threshold
 
 11. **Partial observability remains structural** (median ~32% labeled flight time; many 2-point intervals).
 
-12. **Aircraft type and interval duration remain dominant predictors** in baseline models (LightGBM importance from `notebooks/05_baseline_modeling.py`).
+12. **Aircraft type and interval duration remain dominant predictors** in baseline models (LightGBM importance from `notebooks/05_baseline_modeling.py`). SHAP explainability is now available for CatBoost direct hybrid predictions via `notebooks/14_shap_explainability.py`.
 
 ---
 
@@ -584,7 +584,7 @@ Conditional experiment (skipped when E5–E7 exceed 1.5 kg improvement threshold
 | Weather feature study (E5) | ✅ Complete |
 | Energy + Weather hybrid study (E6) | ✅ Complete |
 | MLP residual study (E7) | ✅ Complete |
-| SHAP explainability | ⬜ |
+| SHAP explainability | ✅ Complete |
 | Aircraft-level analysis | ⬜ |
 | Leave-one-type-out | ⬜ |
 | Transformer residual | ⬜ |
@@ -614,10 +614,14 @@ Conditional experiment (skipped when E5–E7 exceed 1.5 kg improvement threshold
 | `notebooks/10_fuel_flow_target.py` | Fuel flow target + flow ablations (Tasks 2/5) |
 | `notebooks/11_vertical_embeddings.py` | 10-bin vertical embeddings + impact eval (Task 3) |
 | `notebooks/13_flow_vs_prc.py` | Competition benchmarking with 5f OOF pipeline vs PRC winner |
+| `notebooks/14_shap_explainability.py` | CatBoost native SHAP explainability for the Energy+Weather+Physics hybrid |
 | `figures/leaderboard_v4.csv` | V4 leaderboard |
 | `figures/table_mass_ablation.csv` | Mass ablation results |
 | `figures/table_fuel_flow.csv` | Fuel flow target comparison |
 | `figures/table_vertical_embeddings.csv` | Vertical embeddings impact |
+| `figures/table_shap_catboost.csv` | Per-feature mean absolute and signed SHAP values |
+| `figures/fig_shap_catboost_top_features.png` | Top SHAP feature importance plot |
+| `figures/fig_shap_catboost_summary.png` | SHAP value distribution summary plot |
 | `figures/table_flow_vs_prc.csv` | Flow variants vs 200.83 with bootstrap CIs |
 | `figures/fig_v4_leaderboard.png` | V4 leaderboard visualization |
 
