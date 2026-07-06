@@ -1,8 +1,3 @@
-"""AeroTwin data package.
-
-Exposes the HF-backed loader for remote access to aerotwin/aero-data
-(flightlist, fuel labels, per-flight trajectories) without full downloads.
-"""
 
 from .loader import (
     AeroDataLoader,
