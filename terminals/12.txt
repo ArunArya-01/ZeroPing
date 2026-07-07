@@ -1,0 +1,64 @@
+---
+pid: 27220
+cwd: "C:\Users\mukun\major project\ZeroPing"
+command: "cd \"C:\\Users\\mukun\\major project\\ZeroPing\"; $env:PYTHONPATH=\".\"; python notebooks/15_leave_one_type_out.py 2>&1 | Tee-Object -FilePath loto_run.log"
+started_at: 2026-07-06T14:06:46.972Z
+running_for_ms: 4670003  
+---
+========================================================================
+AIRCRAFT-LEVEL ANALYSIS + LEAVE-ONE-TYPE-OUT
+========================================================================
+Intervals: 115,995 | Features: 40
+
+[1] Standard split — global CatBoost + per-aircraft-type breakdown
+  Global test: MAE=87.38 RMSE=210.91 R2=0.9439 (62.3s)
+  Saved C:\Users\mukun\major project\ZeroPing\figures\table_aircraft_level_pertype.csv (18 types)
+
+[2] Leave-one-type-out (min 80 flights per held-out type)
+python : C:\Users\mukun\major project\ZeroPing\notebooks\15_leave_one_type_out.py:145: PolarsInefficientMapWarning: 
+At line:1 char:66
++ ... YTHONPATH="."; python notebooks/15_leave_one_type_out.py 2>&1 | Tee-O ...
++                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (C:\Users\mukun\...entMapWarning: :String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+Expr.map_elements is significantly slower than the native expressions API.
+Only use if you absolutely CANNOT implement your logic otherwise.
+Replace this expression...
+  - pl.col("flight_id").map_elements(lambda f: ...)
+with this one instead:
+  + pl.col("flight_id").replace_strict(fid_to_type)
+  .with_columns(pl.col("flight_id").map_elements(lambda f: fid_to_type[f], 
+return_dtype=pl.Utf8).alias("aircraft_type"))
+  LOTO types: ['A20N', 'A320', 'A359', 'B788', 'B738', 'A332', 'A21N', 'A321', 'B789', 'B77W', 'A333', 'B772']
+  [1/12] Hold out A20N: 2858 flights, 34941 intervals ...
+      MAE=288.88 RMSE=441.85 R2=-3.7147 (58.3s)
+  [2/12] Hold out A320: 2667 flights, 26617 intervals ...
+      MAE=144.49 RMSE=201.36 R2=0.6600 (203.2s)
+  [3/12] Hold out A359: 1452 flights, 22166 intervals ...
+      MAE=246.47 RMSE=482.68 R2=0.8268 (295.6s)
+  [4/12] Hold out B788: 576 flights, 7406 intervals ...
+      MAE=183.50 RMSE=338.52 R2=0.7727 (143.0s)
+  [5/12] Hold out B738: 518 flights, 6841 intervals ...
+      MAE=174.54 RMSE=266.06 R2=-0.1406 (90.0s)
+  [6/12] Hold out A332: 496 flights, 5058 intervals ...
+      MAE=302.65 RMSE=554.96 R2=0.7172 (95.0s)
+  [7/12] Hold out A21N: 359 flights, 2782 intervals ...
+      MAE=187.33 RMSE=279.79 R2=-0.6072 (166.1s)
+  [8/12] Hold out A321: 266 flights, 2170 intervals ...
+      MAE=191.21 RMSE=325.92 R2=0.1810 (161.5s)
+  [9/12] Hold out B789: 206 flights, 2872 intervals ...
+      MAE=128.91 RMSE=324.30 R2=0.9272 (167.3s)
+  [10/12] Hold out B77W: 168 flights, 1583 intervals ...
+      MAE=1149.99 RMSE=1497.69 R2=0.3108 (175.4s)
+  [11/12] Hold out A333: 138 flights, 1343 intervals ...
+      MAE=224.96 RMSE=557.78 R2=0.7246 (278.0s)
+  [12/12] Hold out B772: 97 flights, 813 intervals ...
+      MAE=255.96 RMSE=478.00 R2=0.8983 (195.6s)
+
+Saved C:\Users\mukun\major project\ZeroPing\figures\table_leave_one_type_out.csv
+Saved C:\Users\mukun\major project\ZeroPing\figures\table_loto_summary.csv
+
+LOTO macro-average:
+  MAE=289.91 RMSE=479.07 R2=0.1297
+========================================================================

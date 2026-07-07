@@ -1,0 +1,37 @@
+---
+pid: 4504
+cwd: "C:\Users\mukun\major project\ZeroPing"
+command: "cd \"C:\\Users\\mukun\\major project\\ZeroPing\"; $env:PYTHONPATH=\".\"; python notebooks/14_shap_explainability.py"
+started_at: 2026-07-06T14:02:54.338Z
+running_for_ms: 4890015  
+---
+========================================================================
+SHAP EXPLAINABILITY: CatBoost Energy+Weather+Physics
+========================================================================
+Loaded: 115,995 intervals | 9,976 flights
+Split: 7,980 train flights / 1,996 held-out flights
+Features: 40 total (5 categorical)
+
+Training CatBoost explainer model ...
+Model ready in 62.2s | MAE=87.44 RMSE=209.56 R2=0.9446
+
+Computing CatBoost native SHAP values on 5,000 held-out intervals ...
+
+Saved C:\Users\mukun\major project\ZeroPing\figures\table_shap_catboost.csv
+Saved C:\Users\mukun\major project\ZeroPing\figures\table_shap_catboost_groups.csv
+Saved C:\Users\mukun\major project\ZeroPing\figures\table_shap_catboost_model.csv
+Saved C:\Users\mukun\major project\ZeroPing\figures\fig_shap_catboost_top_features.png
+Saved C:\Users\mukun\major project\ZeroPing\figures\fig_shap_catboost_summary.png
+
+Top SHAP drivers:
+   1. duration_s                     mean|SHAP|=  278.22 kg signed=  +18.08 kg
+   2. physics_fuel_kg                mean|SHAP|=  157.15 kg signed=  -31.04 kg
+   3. ref_mass_kg                    mean|SHAP|=  142.47 kg signed=  +17.45 kg
+   4. aircraft_type                  mean|SHAP|=   65.49 kg signed=   +4.73 kg
+   5. mean_kinetic_energy_j          mean|SHAP|=   53.55 kg signed=   +7.61 kg
+   6. energy_efficiency              mean|SHAP|=   25.24 kg signed=   +2.03 kg
+   7. phase                          mean|SHAP|=   20.86 kg signed=   +0.71 kg
+   8. start_fraction_of_flight       mean|SHAP|=   12.67 kg signed=   +0.07 kg
+   9. end_fraction_of_flight         mean|SHAP|=   12.06 kg signed=   -0.39 kg
+  10. mean_potential_energy_j        mean|SHAP|=   11.72 kg signed=   -1.84 kg
+========================================================================
