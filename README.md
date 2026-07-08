@@ -53,6 +53,7 @@ ZeroPing/
 │   ├── enrich_featured_dataset.py   # Additional feature enrichment
 │   ├── enrich_v3_features.py        # V3 feature set enrichment
 │   ├── eval_framework.py            # Evaluation and bootstrap utilities
+│   ├── cross_dataset_alignment.py   # Align schemas/stats across datasets
 │   └── mlp_residual.py              # Neural residual experiments
 ├── notebooks/                       # Reproducible experiment scripts
 ├── figures/                         # Generated plots, leaderboards, tables
@@ -73,6 +74,7 @@ ZeroPing/
 | `physics/feature_engineering.py` | Add energy-state and operational features. |
 | `physics/weather_features.py` | Add atmosphere and wind proxy features. |
 | `physics/eval_framework.py` | Train/evaluate models and run flight-clustered bootstrap tests. |
+| `physics/cross_dataset_alignment.py` | Harmonize schemas and feature scales across multiple datasets. |
 | `notebooks/05_baseline_modeling.py` | Baseline modeling experiments. |
 | `notebooks/09_physics_features_v3.py` | Energy/weather feature ablations. |
 | `notebooks/12_verify_ensemble.py` | Ensemble verification workflow. |
@@ -116,6 +118,15 @@ Build or refresh the featured dataset:
 
 ```bash
 PYTHONPATH=. python physics/build_featured_dataset.py
+```
+
+Align multiple featured datasets (e.g. different versions or splits) onto a
+shared schema and feature scale so they can be combined or transferred between
+models without schema mismatch or distribution shift:
+
+```bash
+PYTHONPATH=. python physics/cross_dataset_alignment.py \
+    featured_dataset.parquet featured_dataset_mass.parquet featured_dataset_vrate.parquet
 ```
 
 Run feature enrichment:
