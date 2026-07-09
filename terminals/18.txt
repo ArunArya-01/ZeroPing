@@ -1,0 +1,20 @@
+---
+pid: 29476
+cwd: "C:\Users\mukun\major project\ZeroPing"
+command: "Get-ChildItem -Path \"C:\\Users\\mukun\" -Filter \"*featured*\" -Recurse -File -ErrorAction SilentlyContinue 2>$null | Where-Object { $_.Extension -eq '.parquet' } | Select-Object -First 20 FullName"
+started_at: 2026-07-08T11:05:37.016Z
+running_for_ms: 50000    
+---
+
+FullName                                                                                          
+--------                                                                                          
+C:\Users\mukun\.grok\worktrees\major-project-zeroping\2026-06-15-100b135d\featured_dataset.parquet
+C:\Users\mukun\.grok\worktrees\major-project-zeroping\2026-06-20-f96cd29e\featured_dataset.parquet
+C:\Users\mukun\major project\ZeroPing\aligned__featured_dataset.parquet                           
+C:\Users\mukun\major project\ZeroPing\aligned__featured_dataset_mass.parquet                      
+C:\Users\mukun\major project\ZeroPing\aligned__featured_dataset_vrate.parquet                     
+C:\Users\mukun\major project\ZeroPing\featured_dataset.parquet                                    
+C:\Users\mukun\major project\ZeroPing\featured_dataset_mass.parquet                               
+C:\Users\mukun\major project\ZeroPing\featured_dataset_vrate.parquet                              
+
+

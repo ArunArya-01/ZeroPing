@@ -74,10 +74,12 @@ def load_and_clean(parquet: Path) -> pl.DataFrame:
     )
 
 
-def flight_level_split(flight_ids: np.ndarray):
+def flight_level_split(flight_ids: np.ndarray, test_size: float | None = None):
     unique = np.unique(flight_ids)
     train_fids, test_fids = train_test_split(
-        unique, test_size=TEST_SIZE, random_state=RANDOM_STATE
+        unique,
+        test_size=test_size if test_size is not None else TEST_SIZE,
+        random_state=RANDOM_STATE,
     )
     train_idx = np.flatnonzero(np.isin(flight_ids, train_fids))
     test_idx = np.flatnonzero(np.isin(flight_ids, test_fids))

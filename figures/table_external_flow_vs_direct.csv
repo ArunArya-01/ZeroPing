@@ -1,0 +1,3 @@
+approach,label,target,feature_group,mae_kg,rmse_kg,r2,flow_minus_direct_delta_mae,ci_lower,ci_upper,bootstrap_p_flow_better,interpretation,n_test_flights,n_test_intervals
+direct,Direct · E+W,direct_fuel,ew,88.20448423323923,210.6407211221527,0.9440433368313255,-6.0085753773579,-8.503763178996138,-4.010625285810798,1.0,Flow+Energy significantly better than Direct,1996,23031
+flow,Flow+Energy,fuel_flow,flow_energy,82.19590885588133,201.71248292991234,0.948686375325593,-6.0085753773579,-8.503763178996138,-4.010625285810798,1.0,Flow+Energy significantly better than Direct,1996,23031

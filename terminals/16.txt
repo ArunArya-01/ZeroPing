@@ -1,0 +1,24 @@
+---
+pid: 29116
+cwd: "C:\Users\mukun\major project\ZeroPing"
+command: "cd \"C:\\Users\\mukun\\major project\\ZeroPing\"; python physics/external_vs_flow_eval.py --external featured_dataset.parquet --internal figures/table_loto_evaluation_master.csv"
+started_at: 2026-07-08T10:55:40.353Z
+running_for_ms: 645005   
+---
+========================================================================
+EXTERNAL vs FLOW — generalization check of AeroTwin methodology
+========================================================================
+External dataset: featured_dataset.parquet
+External intervals: 115,995 | test flights: 1,996
+  Direct · E+W           MAE=   88.2 RMSE=  210.6 R2=0.9440
+  Flow+Energy            MAE=   82.2 RMSE=  201.7 R2=0.9487
+
+Flow+Energy vs Direct on external data:
+  ΔMAE=-6.01 kg | 95% CI [-8.50, -4.01]
+  bootstrap P(Flow+Energy better)=1.000
+  → Flow+Energy significantly better than Direct
+
+Saved C:\Users\mukun\major project\ZeroPing\figures\table_external_flow_vs_direct.csv
+Saved C:\Users\mukun\major project\ZeroPing\figures\table_external_vs_internal.csv
+Saved figure fig_external_vs_flow.png
+========================================================================
