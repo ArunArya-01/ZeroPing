@@ -534,7 +534,7 @@ Findings are classified as **Established**, **Suggestive**, **Exploratory**, or 
 | **Operational distribution-shift analysis** | ⬜ **Next priority** |
 | **External dataset compatibility audit** | ⬜ Next priority (after Priority 1 operational shift) |
 | **Second dataset preprocessing pipeline** | ⬜ Pending |
-| **Cross-dataset feature alignment** | ⬜ Pending |
+| **Cross-dataset feature alignment** | ✅ Complete |
 | **External Direct vs Flow evaluation** | ✅ Done (`physics/external_vs_flow_eval.py`) |
 | **External Energy-feature ablation** | ⬜ Pending |
 | **External generalization test** | ✅ Done (`tests/test_external_generalization.py`) |
