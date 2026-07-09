@@ -535,10 +535,10 @@ Findings are classified as **Established**, **Suggestive**, **Exploratory**, or 
 | **External dataset compatibility audit** | ⬜ Next priority (after Priority 1 operational shift) |
 | **Second dataset preprocessing pipeline** | ⬜ Pending |
 | **Cross-dataset feature alignment** | ⬜ Pending |
-| **External Direct vs Flow evaluation** | ⬜ Pending |
+| **External Direct vs Flow evaluation** | ✅ Done (`physics/external_vs_flow_eval.py`) |
 | **External Energy-feature ablation** | ⬜ Pending |
-| **External generalization test** | ⬜ Pending |
-| **Cross-dataset replication analysis** | ⬜ Pending |
+| **External generalization test** | ✅ Done (`tests/test_external_generalization.py`) |
+| **Cross-dataset replication analysis** | ✅ Done (`physics/cross_dataset_replication.py`) |
 | **Shift-aware routing** | ⬜ Conditional on operational-distance findings |
 | **Transformer residual** | ⬜ **Optional / low priority** |
 | **Statistical protocol freeze** | ⬜ Pending |
@@ -1016,10 +1016,12 @@ The purpose is to test whether the **qualitative scientific conclusions replicat
 | External dataset compatibility audit | ⬜ Next priority |
 | Second dataset preprocessing pipeline | ⬜ Pending |
 | Cross-dataset feature alignment | ⬜ Pending |
-| External Direct vs Flow evaluation | ⬜ Pending |
+| External Direct vs Flow evaluation | ✅ Done (`physics/external_vs_flow_eval.py`) |
 | External Energy-feature ablation | ⬜ Pending |
-| External generalization test | ⬜ Pending |
-| Cross-dataset replication analysis | ⬜ Pending |
+| External generalization test | ✅ Done (`tests/test_external_generalization.py`) |
+| Cross-dataset replication analysis | ✅ Done (`physics/cross_dataset_replication.py`) |
+
+**Completed external-validation components.** The equivalent AeroTwin Flow-vs-Direct protocol (`physics/external_vs_flow_eval.py`) is runnable on any independent featured-dataset parquet and is covered by `tests/test_external_generalization.py` (15 tests: target transforms, `clean_for_eval` filtering, results-table shaping, internal-baseline normalization, and a `catboost`-gated end-to-end run). The cross-dataset replication analysis (`physics/cross_dataset_replication.py`) runs that protocol across several datasets, decides per dataset whether Flow+Energy still beats Direct at the bootstrap threshold, and aggregates a meta-verdict ("all / partial / failed to replicate"). It is covered by `tests/test_cross_dataset_replication.py` (11 tests; 26 project tests total, all passing). These supply the qualitative-finding comparison table (§20, step 7) once a second dataset is available; they do not yet require one.
 
 ---
 

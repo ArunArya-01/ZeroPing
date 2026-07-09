@@ -53,10 +53,12 @@ ZeroPing/
 │   ├── enrich_featured_dataset.py   # Additional feature enrichment
 │   ├── enrich_v3_features.py        # V3 feature set enrichment
 │   ├── eval_framework.py            # Evaluation and bootstrap utilities
-│   ├── cross_dataset_alignment.py   # Align schemas/stats across datasets
-│   ├── external_vs_flow_eval.py     # External generalization: Flow+Energy vs Direct
-│   └── mlp_residual.py              # Neural residual experiments
+│   ├── cross_dataset_alignment.py    # Align schemas/stats across datasets
+│   ├── external_vs_flow_eval.py       # External generalization: Flow+Energy vs Direct
+│   ├── cross_dataset_replication.py   # Cross-dataset replication of Flow+Energy vs Direct
+│   └── mlp_residual.py               # Neural residual experiments
 ├── notebooks/                       # Reproducible experiment scripts
+├── tests/                           # Unit + slow tests (external generalization, replication)
 ├── figures/                         # Generated plots, leaderboards, tables
 ├── papers/                          # Research summaries and paper drafts
 ├── featured_dataset*.parquet         # Materialized modeling datasets
@@ -77,6 +79,7 @@ ZeroPing/
 | `physics/eval_framework.py` | Train/evaluate models and run flight-clustered bootstrap tests. |
 | `physics/cross_dataset_alignment.py` | Harmonize schemas and feature scales across multiple datasets. |
 | `physics/external_vs_flow_eval.py` | Run the equivalent AeroTwin protocol on an independent dataset to test whether Flow+Energy still beats Direct. |
+| `physics/cross_dataset_replication.py` | Run the Flow+Energy-vs-Direct protocol across several datasets and aggregate a cross-dataset replication verdict. |
 | `notebooks/05_baseline_modeling.py` | Baseline modeling experiments. |
 | `notebooks/09_physics_features_v3.py` | Energy/weather feature ablations. |
 | `notebooks/12_verify_ensemble.py` | Ensemble verification workflow. |
@@ -147,7 +150,23 @@ PYTHONPATH=. python physics/external_vs_flow_eval.py \
     --internal figures/table_loto_evaluation_master.csv
 ```
 
-Run experiment scripts:
+Run the cross-dataset replication analysis (Flow+Energy vs Direct) across two
+or more independent featured-dataset parquets and write the replication table
+to `figures/table_cross_dataset_replication.csv`:
+
+```bash
+PYTHONPATH=. python physics/cross_dataset_replication.py \
+    /path/to/dataset_a.parquet /path/to/dataset_b.parquet \
+    --outdir figures
+```
+
+Run the test suite (unit tests plus slow, `catboost`-gated protocol runs):
+
+```bash
+PYTHONPATH=. pytest tests/            # all tests
+PYTHONPATH=. pytest tests/ -m slow    # protocol runs only
+```
+
 
 ```bash
 PYTHONPATH=. python notebooks/05_baseline_modeling.py
