@@ -1,0 +1,13 @@
+[tool.black]
+line-length = 120
+target-version = ['py38', 'py39', 'py310']
+exclude = '''
+/(
+    \.git
+  | \.venv
+  | _build
+  | build
+  | Dataset
+  | ml_prediction/models
+)/
+'''
