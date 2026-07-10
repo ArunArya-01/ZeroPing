@@ -541,7 +541,7 @@ Findings are classified as **Established**, **Suggestive**, **Exploratory**, or 
 | **Cross-dataset replication analysis** | ✅ Done (`physics/cross_dataset_replication.py`) |
 | **Shift-aware routing** | ⬜ Conditional on operational-distance findings |
 | **Transformer residual** | ⬜ **Optional / low priority** |
-| **Statistical protocol freeze** | ⬜ Pending |
+| **Statistical protocol freeze** | ✅ Done (`physics/statistical_protocol.py`, `papers/statistical_protocol.md`) |
 | **Final figure/table consolidation** | ⬜ Pending |
 | **Final paper drafting** | ⬜ Pending |
 | Optuna / CatBoost tuning | ⬜ Deferred |
