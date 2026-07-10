@@ -536,7 +536,7 @@ Findings are classified as **Established**, **Suggestive**, **Exploratory**, or 
 | **Second dataset preprocessing pipeline** | ⬜ Pending |
 | **Cross-dataset feature alignment** | ✅ Complete |
 | **External Direct vs Flow evaluation** | ✅ Done (`physics/external_vs_flow_eval.py`) |
-| **External Energy-feature ablation** | ⬜ Pending |
+| **External Energy-feature ablation** | ✅ Done (`physics/external_energy_ablation.py`) |
 | **External generalization test** | ✅ Done (`tests/test_external_generalization.py`) |
 | **Cross-dataset replication analysis** | ✅ Done (`physics/cross_dataset_replication.py`) |
 | **Shift-aware routing** | ⬜ Conditional on operational-distance findings |
