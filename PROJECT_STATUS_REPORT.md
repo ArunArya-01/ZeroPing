@@ -539,7 +539,7 @@ Findings are classified as **Established**, **Suggestive**, **Exploratory**, or 
 | **External Energy-feature ablation** | ✅ Done (`physics/external_energy_ablation.py`) |
 | **External generalization test** | ✅ Done (`tests/test_external_generalization.py`) |
 | **Cross-dataset replication analysis** | ✅ Done (`physics/cross_dataset_replication.py`) |
-| **Shift-aware routing** | ⬜ Conditional on operational-distance findings |
+| **Shift-aware routing** | ✅ Implemented (scaffold; gated, uncalibrated by default — `physics/shift_aware_routing.py`) |
 | **Transformer residual** | ⬜ **Optional / low priority** |
 | **Statistical protocol freeze** | ✅ Done (`physics/statistical_protocol.py`, `papers/statistical_protocol.md`) |
 | **Final figure/table consolidation** | ⬜ Pending |
@@ -854,7 +854,7 @@ Sequence-model residual correction has **not** been implemented. Tabular residua
 
 Global vs hard experts vs soft MoE on **standard split**. Experts improve single-model RMSE by ~2–3 kg; **underperform** LGBM_meta ensemble (206.8 vs 202.9 kg). Under LOTO, specialization without in-type training data does not solve transfer.
 
-**Do not build shift-aware routing until operational-shift evidence exists** (§20 Priority 7).
+**Shift-aware routing is implemented as a guarded scaffold only** (`physics/shift_aware_routing.py`); the learned policy refuses to route until calibrated from operational-shift validation evidence (§20 Priority 7).
 
 ---
 

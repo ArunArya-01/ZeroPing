@@ -54,6 +54,7 @@ ZeroPing/
 │   ├── enrich_v3_features.py        # V3 feature set enrichment
 │   ├── eval_framework.py            # Evaluation and bootstrap utilities
 │   ├── statistical_protocol.py       # Frozen inference protocol (thresholds + policy)
+│   ├── shift_aware_routing.py        # Conditional shift-aware router (gated scaffold)
 │   ├── cross_dataset_alignment.py    # Align schemas/stats across datasets
 │   ├── external_vs_flow_eval.py       # External generalization: Flow+Energy vs Direct
 │   ├── cross_dataset_replication.py   # Cross-dataset replication of Flow+Energy vs Direct
@@ -79,6 +80,7 @@ ZeroPing/
 | `physics/weather_features.py` | Add atmosphere and wind proxy features. |
 | `physics/eval_framework.py` | Train/evaluate models and run flight-clustered bootstrap tests. |
 | `physics/statistical_protocol.py` | Frozen inference protocol: bootstrap/significance constants and the shared interpretation policy. |
+| `physics/shift_aware_routing.py` | Conditional shift-aware router (Direct vs Flow+Energy) gated on operational-shift calibration. |
 | `physics/cross_dataset_alignment.py` | Harmonize schemas and feature scales across multiple datasets. |
 | `physics/external_vs_flow_eval.py` | Run the equivalent AeroTwin protocol on an independent dataset to test whether Flow+Energy still beats Direct. |
 | `physics/external_energy_ablation.py` | Run the equivalent AeroTwin Energy-feature ablation (V3 E6) on an independent dataset to test whether energy-state representations still help. |
