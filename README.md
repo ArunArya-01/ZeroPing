@@ -58,7 +58,8 @@ ZeroPing/
 │   ├── cross_dataset_alignment.py    # Align schemas/stats across datasets
 │   ├── external_vs_flow_eval.py       # External generalization: Flow+Energy vs Direct
 │   ├── cross_dataset_replication.py   # Cross-dataset replication of Flow+Energy vs Direct
-│   └── mlp_residual.py               # Neural residual experiments
+│   ├── mlp_residual.py               # Neural residual experiments
+│   └── transformer_residual.py       # Transformer feature-token residual corrector
 ├── notebooks/                       # Reproducible experiment scripts
 ├── tests/                           # Unit + slow tests (external generalization, replication)
 ├── figures/                         # Generated plots, leaderboards, tables
@@ -89,6 +90,7 @@ ZeroPing/
 | `notebooks/09_physics_features_v3.py` | Energy/weather feature ablations. |
 | `notebooks/12_verify_ensemble.py` | Ensemble verification workflow. |
 | `notebooks/14_shap_explainability.py` | CatBoost SHAP explainability tables and plots. |
+| `physics/transformer_residual.py` | Reusable Transformer feature-token residual corrector (`train_transformer_residual`). |
 
 ## Installation
 
