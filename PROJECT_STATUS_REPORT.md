@@ -536,12 +536,12 @@ Findings are classified as **Established**, **Suggestive**, **Exploratory**, or 
 | **Second dataset preprocessing pipeline** | ⬜ Pending |
 | **Cross-dataset feature alignment** | ✅ Complete |
 | **External Direct vs Flow evaluation** | ✅ Done (`physics/external_vs_flow_eval.py`) |
-| **External Energy-feature ablation** | ⬜ Pending |
+| **External Energy-feature ablation** | ✅ Done (`physics/external_energy_ablation.py`) |
 | **External generalization test** | ✅ Done (`tests/test_external_generalization.py`) |
 | **Cross-dataset replication analysis** | ✅ Done (`physics/cross_dataset_replication.py`) |
-| **Shift-aware routing** | ⬜ Conditional on operational-distance findings |
-| **Transformer residual** | ⬜ **Optional / low priority** |
-| **Statistical protocol freeze** | ⬜ Pending |
+| **Shift-aware routing** | ✅ Implemented (scaffold; gated, uncalibrated by default — `physics/shift_aware_routing.py`) |
+| **Transformer residual** | ✅ Implemented (module scaffold; untested) |
+| **Statistical protocol freeze** | ✅ Done (`physics/statistical_protocol.py`, `papers/statistical_protocol.md`) |
 | **Final figure/table consolidation** | ⬜ Pending |
 | **Final paper drafting** | ⬜ Pending |
 | Optuna / CatBoost tuning | ⬜ Deferred |
@@ -838,13 +838,15 @@ Bootstrap Pearson CIs for NN vs MAE are **very wide** (approximately [−0.35, 0
 
 ---
 
-### 18.4 Transformer Residual — ⬜ Optional / Low Priority
+### 18.4 Transformer Residual — ✅ Implemented (module scaffold; untested)
 
-Sequence-model residual correction has **not** been implemented. Tabular residual learning (trees ~107 kg, MLP ~104 kg) already **failed**. The ensemble is near competition RMSE on **Level 1**. The strongest unresolved issue is **cross-aircraft transfer (Level 2)**, not standard-split model capacity.
+**Module:** `physics/transformer_residual.py` exposes `train_transformer_residual(feature_cols, X_train, X_test, y_residual_train, physics_test, ...)`, mirroring `physics/mlp_residual.py`'s interface. It maps each feature to a token and applies a small Transformer encoder (position embeddings, `SmoothL1Loss`, AdamW) to predict `residual_kg`, then returns `physics_fuel_kg + predicted_residual`. A sequence-based flight-level variant also exists at `notebooks/16_transformer_residual.py`.
 
-**Implement only if testing a specific hypothesis**, e.g.: *"Does preserving within-flight temporal structure improve transfer under aircraft-type shift?"* Do not implement merely because transformers are fashionable.
+Tabular residual learning (trees ~107 kg, MLP ~104 kg) already **failed** on standard split, and the ensemble is near competition RMSE on **Level 1**. The strongest unresolved issue remains **cross-aircraft transfer (Level 2)**, not standard-split model capacity.
 
-**Status:** Optional / low priority unless a clear sequence-model hypothesis is formulated.
+**Implement/evaluate only if testing a specific hypothesis**, e.g.: *"Does preserving within-flight temporal structure improve transfer under aircraft-type shift?"* Do not pursue merely because transformers are fashionable. The module is available but its empirical contribution is **not yet established**.
+
+**Status:** Implemented scaffold; low priority for evaluation unless a clear sequence-model hypothesis is formulated.
 
 ---
 
@@ -854,7 +856,7 @@ Sequence-model residual correction has **not** been implemented. Tabular residua
 
 Global vs hard experts vs soft MoE on **standard split**. Experts improve single-model RMSE by ~2–3 kg; **underperform** LGBM_meta ensemble (206.8 vs 202.9 kg). Under LOTO, specialization without in-type training data does not solve transfer.
 
-**Do not build shift-aware routing until operational-shift evidence exists** (§20 Priority 7).
+**Shift-aware routing is implemented as a guarded scaffold only** (`physics/shift_aware_routing.py`); the learned policy refuses to route until calibrated from operational-shift validation evidence (§20 Priority 7).
 
 ---
 
@@ -868,7 +870,7 @@ Global vs hard experts vs soft MoE on **standard split**. Experts improve single
 | LOTO paired robustness | ✅ Complete | `17_loto_significance_and_transfer_distance.py` | Flow macro −17 kg **suggestive, not confirmed** |
 | Physical transfer distance | ✅ Exploratory | `17_loto_significance_and_transfer_distance.py` | B77W-sensitive; not robust predictor |
 | Operational shift analysis | ⬜ Next | — | Priority 1 |
-| Transformer residual | ⬜ Optional | — | Low priority |
+| Transformer residual | ✅ Implemented | `physics/transformer_residual.py` | Module scaffold; untested |
 | MoE / experts | ✅ Exploratory | `09_aircraft_experts.py` | Marginal single-model; worse than ensemble |
 
 ---
