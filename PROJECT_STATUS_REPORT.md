@@ -26,16 +26,25 @@
 
 - Residual learning (trees and MLP); sparsity-conditioned physics gains; MoE/experts as ensemble improvement; body-class hierarchical routing at LOTO macro level; Mahalanobis physical distance as primary transfer predictor.
 
+### External validation progress (July 2026)
+
+- **Infrastructure complete:** `physics/external_audit/` (DASHlink MAT loader, OpenSky loader, featured builder, pilot suite A–E), plus `HOW_TO_RUN_AUDIT.md` and unit tests (`tests/test_external_audit.py`).
+- **DASHlink Project 85 pilot complete** (tails 686/687, 15 airborne flights, 137 intervals, integrated fuel-flow labels):
+  - Energy features **replicate** (Direct Base+Energy vs Base: ΔMAE ≈ −4.85 kg; 95% CI [−6.87, −2.88]).
+  - Fuel-Flow target **replicates** (Flow+Energy vs matched Direct: ΔMAE ≈ −2.64 kg; 95% CI [−4.63, −0.75]).
+  - ML ≫ raw OpenAP **replicates** (physics MAE ~140 kg vs Direct ~21–26 kg on this pilot scale).
+- **Caveats:** pilot is small (4 test flights); labels are reconstructed from `FF_*` (not ACARS FOB); absolute MAE is **not** comparable to PRC Level-1 ~84 kg; aircraft-type diversity for LOTO-style external analysis remains limited; default OpenAP type (`CRJ9`) may not match the FDR fleet.
+
 ### Two major remaining research tasks
 
 1. **Explain cross-aircraft transfer heterogeneity** — operational distribution-shift analysis on PRC data to determine when Fuel-Flow vs Direct prediction transfers better (§20 Priority 1–2).
-2. **External dataset validation** — test whether qualitative findings (energy features, flow targets, cross-type degradation, physics insufficiency) replicate on an independent aviation dataset, not only within EUROCONTROL PRC 2025 (§20 External Dataset Validation).
+2. **External dataset validation (scale-up)** — expand beyond the pilot: more DASHlink flights/tails, optional OpenSky physics-label robustness run, and a fuller cross-dataset qualitative table including LOTO-style tests where diversity allows (§20 External Dataset Validation).
 
 ### Immediate next step
 
-**Operational distribution-shift analysis** on the current PRC dataset (§20 Priority 1). Dataset compatibility audit for NASA DASHlink and alternatives is **step 2** in the recommended execution order (§20).
+**Operational distribution-shift analysis** on the current PRC dataset (§20 Priority 1) remains the primary scientific gap for LOTO heterogeneity. In parallel, **scale the DASHlink external pilot** (more flights, document aircraft identity, tighten fuel-reconstruction QA) so external claims are not pilot-only.
 
-**Paper submission:** Not ready. The project currently has strong internal validation under held-out flights and held-out aircraft types, but **external dataset validation remains necessary** before making broad claims that the identified inductive biases generalize across aviation datasets. Statistical protocol freeze and figure consolidation also remain required.
+**Paper submission:** Not ready. Internal validation is strong; external qualitative replication is **promising but pilot-scale**. Submission should wait until operational-shift analysis, a larger external confirmation (or explicit single-dataset scope limitation), and figure consolidation are complete.
 
 ---
 
@@ -156,7 +165,7 @@ Built by `physics/build_featured_dataset.py`, which:
 | **Physics method** | `method` | How TAS was obtained (`tas_from_mach`, `tas_from_cas`, `tas_from_gs`, fallbacks) |
 | **Debug / traceability** | `interval_idx`, `start`, `end`, `tas_used`, `alt_used`, `vs_used`, `phase` | Reproducibility and diagnostics |
 
-**Evidence scope:** All primary ablations and significance tests use this single EUROCONTROL PRC dataset. External validation on a second independent dataset is a major remaining requirement (§20 External Dataset Validation).
+**Evidence scope:** Primary ablations and significance tests use the EUROCONTROL PRC dataset. A **pilot-scale** second-dataset run on NASA DASHlink Project 85 is complete (§20 External Dataset Validation); scaled multi-type external validation remains open.
 
 ---
 
@@ -532,12 +541,16 @@ Findings are classified as **Established**, **Suggestive**, **Exploratory**, or 
 | **LOTO leave-one-type sensitivity** | ✅ Complete |
 | **Physical transfer-distance analysis** | ✅ Complete (**exploratory / influence-sensitive**) |
 | **Operational distribution-shift analysis** | ⬜ **Next priority** |
-| **External dataset compatibility audit** | ⬜ Next priority (after Priority 1 operational shift) |
-| **Second dataset preprocessing pipeline** | ⬜ Pending |
+| **External dataset compatibility audit** | ✅ Done (DASHlink Project 85 + audit package; OpenSky path documented) |
+| **Second dataset preprocessing pipeline** | ✅ Done (`physics/external_audit/`) |
+| **DASHlink MAT loader (struct `.data`)** | ✅ Done (`dashlink_loader.py`; 186 channels/flight) |
+| **DASHlink pilot (15 flights)** | ✅ Done — energy + Flow qualitative **replicate** (`audit_results/dashlink_pilot/`) |
+| **OpenSky pilot (live Trino)** | ⬜ Pending credentials / query window (code + synthetic fallback ready) |
+| **Scaled external validation (≥50–100 flights)** | ⬜ Pending |
 | **Cross-dataset feature alignment** | ✅ Complete |
-| **External Direct vs Flow evaluation** | ✅ Done (`physics/external_vs_flow_eval.py`) |
-| **External Energy-feature ablation** | ✅ Done (`physics/external_energy_ablation.py`) |
-| **External generalization test** | ✅ Done (`tests/test_external_generalization.py`) |
+| **External Direct vs Flow evaluation** | ✅ Done (`external_vs_flow_eval.py` + `run_audit_pilot.py`) |
+| **External Energy-feature ablation** | ✅ Done (`external_energy_ablation.py` + pilot Exp C) |
+| **External generalization test** | ✅ Done (`tests/test_external_generalization.py`, `test_external_audit.py`) |
 | **Cross-dataset replication analysis** | ✅ Done (`physics/cross_dataset_replication.py`) |
 | **Shift-aware routing** | ✅ Implemented (scaffold; gated, uncalibrated by default — `physics/shift_aware_routing.py`) |
 | **Transformer residual** | ✅ Implemented (module scaffold; untested) |
@@ -557,6 +570,11 @@ Findings are classified as **Established**, **Suggestive**, **Exploratory**, or 
 | `figures/table_loto_evaluation_master.csv` | Consolidated LOTO evaluation table |
 | `figures/table_loto_paired_per_type.csv` | Per-type Flow vs Direct paired deltas |
 | `figures/table_loto_paired_significance_summary.csv` | Pooled LOTO significance summary |
+| `physics/external_audit/` | Second-dataset loaders + pilot orchestration |
+| `HOW_TO_RUN_AUDIT.md` | Step-by-step external audit guide |
+| `AeroTwin_External_Dataset_Audit_Package.md` | Compatibility audit design + decision gates |
+| `audit_results/dashlink_pilot/` | Real DASHlink pilot metrics, significance, figures |
+| `audit_results/dashlink_pilot/featured_dataset_audit.parquet` | Featured intervals from 15 Project 85 flights |
 | `figures/table_loto_paired_sensitivity.csv` | B77W / subset sensitivity |
 | `figures/table_loto_leave_one_type_robustness.csv` | LOO macro robustness |
 | `figures/table_loto_transfer_correlations.csv` | Physical distance correlations |
@@ -677,7 +695,7 @@ No single inductive bias dominates across unseen aircraft families.
 
 **Operational distribution-shift analysis** (Priority 1; §20): For each LOTO held-out type, measure distributional distance between that type and training aircraft using **operational trajectory distributions** (duration, altitude, speed, VR, phase fractions, energy rates, trajectory density, TAS method, weather proxies). Test correlations with Direct LOTO MAE, Flow LOTO MAE, and **ΔMAE (Flow − Direct)**. The third relationship is the most scientifically important. Fuel labels may be used only in post-hoc diagnostics, not as deployment-time routing features.
 
-**Second major task (execution step 2):** External dataset validation — NASA DASHlink compatibility audit and compact Direct/Flow/Energy replication on a second dataset if scientifically comparable (§20 External Dataset Validation).
+**Second major task (scale-up):** External dataset validation — DASHlink audit + pilot complete; next expand sample size / type coverage and optionally run OpenSky (§20 External Dataset Validation).
 
 ---
 
@@ -932,9 +950,7 @@ Then: correlation analysis, robust regression if justified, influence diagnostic
 
 ### External Dataset Validation (second dataset workstream)
 
-AeroTwin's current empirical evidence is based primarily on the **EUROCONTROL PRC 2025** dataset. Although the project now includes strict flight-level evaluation, Leave-One-Type-Out evaluation, bootstrap inference, sensitivity analysis, and aircraft-transfer analysis, these are still **internal evaluations within one underlying data source**.
-
-Therefore, validation on a **second independent dataset** is a major remaining requirement for stronger generalization claims.
+AeroTwin's primary empirical evidence remains the **EUROCONTROL PRC 2025** dataset. Strict flight-level evaluation, LOTO, bootstrap inference, and transfer analysis are still largely **within one data source**. External validation is therefore required for stronger cross-dataset claims — and is now **underway** with a completed DASHlink pilot.
 
 #### Goal
 
@@ -948,62 +964,65 @@ The external validation should answer:
 4. Does physics-informed feature engineering remain useful when telemetry characteristics differ?
 5. Does the large gap between standard evaluation and cross-aircraft evaluation appear in another dataset?
 
-#### Candidate dataset
+#### Candidate datasets and audit status
 
-**Primary candidate:** NASA DASHlink Flight Data Recorder (FDR) dataset.
+| Dataset | Role | Status |
+|---|---|---|
+| **NASA DASHlink Project 85** (FDR, tails ~652–687) | Primary external candidate; independent fuel via flow integration | **Go for pilot** — pipeline + 15-flight pilot complete |
+| **OpenSky Trino historical** | Telemetry / sparsity shift; **no native fuel** (OpenAP labels) | Code ready; live query pending credentials |
 
-However, **do not** treat DASHlink as automatically suitable.
+**Compatibility audit outcomes (DASHlink Project 85):**
 
-Before committing to it, perform a **dataset compatibility audit** covering:
+| Check | Result |
+|---|---|
+| Fuel signal | ✅ `FF_1…FF_4` (LBS/HR); also `FQTY_*` tank quantities (LBS) |
+| Trajectory | ✅ `ALT` (FEET, 4 Hz), `GS` (KNOTS, 4 Hz), `IVV` (FT/MIN, 16 Hz), `CAS`/`MACH`/`TAS`, `LATP`/`LONP` |
+| Interval targets | ✅ Fixed windows (e.g. 600 s); integrate fuel flow → `fuel_kg` |
+| Energy / phase features | ✅ Reused OpenAP baseline + feature_engineering |
+| Aircraft diversity | ⚠ Regional FDR fleet / limited type labels in pilot (default OpenAP type `CRJ9`) |
+| Domain shift vs PRC | ✅ FDR-dense onboard samples vs fused ADS-B/ACARS commercial ops |
+| Loader note | Each MAT parameter is a **struct** with `.data`, `.Rate`, `.Units` — `dashlink_loader.load_mat_file` extracts series (186 channels/flight) |
 
-- availability of fuel-flow, fuel-used, or equivalent fuel-consumption ground truth;
-- sampling frequency and trajectory completeness;
-- aircraft-type identification;
-- availability of altitude, speed, vertical rate, time, and mass-related variables;
-- whether interval-level fuel targets can be reconstructed;
-- whether Fuel-Flow and Direct targets can be compared fairly;
-- whether Energy features can be reproduced consistently;
-- number of aircraft types and flights available;
-- whether the domain differs substantially from the commercial operations represented in PRC2025;
-- licensing and reproducibility constraints.
-
-#### Dataset selection rule
-
-Use DASHlink **only if** it supports a scientifically comparable evaluation.
-
-If DASHlink does not provide compatible fuel labels or sufficient aircraft diversity, search for a more suitable public aviation dataset.
-
-**Do not** force AeroTwin's full pipeline onto an incompatible dataset merely to claim multi-dataset validation.
+**Selection rule:** DASHlink is suitable for **qualitative** Direct / Flow / Energy replication with documented label limitations (integrated flow ≠ ACARS FOB). It is **not** yet sufficient alone for multi-type LOTO external claims without broader type metadata and more flights.
 
 #### Minimum external validation experiment
 
-The second-dataset experiment does **not** need to reproduce every AeroTwin notebook. Run a **compact validation suite**:
+Implemented in `physics/external_audit/run_audit_pilot.py`:
 
-| Experiment | Description |
-|---|---|
-| **A. Direct baseline** | Predict absolute fuel consumption directly |
-| **B. Fuel-Flow target** | Predict fuel consumption rate; recover interval fuel via duration |
-| **C. Energy feature ablation** | Compare base trajectory features vs base + Energy features |
-| **D. Direct vs Flow comparison** | MAE, RMSE, R², bootstrap confidence intervals |
-| **E. Generalization test** | Held-out flights, aircraft, aircraft types, routes, temporal split, operator/domain split — whichever the dataset structure supports |
+| Experiment | Description | DASHlink pilot outcome |
+|---|---|---|
+| **A. Direct baseline** | Predict absolute fuel with base + physics | MAE ≈ 25.5 kg |
+| **B. Fuel-Flow target** | Predict rate; recover kg via duration | MAE ≈ **18.1 kg** (best) |
+| **C. Energy feature ablation** | Base vs base + Energy | Base+Energy MAE ≈ 20.7; ΔMAE ≈ **−4.85** (sig.) |
+| **D. Direct vs Flow comparison** | Bootstrap CIs on flight clusters | Flow better by ≈ **−2.64** kg MAE (sig.) |
+| **E. Generalization** | Flight-level holdout | 15 flights → 4 test flights / 40 intervals |
 
-The exact split should reflect the external dataset's real structure.
+Reproduce:
 
-#### Cross-dataset comparison
+```bash
+python -m physics.external_audit.run_audit_pilot \
+  --source dashlink --dashlink-dir data --max-flights 15 \
+  --out-dir audit_results/dashlink_pilot
+```
 
-Create a final table such as:
+#### Cross-dataset comparison (updated after DASHlink pilot)
 
-| Finding | PRC2025 | External Dataset | Replicated? |
-|---|---:|---:|---|
-| Energy features improve prediction | Yes | TBD | TBD |
-| Flow target improves standard evaluation | Yes / setting-dependent | TBD | TBD |
-| Flow target helps all aircraft types | No | TBD | TBD |
-| Cross-type shift causes major degradation | Yes | TBD | TBD |
-| Raw physics baseline is insufficient | Yes | TBD | TBD |
+| Finding | PRC2025 | DASHlink pilot (Project 85) | Replicated? |
+|---|---|---|---|
+| Energy features improve prediction | Yes (Level 1 bootstrap) | Yes (ΔMAE ≈ −4.85 kg; CI excludes 0) | **Yes (pilot)** |
+| Flow target helps under flight-level eval | Yes / setting-dependent | Yes (Flow 18.1 vs Direct 20.7 kg) | **Yes (pilot)** |
+| Flow target helps all aircraft types | No (LOTO heterogeneous) | Not tested (single-fleet pilot) | **TBD** |
+| Cross-type shift causes major degradation | Yes (LOTO ~3× MAE) | Not tested | **TBD** |
+| Raw physics baseline is insufficient | Yes | Yes (physics MAE ~140 vs ML ~18–26) | **Yes (pilot)** |
 
-The purpose is **not** to obtain identical RMSE values across datasets — label scales, aircraft composition, and telemetry differ.
+Absolute error magnitudes are **not** comparable across datasets (label construction, interval length, aircraft, telemetry density). Interpret **qualitative** agreement only.
 
-The purpose is to test whether the **qualitative scientific conclusions replicate**.
+**Caveats for the DASHlink pilot**
+
+- Fuel labels = integrated multi-engine fuel flow (noisier / differently biased than PRC ACARS FOB deltas).
+- Small *n* (15 flights, 4 test flights); bootstrap CIs are indicative, not definitive for publication alone.
+- OpenAP type/mass defaults likely mismatch → large physics MAE expected.
+- Full archive has thousands of MAT files; pilot used quality-filtered airborne segments from tails 686/687.
 
 #### Interpretation policy
 
@@ -1011,19 +1030,24 @@ The purpose is to test whether the **qualitative scientific conclusions replicat
 - **If only some findings replicate:** report partial replication and explain which inductive biases appear dataset-dependent.
 - **If findings fail to replicate:** treat this as scientifically important evidence that the original conclusions were dataset-specific. **Do not hide negative external-validation results.**
 
+**Current reading:** pilot-scale evidence supports **partial/early cross-dataset robustness** of energy features and flow targets. Do **not** yet claim full external validation or multi-type transfer replication.
+
 #### External validation milestones
 
 | Milestone | Status |
 |---|---|
-| External dataset compatibility audit | ⬜ Next priority |
-| Second dataset preprocessing pipeline | ⬜ Pending |
-| Cross-dataset feature alignment | ⬜ Pending |
-| External Direct vs Flow evaluation | ✅ Done (`physics/external_vs_flow_eval.py`) |
-| External Energy-feature ablation | ⬜ Pending |
-| External generalization test | ✅ Done (`tests/test_external_generalization.py`) |
-| Cross-dataset replication analysis | ✅ Done (`physics/cross_dataset_replication.py`) |
+| External dataset compatibility audit | ✅ Done (DASHlink + OpenSky design) |
+| Second dataset preprocessing pipeline | ✅ Done (`physics/external_audit/`) |
+| Cross-dataset feature alignment | ✅ Done (`cross_dataset_alignment.py`) |
+| External Direct vs Flow evaluation | ✅ Done (protocol + DASHlink pilot) |
+| External Energy-feature ablation | ✅ Done (protocol + DASHlink pilot Exp C) |
+| External generalization test | ✅ Done (flight-level pilot + unit tests) |
+| Cross-dataset replication analysis | ✅ Done (`cross_dataset_replication.py`) |
+| DASHlink scaled run (≥50–100 flights) | ⬜ Pending |
+| OpenSky live pilot | ⬜ Pending (credentials) |
+| Multi-type / LOTO on external data | ⬜ Pending (needs type diversity) |
 
-**Completed external-validation components.** The equivalent AeroTwin Flow-vs-Direct protocol (`physics/external_vs_flow_eval.py`) is runnable on any independent featured-dataset parquet and is covered by `tests/test_external_generalization.py` (15 tests: target transforms, `clean_for_eval` filtering, results-table shaping, internal-baseline normalization, and a `catboost`-gated end-to-end run). The cross-dataset replication analysis (`physics/cross_dataset_replication.py`) runs that protocol across several datasets, decides per dataset whether Flow+Energy still beats Direct at the bootstrap threshold, and aggregates a meta-verdict ("all / partial / failed to replicate"). It is covered by `tests/test_cross_dataset_replication.py` (11 tests; 26 project tests total, all passing). These supply the qualitative-finding comparison table (§20, step 7) once a second dataset is available; they do not yet require one.
+**Infrastructure.** Loaders correctly extract Project 85 parameter structs (`.data` / Rate / Units), resample multi-rate FDR channels, convert units to SI, reconstruct interval fuel from `FF_*`, and run the compact A–E suite into `audit_results/`. Protocol modules (`external_vs_flow_eval.py`, `cross_dataset_replication.py`) remain available for any featured parquet. Tests: `tests/test_external_audit.py` (12), `tests/test_external_generalization.py`, `tests/test_cross_dataset_replication.py`.
 
 ---
 
@@ -1096,14 +1120,15 @@ Compare against baselines with clear labeling of oracle as upper bound.
 
 ### Recommended execution order
 
-1. **Operational distribution-shift analysis** on current PRC data (Priority 1).
-2. **Dataset compatibility audit** for NASA DASHlink and alternative datasets (External Dataset Validation).
-3. **Select second dataset** based on audit — use DASHlink only if scientifically comparable.
-4. **Build minimal aligned preprocessing pipeline** for the chosen external dataset.
-5. **Reproduce Direct vs Flow and Energy ablation** experiments (compact validation suite A–D).
-6. **Run the strongest feasible out-of-distribution evaluation** on the external dataset (experiment E).
-7. **Compare qualitative findings** across datasets (cross-dataset replication table).
-8. **Only then finalize** broad generalization claims in the paper.
+1. **Operational distribution-shift analysis** on current PRC data (Priority 1) — still the top scientific gap for LOTO heterogeneity.
+2. ~~Dataset compatibility audit for NASA DASHlink~~ ✅
+3. ~~Build minimal aligned preprocessing pipeline~~ ✅ (`physics/external_audit/`)
+4. ~~Compact Direct / Flow / Energy pilot on DASHlink~~ ✅ (`audit_results/dashlink_pilot/`)
+5. **Scale DASHlink external validation** (more flights/tails; fuel QA; document aircraft type).
+6. **Optional OpenSky pilot** for telemetry-shift / physics-label robustness.
+7. **Strongest feasible OOD evaluation** on external data (type-level if diversity allows).
+8. **Update cross-dataset qualitative table** and only then finalize broad generalization claims.
+9. Figure consolidation + paper drafting.
 
 ---
 
@@ -1111,15 +1136,17 @@ Compare against baselines with clear labeling of oracle as upper bound.
 
 ### Established
 
-- Energy-state and Energy+Weather features yield bootstrap-supported gains on **unseen flights** (Level 1).
+- Energy-state and Energy+Weather features yield bootstrap-supported gains on **unseen flights** (Level 1, PRC).
 - Direct hybrid ensembles approach PRC winner RMSE (**202.90 vs 200.83 kg**) on the **same dataset** — benchmarking, not external validation.
-- Fuel-flow targets improve MAE under standard-split ablations.
+- Fuel-flow targets improve MAE under standard-split ablations (PRC).
 - Multiple inductive biases are **rejected** with preserved negative results (residual learning, sparsity hypothesis, mass, embeddings, weather-only, operational descriptors).
+- **External pipeline exists** and runs on real DASHlink Project 85 FDR data with reconstructed fuel-flow labels.
 
 ### Suggestive
 
-- Fuel-Flow + Energy lowers LOTO macro MAE by ~17.4 kg vs Direct E+W, but **7/12 wins**, bootstrap CIs **cross zero**, paired tests **non-significant**, and **B77W-dominated** magnitude (ΔMAE ~−4 kg without B77W).
+- Fuel-Flow + Energy lowers LOTO macro MAE by ~17.4 kg vs Direct E+W on PRC, but **7/12 wins**, bootstrap CIs **cross zero**, paired tests **non-significant**, and **B77W-dominated** magnitude (ΔMAE ~−4 kg without B77W).
 - Physical aircraft distance correlates with LOTO error only with B77W included.
+- **DASHlink pilot:** energy features and Fuel-Flow target **qualitatively replicate** (ΔMAE negative with CIs excluding zero on a 15-flight sample). Treat as **early external evidence**, not definitive multi-dataset confirmation.
 
 ### Failed / rejected (cross-type)
 
@@ -1127,18 +1154,15 @@ Compare against baselines with clear labeling of oracle as upper bound.
 
 ### Must happen next
 
-Two major remaining research tasks:
-
 1. **Explain cross-aircraft transfer heterogeneity** — operational distribution-shift analysis and fold-level explanatory table on PRC data (§20 Priorities 1–2).
-2. **External dataset validation** — compatibility audit, compact Direct/Flow/Energy replication suite, and cross-dataset qualitative comparison (§20 External Dataset Validation).
+2. **Scale external validation** — larger DASHlink sample, optional OpenSky, multi-type tests if possible; keep label assumptions explicit.
+3. Figure consolidation for paper.
 
-Additional before submission: statistical protocol freeze and figure consolidation (§20 Priorities 3–5).
-
-**Paper readiness:** The project currently has **strong internal validation** under held-out flights and held-out aircraft types, but **external dataset validation remains necessary** before making broad claims that the identified inductive biases generalize across aviation datasets. Cross-type transfer mechanisms are unresolved and LOTO inference is not yet confirmatory. Submission should wait until operational-shift analysis, external validation (or explicit single-dataset scope limitation), and statistical protocol freeze are complete.
+**Paper readiness:** Strong internal validation; **pilot-scale external qualitative support** for energy features and flow targets on DASHlink. Cross-type transfer mechanisms remain unresolved. Submission should wait until operational-shift analysis and either a scaled external confirmation or an explicit single-dataset scope limitation with the pilot reported as preliminary external evidence.
 
 ---
 
-*Report updated July 2026.*
+*Report updated July 2026 (DASHlink external pilot + `physics/external_audit` package).*
 
 **Reproduce:**
 

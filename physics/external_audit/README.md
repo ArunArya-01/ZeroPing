@@ -41,6 +41,36 @@ Outputs land in `audit_results/` (tables, figures, meta JSON).
 
 ---
 
+## DASHlink pilot results (July 2026)
+
+Real **NASA DASHlink Project 85** data (tails **686 / 687** under `data/Tail_686_1`, `data/Tail_687_1`):
+
+| Item | Value |
+|------|--------|
+| Flights (quality-filtered airborne) | 15 |
+| Intervals | 137 |
+| Test flights / intervals | 4 / 40 |
+| Label source | `integrated_fuel_flow` (`FF_1…FF_4`, LBS/HR → kg) |
+| Model | LightGBM |
+
+| Experiment | MAE (kg) | RMSE | R² |
+|------------|--------:|-----:|---:|
+| Physics-only (OpenAP) | 140.1 | 177.6 | −0.44 |
+| Direct · base + physics | 25.5 | 31.2 | 0.96 |
+| Direct · base + energy + physics | 20.7 | 27.2 | 0.97 |
+| **Flow · base + energy + physics** | **18.1** | **23.4** | **0.97** |
+
+| Comparison | ΔMAE | 95% CI | Result |
+|------------|-----:|--------|--------|
+| Base+Energy vs Base | −4.85 | [−6.87, −2.88] | Energy **replicates** |
+| Flow+Energy vs Direct+Energy | −2.64 | [−4.63, −0.75] | Flow **replicates** |
+
+Artifacts: `audit_results/dashlink_pilot/`.
+
+**Loader note:** each MAT parameter is a MATLAB struct with `.data`, `.Rate`, `.Units`. `load_mat_file` extracts ~**186** time-series channels per flight (not scalar `meta_*` stubs).
+
+---
+
 ## DASHlink (Project 85) — pilot path
 
 **Why first:** best chance of independent (or reconstructed) fuel labels.
@@ -48,40 +78,39 @@ Outputs land in `audit_results/` (tables, figures, meta JSON).
 ### Prerequisites
 
 - `scipy` (for `.mat` I/O) — already in project `requirements.txt`
-- Downloaded Sample Flight Data (Project 85) MATLAB files
+- Downloaded Sample Flight Data (Project 85) MATLAB files (e.g. tails 686/687)
 - Optional: parameter dictionary / notes from DASHlink documentation
 
 ### Step-by-step
 
-1. **Download a few sample flights only** (2–5 `.mat` files), not the full multi-year archive.
-2. Place them under a local folder, e.g. `data/dashlink/project85/`.
-3. **Probe parameters** (Phase 1 audit):
+1. Place MAT files under e.g. `data/Tail_686_1/`, `data/Tail_687_1/` (or any folder tree).
+2. **Probe parameters** (Phase 1 audit) — expect `size > 1` for `ALT`, `GS`, `IVV`, `FF_*`:
 
    ```bash
-   python -m physics.external_audit.dashlink_loader data/dashlink/project85/some_flight.mat --probe
+   python -m physics.external_audit.dashlink_loader data/Tail_687_1/687200103200323.mat --probe
    ```
 
-4. **Load one flight** (trajectory + reconstructed fuel intervals):
+3. **Load one flight** (trajectory + reconstructed fuel intervals):
 
    ```bash
-   python -m physics.external_audit.dashlink_loader data/dashlink/project85/some_flight.mat
+   python -m physics.external_audit.dashlink_loader data/Tail_687_1/687200103200323.mat
    ```
 
-5. **Build featured dataset (pilot scale)**:
+4. **Build featured dataset (pilot scale)**:
 
    ```bash
    python -m physics.external_audit.build_featured_audit --source dashlink \
-     --dashlink-dir data/dashlink/project85 \
+     --dashlink-dir data \
      --max-flights 5 \
      --out audit_results/featured_dataset_audit.parquet
    ```
 
-6. **Run the pilot experiment suite**:
+5. **Run the pilot experiment suite**:
 
    ```bash
    python -m physics.external_audit.run_audit_pilot --source dashlink \
-     --dashlink-dir data/dashlink/project85 \
-     --max-flights 5 \
+     --dashlink-dir data \
+     --max-flights 15 \
      --out-dir audit_results/dashlink_pilot
    ```
 
@@ -183,13 +212,13 @@ Outputs under `--out-dir` (default `audit_results/`):
 
 ## Recommended execution order
 
-1. `--source demo` — prove the pipeline on your machine.
-2. **DASHlink** 2–5 flights — fuel feasibility gate.
-3. If fuel OK → scale DASHlink pilot (`--max-flights 20–50`).
-4. **OpenSky** short window — distribution-shift / physics-label robustness.
-5. Compare qualitative tables; decide primary external dataset.
+1. `--source demo` — prove the pipeline on your machine. ✅
+2. **DASHlink** probe + small pilot — fuel feasibility gate. ✅ (15-flight pilot done)
+3. Scale DASHlink (`--max-flights 50–100`) and document aircraft type. ⬜
+4. **OpenSky** short window — distribution-shift / physics-label robustness. ⬜
+5. Compare qualitative tables with PRC; decide primary external dataset for the paper.
 
-See also project root: **`HOW_TO_RUN_AUDIT.md`** for a condensed checklist.
+See also project root: **`HOW_TO_RUN_AUDIT.md`** and **`PROJECT_STATUS_REPORT.md`**.
 
 ## Dependencies
 

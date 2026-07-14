@@ -26,17 +26,21 @@ Dataset: [`aerotwin/aero-data`](https://huggingface.co/datasets/aerotwin/aero-da
 
 ## Current Status
 
-As of June 2026, this repository contains:
+As of July 2026, this repository contains:
 
-- A Hugging Face backed data loader for remote dataset access.
-- OpenAP fuel-flow baseline generation.
+- A Hugging Face backed data loader for remote dataset access (EUROCONTROL PRC 2025).
+- OpenAP fuel-flow baseline generation and hybrid ML pipelines.
 - Feature engineering for trajectory, phase, energy, operational, and weather-proxy features.
-- Experiment scripts for baseline modeling, ablations, stacking, aircraft experts, and verification.
+- Experiment scripts for baseline modeling, ablations, stacking, aircraft experts, LOTO, and verification.
 - SHAP explainability for the CatBoost energy/weather/physics hybrid model.
-- Generated tables and figures under `figures/`.
+- **External validation infrastructure** under `physics/external_audit/` (DASHlink + OpenSky pilots).
+- A completed **NASA DASHlink Project 85 pilot** with qualitative replication of energy features and Fuel-Flow targets (see below).
+- Generated tables and figures under `figures/` and `audit_results/`.
 - Paper-oriented summaries under `papers/`.
 
-Best documented result so far: Energy + Weather Hybrid XGBoost at about **83.76 kg MAE** on a held-out flight-level split. See [PROJECT_STATUS_REPORT.md](PROJECT_STATUS_REPORT.md) and [papers/hybrid_model_summary.md](papers/hybrid_model_summary.md) for details.
+**Best internal (PRC) result:** Energy + Weather Hybrid XGBoost at about **83.76 kg MAE** on a held-out flight-level split; ensemble RMSE **202.90 kg** vs PRC winner 200.83 kg (same-dataset benchmarking).
+
+**External pilot (DASHlink Project 85, tails 686/687, 15 flights):** Energy features and Fuel-Flow target both **replicate** under flight-level holdout with integrated fuel-flow labels. See [PROJECT_STATUS_REPORT.md](PROJECT_STATUS_REPORT.md), [HOW_TO_RUN_AUDIT.md](HOW_TO_RUN_AUDIT.md), and [physics/external_audit/README.md](physics/external_audit/README.md).
 
 ## Repository Structure
 
@@ -44,30 +48,35 @@ Best documented result so far: Energy + Weather Hybrid XGBoost at about **83.76 
 ZeroPing/
 ├── data/
 │   ├── __init__.py
-│   └── loader.py                    # Remote Hugging Face dataset loader
+│   └── loader.py                      # Remote Hugging Face dataset loader
+│   # Optional local DASHlink: data/Tail_686_1/*.mat, data/Tail_687_1/*.mat
 ├── physics/
-│   ├── openap_baseline.py           # OpenAP interval fuel baseline
-│   ├── feature_engineering.py       # Energy and operational features
-│   ├── weather_features.py          # ISA and wind proxy features
-│   ├── build_featured_dataset.py    # Main featured dataset builder
-│   ├── enrich_featured_dataset.py   # Additional feature enrichment
-│   ├── enrich_v3_features.py        # V3 feature set enrichment
-│   ├── eval_framework.py            # Evaluation and bootstrap utilities
-│   ├── statistical_protocol.py       # Frozen inference protocol (thresholds + policy)
-│   ├── shift_aware_routing.py        # Conditional shift-aware router (gated scaffold)
-│   ├── cross_dataset_alignment.py    # Align schemas/stats across datasets
-│   ├── external_vs_flow_eval.py       # External generalization: Flow+Energy vs Direct
-│   ├── cross_dataset_replication.py   # Cross-dataset replication of Flow+Energy vs Direct
-│   ├── mlp_residual.py               # Neural residual experiments
-│   └── transformer_residual.py       # Transformer feature-token residual corrector
-├── notebooks/                       # Reproducible experiment scripts
-├── tests/                           # Unit + slow tests (external generalization, replication)
-├── figures/                         # Generated plots, leaderboards, tables
-├── papers/                          # Research summaries and paper drafts
-├── featured_dataset*.parquet         # Materialized modeling datasets
-├── requirements.txt                 # Runtime and experiment dependencies
-├── setup.cfg                        # Tool configuration
-└── .github/workflows/ci.yml         # CI/CD workflow
+│   ├── openap_baseline.py             # OpenAP interval fuel baseline
+│   ├── feature_engineering.py         # Energy and operational features
+│   ├── weather_features.py            # ISA and wind proxy features
+│   ├── build_featured_dataset.py      # Main featured dataset builder (PRC)
+│   ├── eval_framework.py              # Evaluation and bootstrap utilities
+│   ├── external_vs_flow_eval.py       # Flow+Energy vs Direct on any parquet
+│   ├── cross_dataset_replication.py   # Multi-dataset replication verdict
+│   ├── external_audit/                # Second-dataset validation package
+│   │   ├── audit_utils.py             # Phase, energy, sparsity, intervals
+│   │   ├── dashlink_loader.py         # Project 85 MAT → traj + fuel intervals
+│   │   ├── opensky_loader.py          # OpenSky Trino + physics labels
+│   │   ├── build_featured_audit.py    # featured_dataset_audit.parquet
+│   │   ├── run_audit_pilot.py         # Pilot experiments A–E
+│   │   └── README.md
+│   └── ...
+├── notebooks/                         # Reproducible experiment scripts
+├── tests/                             # Unit tests (incl. external_audit)
+├── figures/                           # PRC plots, leaderboards, tables
+├── audit_results/                     # External audit outputs
+│   └── dashlink_pilot/                # Real DASHlink pilot tables + figures
+├── papers/                            # Research summaries
+├── AeroTwin_External_Dataset_Audit_Package.md
+├── HOW_TO_RUN_AUDIT.md                # Step-by-step external audit guide
+├── PROJECT_STATUS_REPORT.md
+├── featured_dataset*.parquet
+└── requirements.txt
 ```
 
 ## Key Entry Points
@@ -84,8 +93,12 @@ ZeroPing/
 | `physics/shift_aware_routing.py` | Conditional shift-aware router (Direct vs Flow+Energy) gated on operational-shift calibration. |
 | `physics/cross_dataset_alignment.py` | Harmonize schemas and feature scales across multiple datasets. |
 | `physics/external_vs_flow_eval.py` | Run the equivalent AeroTwin protocol on an independent dataset to test whether Flow+Energy still beats Direct. |
-| `physics/external_energy_ablation.py` | Run the equivalent AeroTwin Energy-feature ablation (V3 E6) on an independent dataset to test whether energy-state representations still help. |
-| `physics/cross_dataset_replication.py` | Run the Flow+Energy-vs-Direct protocol across several datasets and aggregate a cross-dataset replication verdict. |
+| `physics/external_energy_ablation.py` | Run the equivalent AeroTwin Energy-feature ablation (V3 E6) on an independent dataset. |
+| `physics/cross_dataset_replication.py` | Multi-dataset Flow+Energy-vs-Direct replication verdict. |
+| `physics/external_audit/` | Full second-dataset pipeline (DASHlink MAT loader, OpenSky, featured builder, pilot suite). |
+| `physics/external_audit/dashlink_loader.py` | Load Project 85 FDR structs (`.data` / Rate / Units); reconstruct fuel from `FF_*`. |
+| `physics/external_audit/run_audit_pilot.py` | Compact pilot: Direct, Fuel-Flow, energy ablation, flight-level split. |
+| `HOW_TO_RUN_AUDIT.md` | End-to-end instructions for demo, DASHlink, and OpenSky pilots. |
 | `notebooks/05_baseline_modeling.py` | Baseline modeling experiments. |
 | `notebooks/09_physics_features_v3.py` | Energy/weather feature ablations. |
 | `notebooks/12_verify_ensemble.py` | Ensemble verification workflow. |
@@ -148,39 +161,59 @@ PYTHONPATH=. python physics/enrich_featured_dataset.py
 PYTHONPATH=. python physics/enrich_v3_features.py
 ```
 
-Run the external generalization check (Flow+Energy vs Direct) on an
-independent dataset, optionally contrasting with the current AeroTwin results:
+### External dataset audit (DASHlink / OpenSky)
+
+Offline smoke test (no external data):
+
+```bash
+python -m physics.external_audit.run_audit_pilot --source demo --max-flights 8
+```
+
+Probe and run a **real DASHlink Project 85** pilot (MAT files under `data/`):
+
+```bash
+python -m physics.external_audit.dashlink_loader data/Tail_687_1/687200103200323.mat --probe
+
+python -m physics.external_audit.run_audit_pilot \
+  --source dashlink \
+  --dashlink-dir data \
+  --max-flights 15 \
+  --out-dir audit_results/dashlink_pilot
+```
+
+OpenSky short-window pilot (physics-derived labels; needs Trino credentials or synthetic fallback):
+
+```bash
+python -m physics.external_audit.run_audit_pilot \
+  --source opensky \
+  --start 2024-01-01 --stop 2024-01-01 06:00 \
+  --max-flights 10 \
+  --out-dir audit_results/opensky_pilot
+```
+
+Full checklist: [HOW_TO_RUN_AUDIT.md](HOW_TO_RUN_AUDIT.md).
+
+### Protocol helpers on an existing featured parquet
 
 ```bash
 PYTHONPATH=. python physics/external_vs_flow_eval.py \
     --external /path/to/independent_featured_dataset.parquet \
     --internal figures/table_loto_evaluation_master.csv
-```
 
-Run the external Energy-feature ablation (OpenAP-Hybrid baseline vs Energy
-Hybrid vs Energy+Weather Hybrid) on an independent dataset, optionally
-contrasting the ΔMAE with the internal V3 E6 significance table:
-
-```bash
 PYTHONPATH=. python physics/external_energy_ablation.py \
     --external /path/to/independent_featured_dataset.parquet \
     --internal figures/table_significance_v3_e6.csv
-```
 
-Run the cross-dataset replication analysis (Flow+Energy vs Direct) across two
-or more independent featured-dataset parquets and write the replication table
-to `figures/table_cross_dataset_replication.csv`:
-
-```bash
 PYTHONPATH=. python physics/cross_dataset_replication.py \
     /path/to/dataset_a.parquet /path/to/dataset_b.parquet \
     --outdir figures
 ```
 
-Run the test suite (unit tests plus slow, `catboost`-gated protocol runs):
+### Tests
 
 ```bash
-PYTHONPATH=. pytest tests/            # all tests
+PYTHONPATH=. pytest tests/ -q
+PYTHONPATH=. pytest tests/test_external_audit.py -q
 PYTHONPATH=. pytest tests/ -m slow    # protocol runs only
 ```
 
@@ -203,8 +236,22 @@ The main experiments compare:
 - Residual models that predict `actual_fuel_kg - physics_fuel_kg`.
 - Feature ablations for energy-state features, operational descriptors, weather proxies, mass features, vertical embeddings, stacking, and aircraft-type experts.
 - SHAP explainability for the direct CatBoost hybrid model, using CatBoost native SHAP values on held-out flights.
+- **External pilots** on DASHlink (reconstructed fuel flow) and optionally OpenSky (physics-derived labels).
 
 Evaluation uses flight-level train/test splits to avoid leakage between intervals from the same flight. Statistical comparisons use flight-clustered bootstrap tests where applicable.
+
+### DASHlink pilot snapshot (July 2026)
+
+Real NASA DASHlink Sample Flight Data (Project 85), tails 686/687, 15 airborne flights, 137 intervals, LightGBM, flight-level 75/25 split. Fuel targets from integrated `FF_1…FF_4` (LBS/HR → kg).
+
+| Experiment | MAE (kg) | Notes |
+|---|---:|---|
+| Physics-only (OpenAP) | 140.1 | Type/mass defaults may not match fleet |
+| Direct · base + physics | 25.5 | |
+| Direct · base + energy + physics | 20.7 | Energy ablation ΔMAE ≈ **−4.9** (95% CI excludes 0) |
+| Flow · base + energy + physics | **18.1** | vs matched Direct ΔMAE ≈ **−2.6** (95% CI excludes 0) |
+
+**Qualitative:** energy features **replicate**; Fuel-Flow target **replicates**; ML ≫ raw physics **replicates**. Absolute MAE is not comparable to PRC (~84 kg) because interval scales, aircraft mix, and label construction differ. Details: `audit_results/dashlink_pilot/`.
 
 ## Generated Artifacts
 
@@ -226,6 +273,11 @@ Important generated files include:
 - `figures/table_external_energy_ablation_significance.csv`
 - `figures/table_external_energy_ablation_vs_internal.csv`
 - `figures/fig_external_energy_ablation.png`
+- `audit_results/dashlink_pilot/featured_dataset_audit.parquet`
+- `audit_results/dashlink_pilot/table_audit_pilot_metrics.csv`
+- `audit_results/dashlink_pilot/table_audit_pilot_significance.csv`
+- `audit_results/dashlink_pilot/table_audit_qualitative_comparison.csv`
+- `audit_results/dashlink_pilot/figures/fig_audit_*.png`
 
 These files are experiment artifacts and may be regenerated by the scripts above.
 
@@ -259,12 +311,17 @@ flake8 data physics --count --select=E9,F63,F7,F82 --show-source --statistics
 | Hugging Face access fails | Check network access and set `HF_TOKEN` if required. |
 | Experiment script cannot find parquet files | Generate the featured dataset first or confirm the parquet artifacts exist in the repo root. |
 | `ModuleNotFoundError: xgboost` | Install optional experiment dependency with `pip install xgboost`. |
+| DASHlink `No trajectory channels found` | Use updated `dashlink_loader` (extracts struct `.data`); probe with `--probe`. |
+| DASHlink channels all `meta_*` size 1 | Old loader bug; upgrade `physics/external_audit/dashlink_loader.py`. |
+| OpenSky empty result | Configure `pyopensky` Trino credentials, or use demo/synthetic fallback for code checks only. |
 
 ## References
 
 - Dataset: [`aerotwin/aero-data`](https://huggingface.co/datasets/aerotwin/aero-data)
 - OpenAP: <https://github.com/junzis/openap>
 - Project status: [PROJECT_STATUS_REPORT.md](PROJECT_STATUS_REPORT.md)
+- External audit how-to: [HOW_TO_RUN_AUDIT.md](HOW_TO_RUN_AUDIT.md)
+- Audit package design: [AeroTwin_External_Dataset_Audit_Package.md](AeroTwin_External_Dataset_Audit_Package.md)
 - Hybrid model summary: [papers/hybrid_model_summary.md](papers/hybrid_model_summary.md)
 
 ## License

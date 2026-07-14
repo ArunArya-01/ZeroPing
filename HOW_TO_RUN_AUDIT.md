@@ -3,7 +3,10 @@
 Step-by-step guide for the pilot-scale external validation package in `physics/external_audit/`.
 
 **Full design / decision gates:** `AeroTwin_External_Dataset_Audit_Package.md`  
-**Module details:** `physics/external_audit/README.md`
+**Module details:** `physics/external_audit/README.md`  
+**Project status (results):** `PROJECT_STATUS_REPORT.md` § External Dataset Validation  
+
+**Status (July 2026):** DASHlink Project 85 pilot complete (15 flights, tails 686/687) — energy features and Fuel-Flow target **replicate** under flight-level holdout. Artifacts in `audit_results/dashlink_pilot/`.
 
 Always start with **small samples**. Scale only after Phase 1 checks pass.
 
@@ -51,49 +54,56 @@ python -m pytest tests/test_external_audit.py -q
 ### 2.1 Download pilot samples only
 
 1. Obtain NASA DASHlink **Sample Flight Data (Project 85)** access.
-2. Download **2–5** `.mat` flights (not the full multi-year set).
-3. Put them in a local folder, e.g.:
+2. Download sample flights (e.g. tails **686** and **687**); local layout used in this repo:
 
    ```text
-   data/dashlink/project85/
-     flight_a.mat
-     flight_b.mat
-     ...
+   data/
+     Tail_686_1/*.mat
+     Tail_687_1/*.mat
    ```
 
 ### 2.2 Phase 1 — parameter probe (fuel feasibility)
 
 ```bash
-python -m physics.external_audit.dashlink_loader data/dashlink/project85/flight_a.mat --probe
+python -m physics.external_audit.dashlink_loader data/Tail_687_1/687200103200323.mat --probe
 ```
 
-**Check the printed parameter table for names like:**
+**Expect:** ~186 time-series rows with `size > 1` (e.g. `ALT` thousands of samples, `units=FEET`, `rate_hz=4`).  
+If you only see `meta_*` with `size=1`, the loader is outdated — update `dashlink_loader.py` (struct `.data` extraction).
 
-- fuel flow / FF / WFF  
-- fuel quantity / used / FOB / gross weight  
-- altitude, groundspeed, vertical speed, time  
+**Project 85 channel names (confirmed):**
+
+| Role | Names | Units (typical) |
+|------|--------|-----------------|
+| Altitude | `ALT`, `BAL1`/`BAL2` | FEET |
+| Groundspeed | `GS` | KNOTS |
+| Vertical rate | `IVV`, `ALTR` | FT/MIN |
+| Fuel flow | `FF_1`…`FF_4` | LBS/HR |
+| Fuel quantity | `FQTY_1`…`FQTY_4` | LBS |
+| Position | `LATP`, `LONP` | DEG |
+| Air data | `CAS`, `MACH`, `TAS` | KNOTS / MACH |
 
 **Decision gate**
 
 | Result | Action |
 |--------|--------|
-| Fuel-related channels present | Continue to pilot |
+| Fuel-related channels present | Continue to pilot ✅ (confirmed on Project 85) |
 | No fuel signal at all | Document No-Go for independent labels; optionally still use for trajectory-only checks or move to OpenSky |
 | Trajectory incomplete | Inspect units / alternate channel names; open an issue note in your audit log |
 
 ### 2.3 Phase 2 — load one flight end-to-end
 
 ```bash
-python -m physics.external_audit.dashlink_loader data/dashlink/project85/flight_a.mat
+python -m physics.external_audit.dashlink_loader data/Tail_686_1/686200104111724.mat
 ```
 
-Confirm logs mention either `integrated_fuel_flow` or `quantity_delta` (or a clear “no fuel” warning).
+Confirm logs mention `integrated_fuel_flow` (or `quantity_delta`) and unit conversions (FEET→m, KNOTS→m/s, LBS/HR→kg/s).
 
 ### 2.4 Phase 3 — featured dataset (pilot scale)
 
 ```bash
 python -m physics.external_audit.build_featured_audit --source dashlink \
-  --dashlink-dir data/dashlink/project85 \
+  --dashlink-dir data \
   --max-flights 5 \
   --out audit_results/dashlink_pilot/featured_dataset_audit.parquet
 ```
@@ -102,12 +112,14 @@ python -m physics.external_audit.build_featured_audit --source dashlink \
 
 ```bash
 python -m physics.external_audit.run_audit_pilot --source dashlink \
-  --dashlink-dir data/dashlink/project85 \
-  --max-flights 5 \
+  --dashlink-dir data \
+  --max-flights 15 \
   --out-dir audit_results/dashlink_pilot \
   --model lgbm \
   --n-bootstrap 500
 ```
+
+**Recorded pilot (15 flights):** Flow MAE ≈ 18.1 kg; Direct+Energy ≈ 20.7; energy ΔMAE ≈ −4.9 (sig.); Flow vs Direct ΔMAE ≈ −2.6 (sig.). See `PROJECT_STATUS_REPORT.md`.
 
 ### 2.6 What to read after the run
 
