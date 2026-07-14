@@ -1,9 +1,15 @@
-Model,MAE,RMSE,R2
-LGBM,86.67,208.61,0.9451
-XGB,83.76,212.03,0.9433
-CatBoost,87.59,209.73,0.9445
-Ensemble (Ridge 1-split),85.7,204.9,0.9471
-Aircraft Experts,85.8,206.8,0.9462
-Optuna Best,84.9,204.6,0.9473
-Full 5f GroupKFold LGBM_meta (best),84.3,202.9,0.9481
-Challenge Winner (200.83 RMSE),-,200.83,-
+protocol,model,target,MAE,RMSE,R2,rank_note,source
+A_fuel_flow,XGB Flow+Energy,fuel_flow_recovered,79.52,208.42,0.9452,Best Level-1 MAE (single model),table_fuel_flow_ablation.csv
+A_fuel_flow,LGBM Flow+Energy,fuel_flow_recovered,80.33,196.24,0.9514,Best Level-1 single-model RMSE (Fuel-Flow track),table_fuel_flow_ablation.csv
+A_fuel_flow,LGBM Flow+E+W,fuel_flow_recovered,80.71,196.41,0.9513,Cited 196.4 RMSE (E+W features),table_fuel_flow.csv
+A_fuel_flow,XGB Flow+E+W,fuel_flow_recovered,80.06,210.81,0.9440,,table_fuel_flow.csv
+B_direct,XGB Energy+Weather Hybrid,direct_kg,83.76,212.03,0.9433,Best Direct single-model MAE,table_v3_leaderboard.csv
+B_direct,LGBM Direct E+W,direct_kg,86.67,208.61,0.9451,,table_fuel_flow.csv
+B_direct,CatBoost Direct E+W,direct_kg,91.32,211.45,0.9436,,table_fuel_flow.csv
+B_direct,XGB OpenAP Hybrid,direct_kg,86.31,,,V3 hybrid baseline,table_v3_leaderboard.csv
+C_stack_direct,LGBM_meta 5f OOF,direct_kg,84.3,202.9,0.9481,Best Direct ensemble RMSE (competition track),table_ensemble_final.csv
+C_stack_direct,Ridge 5f OOF,direct_kg,84.5,203.4,0.9479,,table_ensemble_final.csv
+C_stack_direct,Optuna CatBoost,direct_kg,84.9,204.6,0.9473,,final_leaderboard legacy
+C_stack_direct,Aircraft Experts,direct_kg,85.8,206.8,0.9462,,final_leaderboard legacy
+C_stack_direct,PRC Challenge Winner (ref),unknown,,200.83,,Competition reference only — not AeroTwin,PRC official
+NOTE,DO NOT RANK A vs C AS ONE LIST,,,,,"Flow single-model RMSE 196.4 and Direct stack RMSE 202.9 are NOT directly comparable (different targets/training). See LEADERBOARD_AUDIT.md",

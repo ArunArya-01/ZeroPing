@@ -12,7 +12,8 @@
 
 - **Energy-state representations** (E2) and **Energy + Weather** (E6) yield bootstrap-supported MAE gains over the OpenAP hybrid baseline on strict flight-level holdout (ΔMAE ≈ −1.8 to −2.6 kg; 95% CIs exclude zero).
 - **Direct hybrid tree ensembles** generalize to unseen flights at MAE ≈ 84–88 kg and RMSE ≈ 210–224 kg.
-- **Ensemble stacking** reaches **RMSE = 202.90 kg** on the PRC evaluation protocol — within ~1% of the published winner (200.83 kg) on the **same** dataset and metric. This is **competition benchmarking**, not external scientific validation.
+- **Ensemble stacking (Direct kg)** reaches **RMSE = 202.90 kg** on the PRC Level-1 flight holdout — within ~1% of the published winner (200.83 kg). This is **competition benchmarking** on the **Direct** track only, not external scientific validation.
+- **Fuel-Flow single models** on the **same** outer flight split reach lower error under a different target: best MAE **79.52 kg** (XGB Flow+Energy) and best single-model RMSE **196.24 kg** (LGBM Flow+Energy). These must **not** be ranked against the Direct stack as one leaderboard (see `figures/LEADERBOARD_AUDIT.md`).
 - **Rejected under standard-split inference:** raw OpenAP alone; sparse-physics hypothesis; operational descriptors; weather-only; residual trees; MLP residual; heuristic mass features; vertical-rate embeddings; simple body-class routing as a universal LOTO solution.
 
 ### Suggestive / unresolved findings (aircraft-family shift; LOTO)
@@ -594,32 +595,37 @@ Findings are classified as **Established**, **Suggestive**, **Exploratory**, or 
 | `figures/table_flow_vs_prc.csv` | Flow variants vs PRC winner |
 | `figures/table_shap_catboost.csv` | SHAP feature importance |
 
-### Strongest results (by generalization level)
+### Strongest results (by generalization level) — protocol-separated
 
-| Level | Result | Detail |
+| Level / track | Result | Detail |
 |---|---|---|
-| **Level 1 MAE** | **83.76 kg** | Energy+Weather Hybrid XGB, flight-level split |
-| **Level 1 RMSE** | **202.90 kg** | 5f OOF + LGBM_meta ensemble |
+| **Level 1 MAE (Fuel-Flow single)** | **79.52 kg** | XGB Flow+Energy — best audited single-model MAE |
+| **Level 1 RMSE (Fuel-Flow single)** | **196.24 kg** | LGBM Flow+Energy — **not** for Direct/stack ranking |
+| **Level 1 MAE (Direct single)** | **83.76 kg** | XGB Energy+Weather Hybrid |
+| **Level 1 RMSE (Direct stack)** | **202.90 kg** | 5f OOF LGBM_meta — competition track |
 | **Level 2 LOTO macro MAE (best point estimate)** | **265.9 kg** | Global Flow+Energy (vs 283.2 kg direct) — **suggestive, not confirmed** |
-| **PRC benchmark** | 202.90 vs 200.83 kg RMSE | Same-dataset competition proximity (~1%); not external validation |
+| **PRC Direct benchmark** | 202.90 vs 200.83 kg RMSE | Direct ensemble only; not external validation |
+
+Full audit: `figures/LEADERBOARD_AUDIT.md`.
 
 ---
 
 ## 14. Competition Benchmarking
 
-PRC2025 Winner RMSE = **200.83 kg** (official leaderboard).
+PRC2025 Winner RMSE = **200.83 kg** (official leaderboard).  
+**This section ranks only Direct-kg (or legacy rows explicitly labeled).** Fuel-Flow single-model RMSE is listed for transparency but is **not** the competition protocol.
 
-| Model | RMSE (kg) |
-|---|---|
-| PRC2025 Winner | 200.83 |
-| AeroTwin Ensemble (5f LGBM_meta) | 202.90 |
-| FuelFlow+Energy+Mass | 204.18 |
-| FuelFlow+Energy | 206.32 |
-| Energy+Weather (direct, single model) | ~219–224 |
+| Model | Track | RMSE (kg) |
+|---|---|---|
+| PRC2025 Winner | competition ref | 200.83 |
+| AeroTwin Ensemble (5f LGBM_meta) | **Direct** stack | **202.90** |
+| LGBM Flow+Energy (single) | **Fuel-Flow** single | **196.24** (*not Direct stack*) |
+| Optuna CatBoost | Direct single | 204.6 |
+| Energy+Weather Direct XGB | Direct single | ~212 |
 
-**Gap:** 202.90 − 200.83 = **2.07 kg RMSE** (~1.03%).
+**Gap (Direct stack only):** 202.90 − 200.83 = **2.07 kg RMSE** (~1.03%).
 
-**Accurate conclusion:** AeroTwin reaches **competition-level RMSE on the same PRC dataset** under the project's ensemble pipeline. Wide flight-clustered bootstrap CIs on flow variants overlap the winner; this supports **benchmark proximity**, not **statistical equivalence** or **external validity**. Being within bootstrap uncertainty of a leaderboard score does not establish that the model would generalize equally on independent data or under aircraft-family shift.
+**Accurate conclusion:** On the **Direct** ensemble track, AeroTwin reaches **competition-level RMSE** under the project's stacking pipeline. A Fuel-Flow single LGBM can post a **lower RMSE (196)** on the **same outer test flights** under a **different training target** — that is a target-formulation result, not a replacement of the stack in the Direct competition narrative. Supports **benchmark proximity** for Direct ensembles, not statistical equivalence to the winner or external validity.
 
 ---
 
@@ -650,9 +656,11 @@ No gain; bootstrap CI includes zero.
 
 **Notebooks:** `notebooks/08_ensemble.py`, `notebooks/11_stacking.py`, `notebooks/12_verify_ensemble.py`
 
-**Best:** LGBM_meta achieving **RMSE = 202.90 kg**.
+**Best on Direct stacking track:** LGBM_meta achieving **RMSE = 202.90 kg** (MAE 84.3).
 
-Stacking improves RMSE substantially over single Energy+Weather models (~212–224 → 202.90). Aircraft experts (~206.8 kg RMSE) **underperform** the global meta-ensemble.
+Stacking improves **Direct** RMSE over single Energy+Weather Direct models (~212 → 202.9). Aircraft experts (~206.8 kg RMSE) **underperform** the global meta-ensemble.
+
+**Do not claim this is the global best AeroTwin model:** on the Fuel-Flow track (same outer test flights), single-model LGBM Flow+Energy reaches RMSE **196.2** and XGB Flow+Energy reaches MAE **79.5**. Different targets → separate leaderboards (`figures/LEADERBOARD_AUDIT.md`).
 
 ---
 
@@ -1137,8 +1145,9 @@ Compare against baselines with clear labeling of oracle as upper bound.
 ### Established
 
 - Energy-state and Energy+Weather features yield bootstrap-supported gains on **unseen flights** (Level 1, PRC).
-- Direct hybrid ensembles approach PRC winner RMSE (**202.90 vs 200.83 kg**) on the **same dataset** — benchmarking, not external validation.
-- Fuel-flow targets improve MAE under standard-split ablations (PRC).
+- Direct hybrid ensembles approach PRC winner RMSE (**202.90 vs 200.83 kg**) on the **Direct competition track** — benchmarking, not external validation.
+- Fuel-flow targets improve Level-1 error vs Direct under the **same** flight split (best Flow MAE **79.5**, best Flow RMSE **196.2**); keep separate from Direct stack rankings.
+- Full leaderboard audit: `figures/LEADERBOARD_AUDIT.md`, `figures/master_leaderboard_by_protocol.csv`.
 - Multiple inductive biases are **rejected** with preserved negative results (residual learning, sparsity hypothesis, mass, embeddings, weather-only, operational descriptors).
 - **External pipeline exists** and runs on real DASHlink Project 85 FDR data with reconstructed fuel-flow labels.
 

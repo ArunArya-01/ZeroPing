@@ -38,7 +38,15 @@ As of July 2026, this repository contains:
 - Generated tables and figures under `figures/` and `audit_results/`.
 - Paper-oriented summaries under `papers/`.
 
-**Best internal (PRC) result:** Energy + Weather Hybrid XGBoost at about **83.76 kg MAE** on a held-out flight-level split; ensemble RMSE **202.90 kg** vs PRC winner 200.83 kg (same-dataset benchmarking).
+**Best internal (PRC) results — protocol-separated (see `figures/LEADERBOARD_AUDIT.md`):**
+
+| Track | Best model | MAE | RMSE | Notes |
+|-------|------------|----:|-----:|-------|
+| **A · Fuel-Flow single model** | XGB Flow+Energy / LGBM Flow+Energy | **79.5** / 80.3 | 208.4 / **196.2** | MAE-best vs RMSE-best differ |
+| **B · Direct single model** | XGB Energy+Weather | **83.8** | 212.0 | Main hybrid MAE story |
+| **C · Direct stacking (competition)** | LGBM_meta 5-fold OOF | 84.3 | **202.9** | vs PRC winner RMSE 200.83 |
+
+Flow RMSE 196 and stack RMSE 203 are **not** ranked against each other (different targets / training).
 
 **External pilot (DASHlink Project 85, tails 686/687, 15 flights):** Energy features and Fuel-Flow target both **replicate** under flight-level holdout with integrated fuel-flow labels. See [PROJECT_STATUS_REPORT.md](PROJECT_STATUS_REPORT.md), [HOW_TO_RUN_AUDIT.md](HOW_TO_RUN_AUDIT.md), and [physics/external_audit/README.md](physics/external_audit/README.md).
 
