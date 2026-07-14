@@ -1,0 +1,4 @@
+finding,prc2025_expected,audit_result,delta_mae,interpretation
+Energy features improve Direct MAE,Yes (ΔMAE < 0 with CI),replicates,-138.19945220909207,Base+Energy significantly better than Base
+Fuel-Flow target beats matched Direct,Often yes under LOTO / distribution shift,partial,-35.70888133837953,No significant evidence
+ML improves on physics-only,Yes on independent fuel labels,n/a_physics_labels,159.36845190458317,WARNING: some/all labels are physics-derived (OpenAP). Absolute MAE is not independent fuel error.

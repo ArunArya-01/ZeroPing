@@ -1,0 +1,7 @@
+experiment,approach,features,target,mae,rmse,r2,n_features
+A_direct_baseline,direct,base+physics,direct_fuel,25.54149564926229,31.234337134334577,0.9553483749726956,22
+A_physics_only,physics,openap,physics_fuel_kg,140.05185222245834,177.57254408456546,-0.4431926735455236,0
+B_fuel_flow,fuel_flow,base+energy+physics,fuel_flow,18.05789996813305,23.40826877802473,0.9749209389507335,33
+B_direct_energy_matched,direct,base+energy+physics,direct_fuel,20.696128149161986,27.233114811873364,0.9660556641520834,33
+C_energy_ablation_base,direct,base+physics,direct_fuel,25.54149564926229,31.234337134334577,0.9553483749726956,22
+C_energy_ablation_base_energy,direct,base+energy+physics,direct_fuel,20.696128149161986,27.233114811873364,0.9660556641520834,33

@@ -1,0 +1,4 @@
+finding,prc2025_expected,audit_result,delta_mae,interpretation
+Energy features improve Direct MAE,Yes (ΔMAE < 0 with CI),partial,-0.7532642014241304,No significant evidence
+Fuel-Flow target beats matched Direct,Often yes under LOTO / distribution shift,replicates,-10.69801010830141,Flow+Energy significantly better than Direct+Energy
+ML improves on physics-only,Yes on independent fuel labels,replicates,-80.73180964868496,Compare Direct MAE to physics MAE
