@@ -1,0 +1,82 @@
+split,table,column,dtype
+train,flightlist,flight_date,Date
+train,flightlist,aircraft_type,String
+train,flightlist,takeoff,"Datetime(time_unit='us', time_zone=None)"
+train,flightlist,landed,"Datetime(time_unit='us', time_zone=None)"
+train,flightlist,origin_icao,String
+train,flightlist,origin_name,String
+train,flightlist,destination_icao,String
+train,flightlist,destination_name,String
+train,flightlist,flight_id,String
+train,fuel,idx,Int64
+train,fuel,flight_id,String
+train,fuel,start,"Datetime(time_unit='ns', time_zone=None)"
+train,fuel,end,"Datetime(time_unit='ns', time_zone=None)"
+train,fuel,fuel_kg,Float64
+train,trajectory_sample,timestamp,"Datetime(time_unit='ns', time_zone=None)"
+train,trajectory_sample,flight_id,String
+train,trajectory_sample,typecode,String
+train,trajectory_sample,latitude,Float64
+train,trajectory_sample,longitude,Float64
+train,trajectory_sample,altitude,Float64
+train,trajectory_sample,groundspeed,Float64
+train,trajectory_sample,track,Float64
+train,trajectory_sample,vertical_rate,Float64
+train,trajectory_sample,mach,Float64
+train,trajectory_sample,TAS,Float64
+train,trajectory_sample,CAS,Float64
+train,trajectory_sample,source,String
+rank,flightlist,flight_date,Date
+rank,flightlist,aircraft_type,String
+rank,flightlist,takeoff,"Datetime(time_unit='us', time_zone=None)"
+rank,flightlist,landed,"Datetime(time_unit='us', time_zone=None)"
+rank,flightlist,origin_icao,String
+rank,flightlist,origin_name,String
+rank,flightlist,destination_icao,String
+rank,flightlist,destination_name,String
+rank,flightlist,flight_id,String
+rank,fuel,idx,Int64
+rank,fuel,flight_id,String
+rank,fuel,start,"Datetime(time_unit='ns', time_zone=None)"
+rank,fuel,end,"Datetime(time_unit='ns', time_zone=None)"
+rank,fuel,fuel_kg,Float64
+rank,trajectory_sample,timestamp,"Datetime(time_unit='ns', time_zone=None)"
+rank,trajectory_sample,flight_id,String
+rank,trajectory_sample,typecode,String
+rank,trajectory_sample,latitude,Float64
+rank,trajectory_sample,longitude,Float64
+rank,trajectory_sample,altitude,Float64
+rank,trajectory_sample,groundspeed,Float64
+rank,trajectory_sample,track,Float64
+rank,trajectory_sample,vertical_rate,Float64
+rank,trajectory_sample,mach,Float64
+rank,trajectory_sample,TAS,Float64
+rank,trajectory_sample,CAS,Float64
+rank,trajectory_sample,source,String
+final,flightlist,flight_date,Date
+final,flightlist,aircraft_type,String
+final,flightlist,takeoff,"Datetime(time_unit='us', time_zone=None)"
+final,flightlist,landed,"Datetime(time_unit='us', time_zone=None)"
+final,flightlist,origin_icao,String
+final,flightlist,origin_name,String
+final,flightlist,destination_icao,String
+final,flightlist,destination_name,String
+final,flightlist,flight_id,String
+final,fuel,idx,Int64
+final,fuel,flight_id,String
+final,fuel,start,"Datetime(time_unit='ns', time_zone=None)"
+final,fuel,end,"Datetime(time_unit='ns', time_zone=None)"
+final,fuel,fuel_kg,Float64
+final,trajectory_sample,timestamp,"Datetime(time_unit='ns', time_zone=None)"
+final,trajectory_sample,flight_id,String
+final,trajectory_sample,typecode,String
+final,trajectory_sample,latitude,Float64
+final,trajectory_sample,longitude,Float64
+final,trajectory_sample,altitude,Float64
+final,trajectory_sample,groundspeed,Float64
+final,trajectory_sample,track,Float64
+final,trajectory_sample,vertical_rate,Float64
+final,trajectory_sample,mach,Float64
+final,trajectory_sample,TAS,Float64
+final,trajectory_sample,CAS,Float64
+final,trajectory_sample,source,String

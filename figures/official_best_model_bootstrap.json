@@ -1,0 +1,29 @@
+{
+  "best_model": "Ensemble (6-base + ridge meta)",
+  "final_rmse_ci": {
+    "point": 220.8570993417157,
+    "ci_lower": 196.2094927970606,
+    "ci_upper": 246.59076007922818,
+    "n_flights": 2824,
+    "n_boot": 2000
+  },
+  "final_mae_ci": {
+    "point": 87.34864174087605,
+    "ci_lower": 82.72255258072335,
+    "ci_upper": 92.34754567738514,
+    "n_flights": 2824,
+    "n_boot": 2000
+  },
+  "combined_rmse_ci": {
+    "point": 228.2505398783207,
+    "ci_lower": 207.06635923483861,
+    "ci_upper": 249.4264773965281,
+    "n_flights": 4705,
+    "n_boot": 2000
+  },
+  "combined_metrics": {
+    "mae": 88.74505740577311,
+    "rmse": 228.2505398783207,
+    "r2": 0.9128576468302898
+  }
+}
