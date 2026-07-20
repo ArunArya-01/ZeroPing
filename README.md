@@ -1,6 +1,6 @@
 <div align="center">
 
-# AeroTwin
+# ZeroPing / AeroTwin
 
 **Physics-informed aircraft fuel-burn prediction — hybrid OpenAP + machine-learning modeling, evaluation, and cross-dataset validation.**
 
@@ -35,7 +35,7 @@
 
 ## Overview
 
-**ZeroPing** predicts interval-level aircraft fuel burn from real-world, fused ADS-B and ACARS telemetry (EUROCONTROL PRC 2025 challenge data). It evaluates a **hybrid physics + machine-learning** paradigm:
+**AeroTwin** predicts interval-level aircraft fuel burn from real-world, fused ADS-B and ACARS telemetry (EUROCONTROL PRC 2025 challenge data). It evaluates a **hybrid physics + machine-learning** paradigm:
 
 ```text
 predicted_fuel_kg = f(trajectory, aircraft, route, physics_fuel_kg, engineered_features)
@@ -308,4 +308,4 @@ PYTHONPATH=. pytest tests/ -m slow    # protocol runs only
 
 ## License
 
-AeroTwin is released under the [MIT License](LICENSE).
+ZeroPing / AeroTwin is released under the [MIT License](LICENSE).
