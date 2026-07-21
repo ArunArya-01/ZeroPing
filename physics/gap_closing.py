@@ -464,6 +464,145 @@ def predict_heavy_routed(
 
 
 # ---------------------------------------------------------------------------
+# R1 — Heavy specialist with OpenAP descriptors + interactions
+# ---------------------------------------------------------------------------
+
+OPENAP_DESCRIPTOR_PATH = project_root() / "figures" / "table_aircraft_openap_descriptors.csv"
+
+OPENAP_DESCRIPTOR_COLS = [
+    "mtow_kg",
+    "mlw_kg",
+    "oew_kg",
+    "mfc_kg",
+    "cruise_mach",
+    "cruise_range_km",
+    "wing_area_m2",
+    "wing_span_m",
+    "mmo",
+    "max_thrust_n",
+]
+
+R1_INTERACTION_COLS = [
+    "r1_cruise_alt_x_dur",
+    "r1_mean_alt_x_dur",
+    "r1_cruise_ratio_x_dur",
+    "r1_wing_loading_mtow_wingarea",
+    "r1_thrust_loading_mtow_thrust",
+    "r1_aspect_ratio",
+    "r1_oew_mtow_ratio",
+    "r1_fuel_capacity_ratio",
+]
+
+
+def _load_openap_descriptors() -> pl.DataFrame:
+    return pl.read_csv(OPENAP_DESCRIPTOR_PATH).select(
+        ["aircraft_type"] + OPENAP_DESCRIPTOR_COLS
+    )
+
+
+def _make_r1_interactions(df: pl.DataFrame) -> pl.DataFrame:
+    has_cruise_alt = "max_altitude" in df.columns
+    has_dur = "duration_s" in df.columns
+    has_cruise_frac = "cruise_fraction" in df.columns
+
+    exprs = []
+    if has_cruise_alt and has_dur:
+        exprs.append(
+            (pl.col("max_altitude") * pl.col("duration_s")).alias("r1_cruise_alt_x_dur")
+        )
+    if has_dur:
+        alt_col = "mean_altitude" if "mean_altitude" in df.columns else "max_altitude"
+        if alt_col in df.columns:
+            exprs.append(
+                (pl.col(alt_col) * pl.col("duration_s")).alias("r1_mean_alt_x_dur")
+            )
+    if has_cruise_frac and has_dur:
+        exprs.append(
+            (pl.col("cruise_fraction") * pl.col("duration_s")).alias("r1_cruise_ratio_x_dur")
+        )
+
+    if "mtow_kg" in df.columns and "wing_area_m2" in df.columns:
+        exprs.append(
+            (pl.col("mtow_kg") / pl.col("wing_area_m2").clip(1.0)).alias("r1_wing_loading_mtow_wingarea")
+        )
+    if "mtow_kg" in df.columns and "max_thrust_n" in df.columns:
+        exprs.append(
+            (pl.col("mtow_kg") / pl.col("max_thrust_n").clip(1.0)).alias("r1_thrust_loading_mtow_thrust")
+        )
+    if "wing_span_m" in df.columns and "wing_area_m2" in df.columns:
+        exprs.append(
+            ((pl.col("wing_span_m") ** 2) / pl.col("wing_area_m2").clip(1.0)).alias("r1_aspect_ratio")
+        )
+    if "oew_kg" in df.columns and "mtow_kg" in df.columns:
+        exprs.append(
+            (pl.col("oew_kg") / pl.col("mtow_kg").clip(1.0)).alias("r1_oew_mtow_ratio")
+        )
+    if "mfc_kg" in df.columns and "mtow_kg" in df.columns:
+        exprs.append(
+            (pl.col("mfc_kg") / pl.col("mtow_kg").clip(1.0)).alias("r1_fuel_capacity_ratio")
+        )
+
+    if not exprs:
+        return df
+    return df.with_columns(exprs)
+
+
+def _augment_heavy_with_descriptors(
+    df: pl.DataFrame,
+    *,
+    include_interactions: bool = True,
+) -> pl.DataFrame:
+    desc = _load_openap_descriptors()
+    df = df.join(desc, on="aircraft_type", how="left")
+    if include_interactions:
+        df = _make_r1_interactions(df)
+    return df
+
+
+def r1_feature_cols(base_feat_cols: list[str]) -> list[str]:
+    extra = OPENAP_DESCRIPTOR_COLS + R1_INTERACTION_COLS
+    return list(dict.fromkeys(base_feat_cols + extra))
+
+
+def train_heavy_specialist_r1(
+    train: pl.DataFrame,
+    feat_cols: list[str],
+    model_key: str = "lgbm",
+) -> tuple[Any, list[str]]:
+    heavy = train.filter(pl.col("aircraft_type").is_in(list(HEAVY_TYPES)))
+    LOGGER.info("R1 heavy specialist train rows: %d / %d", len(heavy), len(train))
+    if len(heavy) < 500:
+        raise RuntimeError("Too few heavy rows for R1 specialist")
+    heavy = _augment_heavy_with_descriptors(heavy)
+    r1_cols = r1_feature_cols(feat_cols)
+    present = [c for c in r1_cols if c in heavy.columns]
+    X, y_space, _, dur = prepare_xy(heavy, present, "fuel_flow")
+    model = train_model(model_key, X, y_space, present)
+    return model, present
+
+
+def predict_heavy_routed_r1(
+    specialist: Any,
+    feat_cols: list[str],
+    df: pl.DataFrame,
+    base_pred: np.ndarray,
+) -> np.ndarray:
+    df = ensure_features(df, feat_cols)
+    ac = df["aircraft_type"].to_numpy().astype(str)
+    heavy_m = np.isin(ac, list(HEAVY_TYPES))
+    out = base_pred.copy()
+    if heavy_m.any():
+        sub = df.filter(pl.Series(heavy_m))
+        sub = _augment_heavy_with_descriptors(sub)
+        r1_cols = r1_feature_cols(feat_cols)
+        present = [c for c in r1_cols if c in sub.columns]
+        X, _, _, dur = prepare_xy(sub, present, "direct")
+        pred_h = predict_fuel_kg(specialist, X, dur, "fuel_flow")
+        out[np.flatnonzero(heavy_m)] = pred_h
+    return out
+
+
+# ---------------------------------------------------------------------------
 # P5 simple ensemble reweight on OOF
 # ---------------------------------------------------------------------------
 
