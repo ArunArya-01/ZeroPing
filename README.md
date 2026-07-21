@@ -4,11 +4,6 @@
 
 **Physics-informed aircraft fuel-burn prediction — hybrid OpenAP + machine-learning modeling, evaluation, and cross-dataset validation.**
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-green?style=flat-square)](LICENSE)
-[![Python](https://img.shields.io/badge/Python-3.11+-blue?style=flat-square)](https://www.python.org/downloads/)
-[![CI](https://img.shields.io/badge/CI-GitHub%20Actions-2ea043?style=flat-square)](#ci--quality-gates)
-[![Dataset](https://img.shields.io/badge/Dataset-aerotwin%2Faero--data-ff69b4?style=flat-square)](https://huggingface.co/datasets/aerotwin/aero-data)
-
 </div>
 
 ---
@@ -123,6 +118,7 @@ ZeroPing/
 ├── notebooks/                         # Reproducible experiment scripts
 ├── tests/                             # Unit tests (incl. external_audit)
 ├── figures/                           # PRC plots, leaderboards, tables
+├── docs/                              # Audit deliverables (parity, gap attribution)
 ├── audit_results/                     # External audit outputs
 ├── papers/                            # Research summaries
 ├── AeroTwin_External_Dataset_Audit_Package.md
@@ -190,6 +186,8 @@ PYTHONPATH=. python notebooks/05_baseline_modeling.py
 PYTHONPATH=. python notebooks/09_physics_features_v3.py
 PYTHONPATH=. python notebooks/12_verify_ensemble.py
 PYTHONPATH=. python notebooks/14_shap_explainability.py
+PYTHONPATH=. python notebooks/19_gap_closing_campaign.py
+PYTHONPATH=. python notebooks/23_rmse_audit_agent.py
 ```
 
 Offline audit smoke test (no external data required):
@@ -219,6 +217,28 @@ Additional studies cover feature ablations (energy-state, operational, weather p
 ---
 
 ## Results
+
+### Official PRC2025 Benchmark (Rank + Final)
+
+| Split | MAE (kg) | RMSE (kg) | R² |
+|-------|--------:|----------:|---:|
+| **Rank** (Sep 2025) | 90.89 | 239.18 | 0.904 |
+| **Final** (Oct 2025) | 87.35 | 220.86 | 0.918 |
+| **Combined** | 88.75 | **228.25** | 0.913 |
+
+**Best model:** Ensemble (XGB/LGBM/CatBoost × Direct + Fuel-Flow, Energy+Weather) + Ridge meta.  
+**Published winner:** ≈201 kg Combined RMSE.  
+
+### Gap-Closing Campaign (v1.1 → R1)
+
+| Version | Variant | Combined RMSE | Δ vs 228.25 |
+|---------|---------|--------------:|-------------|
+| v1.0 | Official ensemble (frozen V4) | **228.25** | reference |
+| v1.1 | P1E phase affine + P2 Cat heavy specialist | **227.44** | −0.81 |
+| **R1** | **P1E + R1 Cat heavy with OpenAP descriptors** | **226.19** | **−2.06** |
+
+> Full leaderboard: `figures/table_current_rmse.csv`. RMSE audit: `CURRENT_MODEL_SUMMARY.md`.
+> Remaining gap to winner: **≈25 kg**. Dominant error sources: heavy aircraft (70% SSE), cruise phase (87% SSE), ultra-long-haul flights.
 
 ### Internal (PRC) leaderboard — protocol-separated
 
@@ -300,6 +320,10 @@ PYTHONPATH=. pytest tests/ -m slow    # protocol runs only
 - Dataset: [`aerotwin/aero-data`](https://huggingface.co/datasets/aerotwin/aero-data)
 - OpenAP: <https://github.com/junzis/openap>
 - Project status: [PROJECT_STATUS_REPORT.md](PROJECT_STATUS_REPORT.md)
+- Current RMSE audit: [CURRENT_MODEL_SUMMARY.md](CURRENT_MODEL_SUMMARY.md)
+- Benchmark parity: [docs/BENCHMARK_PARITY_AUDIT.md](docs/BENCHMARK_PARITY_AUDIT.md)
+- Gap attribution: [docs/RMSE_GAP_ATTRIBUTION.md](docs/RMSE_GAP_ATTRIBUTION.md)
+- RMSE improvement backlog: [RMSE_IMPROVEMENT_BACKLOG.md](RMSE_IMPROVEMENT_BACKLOG.md)
 - External audit how-to: [HOW_TO_RUN_AUDIT.md](HOW_TO_RUN_AUDIT.md)
 - Audit package design: [AeroTwin_External_Dataset_Audit_Package.md](AeroTwin_External_Dataset_Audit_Package.md)
 - Hybrid model summary: [papers/hybrid_model_summary.md](papers/hybrid_model_summary.md)
