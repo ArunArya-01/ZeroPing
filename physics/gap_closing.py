@@ -603,6 +603,211 @@ def predict_heavy_routed_r1(
 
 
 # ---------------------------------------------------------------------------
+# R2 — Heavy specialist with expanded physics features
+# (aircraft chars, mass proxies, cruise features, physics interactions)
+# ---------------------------------------------------------------------------
+
+R2_AIRCRAFT_FEATURES = [
+    "r2_engine_count",
+    "r2_thrust_to_weight",
+    "r2_wing_loading",
+    "r2_payload_capacity",
+]
+
+R2_MASS_FEATURES = [
+    "r2_oew_as_mass",             # OEW = minimum realistic mass
+    "r2_tofr_mass_est",           # takeoff frac-based mass estimate
+    "r2_phase_aware_mass",        # phase-varying mass proxy
+]
+
+R2_CRUISE_FEATURES = [
+    "r2_cruise_duration_s",       # duration_s * cruise_fraction
+    "r2_cruise_altitude_band",    # altitude / design cruise altitude proxy
+    "r2_cruise_fuel_flow",        # physics_fuel_kg * cruise_fraction / cruise_duration
+]
+
+R2_PHYSICS_INTERACTIONS = [
+    "r2_mtow_x_cruise_duration",
+    "r2_mtow_x_cruise_mach",
+    "r2_cruise_mass_x_mach",
+    "r2_wl_altitude",
+    "r2_twr_climb_rate",
+    "r2_cruise_ratio_x_dur_sq",
+]
+
+
+def _compute_r2_features(df: pl.DataFrame) -> pl.DataFrame:
+    exprs = []
+
+    has_mtow = "mtow_kg" in df.columns
+    has_oew = "oew_kg" in df.columns
+    has_thr = "max_thrust_n" in df.columns
+    has_wa = "wing_area_m2" in df.columns
+    has_cm = "cruise_mach" in df.columns
+    has_df = "duration_s" in df.columns
+    has_cf = "cruise_fraction" in df.columns
+    has_ma = "max_altitude" in df.columns
+    has_al = "mean_altitude" in df.columns
+    has_pf = "physics_fuel_kg" in df.columns
+    has_ref = "ref_mass_kg" in df.columns
+
+    dur = pl.col("duration_s").clip(lower_bound=1.0) if has_df else pl.lit(1.0)
+
+    # --- Aircraft characteristics ---
+    if has_thr:
+        exprs.append(
+            (pl.col("max_thrust_n") / 100000.0).round(0).cast(pl.Int64).alias("r2_engine_count")
+        )
+    if has_mtow and has_thr:
+        exprs.append(
+            (pl.col("max_thrust_n") / pl.col("mtow_kg").clip(1.0)).alias("r2_thrust_to_weight")
+        )
+    if has_mtow and has_wa:
+        exprs.append(
+            (pl.col("mtow_kg") / pl.col("wing_area_m2").clip(1.0)).alias("r2_wing_loading")
+        )
+    if has_mtow and has_oew:
+        exprs.append(
+            ((pl.col("mtow_kg") - pl.col("oew_kg")) / pl.col("mtow_kg").clip(1.0)).alias("r2_payload_capacity")
+        )
+
+    # --- Mass proxies ---
+    if has_oew:
+        exprs.append(pl.col("oew_kg").alias("r2_oew_as_mass"))
+    if has_ref and "start_fraction_of_flight" in df.columns:
+        exprs.append(
+            (pl.col("ref_mass_kg") * (1.0 - 0.15 * pl.col("start_fraction_of_flight"))).alias("r2_tofr_mass_est")
+        )
+    if has_oew and has_mtow and has_df and has_cf:
+        mass_mid = pl.col("oew_kg") + 0.5 * (pl.col("mtow_kg") - pl.col("oew_kg"))
+        exprs.append(
+            pl.when(pl.col("cruise_fraction") > 0.7)
+            .then(pl.col("oew_kg") + 0.25 * (pl.col("mtow_kg") - pl.col("oew_kg")))
+            .otherwise(mass_mid)
+            .alias("r2_phase_aware_mass")
+        )
+
+    # --- Cruise features ---
+    if has_df and has_cf:
+        exprs.append(
+            (pl.col("duration_s") * pl.col("cruise_fraction")).alias("r2_cruise_duration_s")
+        )
+    if has_ma and has_df and has_cf:
+        cruise_alt = pl.col("mean_altitude").fill_null(pl.col("max_altitude").fill_null(0.0))
+        exprs.append(
+            (cruise_alt / 11000.0).clip(0.0, 1.5).alias("r2_cruise_altitude_band")
+        )
+    if has_pf and has_df and has_cf:
+        cruise_dur = pl.col("duration_s") * pl.col("cruise_fraction").clip(lower_bound=1.0)
+        cruise_ff = pl.col("physics_fuel_kg") * pl.col("cruise_fraction") / cruise_dur
+        exprs.append(cruise_ff.alias("r2_cruise_fuel_flow"))
+
+    # --- Physics interactions ---
+    if has_mtow and has_df and has_cf:
+        exprs.append(
+            (pl.col("mtow_kg") * pl.col("duration_s") * pl.col("cruise_fraction")).alias("r2_mtow_x_cruise_duration")
+        )
+    if has_mtow and has_cm:
+        cm = pl.col("cruise_mach").clip(0.6, 1.0)
+        exprs.append(
+            (pl.col("mtow_kg") * cm).alias("r2_mtow_x_cruise_mach")
+        )
+    if has_oew and has_mtow and has_cm and has_df and has_cf:
+        cruise_mass = pl.col("oew_kg") + 0.3 * (pl.col("mtow_kg") - pl.col("oew_kg"))
+        cm = pl.col("cruise_mach").clip(0.6, 1.0)
+        exprs.append(
+            (cruise_mass * cm).alias("r2_cruise_mass_x_mach")
+        )
+    if has_mtow and has_wa and has_al:
+        wl = pl.col("mtow_kg") / pl.col("wing_area_m2").clip(1.0)
+        exprs.append(
+            (wl * pl.col("mean_altitude").fill_null(0.0) / 1000.0).alias("r2_wl_altitude")
+        )
+    if has_mtow and has_thr:
+        twr = pl.col("max_thrust_n") / pl.col("mtow_kg").clip(1.0)
+        if "mean_vertical_rate" in df.columns:
+            exprs.append(
+                (twr * pl.col("mean_vertical_rate").fill_null(0.0)).alias("r2_twr_climb_rate")
+            )
+        else:
+            exprs.append((twr * pl.lit(0.0)).alias("r2_twr_climb_rate"))
+    if has_df and has_cf:
+        exprs.append(
+            (pl.col("cruise_fraction").pow(2) * pl.col("duration_s")).alias("r2_cruise_ratio_x_dur_sq")
+        )
+
+    if not exprs:
+        return df
+    return df.with_columns(exprs)
+
+
+def _augment_heavy_r2(
+    df: pl.DataFrame,
+    *,
+    include_interactions: bool = True,
+) -> pl.DataFrame:
+    """Augment heavy subframe with OpenAP descriptors and R2 physics features."""
+    desc = _load_openap_descriptors()
+    df = df.join(desc, on="aircraft_type", how="left")
+    df = _make_r1_interactions(df)
+    if include_interactions:
+        df = _compute_r2_features(df)
+    return df
+
+
+R2_EXTRA_COLS = (
+    OPENAP_DESCRIPTOR_COLS
+    + R1_INTERACTION_COLS
+    + R2_AIRCRAFT_FEATURES
+    + R2_MASS_FEATURES
+    + R2_CRUISE_FEATURES
+    + R2_PHYSICS_INTERACTIONS
+)
+
+
+def r2_feature_cols(base_feat_cols: list[str]) -> list[str]:
+    return list(dict.fromkeys(base_feat_cols + R2_EXTRA_COLS))
+
+
+def train_heavy_specialist_r2(
+    train: pl.DataFrame,
+    feat_cols: list[str],
+    model_key: str = "cat",
+) -> tuple[Any, list[str]]:
+    heavy = train.filter(pl.col("aircraft_type").is_in(list(HEAVY_TYPES)))
+    LOGGER.info("R2 heavy specialist train rows: %d / %d", len(heavy), len(train))
+    if len(heavy) < 500:
+        raise RuntimeError("Too few heavy rows for R2 specialist")
+    heavy = _augment_heavy_r2(heavy)
+    r2_cols = r2_feature_cols(feat_cols)
+    present = [c for c in r2_cols if c in heavy.columns]
+    X, y_space, _, dur = prepare_xy(heavy, present, "fuel_flow")
+    model = train_model(model_key, X, y_space, present)
+    return model, present
+
+
+def predict_heavy_routed_r2(
+    specialist: Any,
+    feat_cols: list[str],
+    df: pl.DataFrame,
+    base_pred: np.ndarray,
+) -> np.ndarray:
+    df = ensure_features(df, feat_cols)
+    ac = df["aircraft_type"].to_numpy().astype(str)
+    heavy_m = np.isin(ac, list(HEAVY_TYPES))
+    out = base_pred.copy()
+    if heavy_m.any():
+        sub = df.filter(pl.Series(heavy_m))
+        sub = _augment_heavy_r2(sub)
+        r2_cols = r2_feature_cols(feat_cols)
+        present = [c for c in r2_cols if c in sub.columns]
+        X, _, _, dur = prepare_xy(sub, present, "direct")
+        pred_h = predict_fuel_kg(specialist, X, dur, "fuel_flow")
+        out[np.flatnonzero(heavy_m)] = pred_h
+    return out
+
+
+# ---------------------------------------------------------------------------
 # P5 simple ensemble reweight on OOF
 # ---------------------------------------------------------------------------
 
