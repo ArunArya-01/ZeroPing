@@ -99,6 +99,9 @@ ZeroPing/
 │   ├── openap_baseline.py             # OpenAP interval fuel baseline
 │   ├── feature_engineering.py         # Energy and operational features
 │   ├── weather_features.py            # ISA and wind proxy features
+│   ├── mass_model.py                  # Dynamic mass estimation model (R3)
+│   ├── gap_closing.py                 # Calibrators, heavy specialist, R1/R2 features
+│   ├── official_benchmark.py          # Frozen ensemble training + OOF matrix
 │   ├── build_featured_dataset.py      # Main featured dataset builder (PRC)
 │   ├── eval_framework.py              # Evaluation and bootstrap utilities
 │   ├── statistical_protocol.py        # Frozen inference/significance protocol
@@ -188,6 +191,8 @@ PYTHONPATH=. python notebooks/12_verify_ensemble.py
 PYTHONPATH=. python notebooks/14_shap_explainability.py
 PYTHONPATH=. python notebooks/19_gap_closing_campaign.py
 PYTHONPATH=. python notebooks/23_rmse_audit_agent.py
+PYTHONPATH=. python notebooks/25_r3_dynamic_mass.py
+PYTHONPATH=. python notebooks/26_r3_ensemble_mass.py
 ```
 
 Offline audit smoke test (no external data required):
@@ -229,16 +234,32 @@ Additional studies cover feature ablations (energy-state, operational, weather p
 **Best model:** Ensemble (XGB/LGBM/CatBoost × Direct + Fuel-Flow, Energy+Weather) + Ridge meta.  
 **Published winner:** ≈201 kg Combined RMSE.  
 
-### Gap-Closing Campaign (v1.1 → R1)
+### Gap-Closing Campaign
 
-| Version | Variant | Combined RMSE | Δ vs 228.25 |
-|---------|---------|--------------:|-------------|
-| v1.0 | Official ensemble (frozen V4) | **228.25** | reference |
-| v1.1 | P1E phase affine + P2 Cat heavy specialist | **227.44** | −0.81 |
-| **R1** | **P1E + R1 Cat heavy with OpenAP descriptors** | **226.19** | **−2.06** |
+| Version | Variant | Combined RMSE | Δ vs 228.25 | Improvement |
+|---------|---------|--------------:|-------------|-------------|
+| v1.0 | Official ensemble (frozen V4) | **228.25** | reference | baseline |
+| v1.1 | P1E phase affine + P2 Cat heavy specialist | **227.44** | −0.81 | heavy specialist |
+| R1 | P1E + OpenAP descriptors in heavy specialist | **226.19** | −2.06 | aircraft physics |
+| R2 | Fixed B744/B77L/A306 descriptors + R2 features | **225.25** | −3.00 | missing descriptor fix |
+| **R3** | **P1E + dynamic mass model (21 features)** | **221.33** | **−6.92** | **mass estimation** |
 
+> Remaining gap to winner (201 kg): **≈20 kg**.  
 > Full leaderboard: `figures/table_current_rmse.csv`. RMSE audit: `CURRENT_MODEL_SUMMARY.md`.
-> Remaining gap to winner: **≈25 kg**. Dominant error sources: heavy aircraft (70% SSE), cruise phase (87% SSE), ultra-long-haul flights.
+
+### R3 Dynamic Mass Model
+
+The single largest improvement comes from replacing the crude `mass = MTOW × 0.75` with 21 physics-informed mass features:
+- **Takeoff weight** and **landing mass** estimated from aircraft specs + flight duration
+- **Per-interval mass** via linear fuel-burn interpolation by flight fraction
+- **Mass consumed**, **mass rate**, **fuel fraction**, **remaining fuel**
+- Mass-scaled **potential/kinetic energy**, current **wing loading**
+- **Phase-aware mass** (climb/cruise/descent differing fuel states)
+
+Mass features reduce bias from +24 kg to **+3.9 kg** and narrow both heavy (−12 kg) and narrowbody (−6 kg) RMSE.
+
+> Ablation results: `figures/table_rmse_R3_mass.csv`. Ensemble results: `figures/table_rmse_R3_mass_ensemble.csv`.  
+> Source: `physics/mass_model.py`, `notebooks/25_r3_dynamic_mass.py`, `notebooks/26_r3_ensemble_mass.py`.
 
 ### Internal (PRC) leaderboard — protocol-separated
 
@@ -321,6 +342,8 @@ PYTHONPATH=. pytest tests/ -m slow    # protocol runs only
 - OpenAP: <https://github.com/junzis/openap>
 - Project status: [PROJECT_STATUS_REPORT.md](PROJECT_STATUS_REPORT.md)
 - Current RMSE audit: [CURRENT_MODEL_SUMMARY.md](CURRENT_MODEL_SUMMARY.md)
+- Dynamic mass model: [physics/mass_model.py](physics/mass_model.py)
+- R3 mass evaluation: [figures/table_rmse_R3_mass.csv](figures/table_rmse_R3_mass.csv), [figures/r3_summary.json](figures/r3_summary.json)
 - Benchmark parity: [docs/BENCHMARK_PARITY_AUDIT.md](docs/BENCHMARK_PARITY_AUDIT.md)
 - Gap attribution: [docs/RMSE_GAP_ATTRIBUTION.md](docs/RMSE_GAP_ATTRIBUTION.md)
 - RMSE improvement backlog: [RMSE_IMPROVEMENT_BACKLOG.md](RMSE_IMPROVEMENT_BACKLOG.md)
