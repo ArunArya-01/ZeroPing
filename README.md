@@ -61,29 +61,36 @@ Dataset: [`aerotwin/aero-data`](https://huggingface.co/datasets/aerotwin/aero-da
 ## Architecture
 
 ```text
-               ┌────────────────────────────┐
+                ┌────────────────────────────┐
   ADS-B/ACARS  │       data/loader.py       │  (Hugging Face: hf://)
   telemetry ─▶ │  AeroDataLoader (remote)   │
-               └──────────────┬─────────────┘
-                              │ flightlist, fuel labels, traj parquet
-                              ▼
-               ┌────────────────────────────┐
-               │   physics/openap_baseline   │  OpenAP interval fuel-flow
-               │   + feature_engineering     │  energy / operational features
-               │   + weather_features        │  ISA & wind proxies
-               └──────────────┬─────────────┘
-                              │ featured_dataset.parquet
-                              ▼
-   ┌──────────────────────────────────────────────────────┐
-   │  eval_framework  →  Direct / Residual / Stacking /     │
-   │  Experts  →  SHAP  →  flight-clustered bootstrap       │
-   └──────────────┬───────────────────────────────────────┘
-                  │
-                  ▼
-   ┌──────────────────────────────────────────────────────┐
-   │  external_audit/  (DASHlink + OpenSky)                │
-   │  cross_dataset_replication → generalization verdict    │
-   └──────────────────────────────────────────────────────┘
+                └──────────────┬─────────────┘
+                               │ flightlist, fuel labels, traj parquet
+                               ▼
+                ┌────────────────────────────┐
+                │   physics/openap_baseline   │  OpenAP interval fuel-flow
+                │   + feature_engineering     │  energy / operational features
+                │   + weather_features        │  ISA & wind proxies
+                └──────────────┬─────────────┘
+                               │ featured_dataset.parquet
+                               ▼
+                ┌────────────────────────────┐
+                │   physics/mass_model.py     │  R3 dynamic mass (21 features)
+                │   enrich_mass_from_columns  │  tow, landing, interval mass, ...
+                └──────────────┬─────────────┘
+                               │ 60-feature extended dataset
+                               ▼
+    ┌──────────────────────────────────────────────────────┐
+    │  official_benchmark  →  6-base OOF ensemble           │
+    │  gap_closing.py      →  P1E phase calibration         │
+    │  eval_framework      →  flight-clustered bootstrap    │
+    └──────────────┬───────────────────────────────────────┘
+                   │
+                   ▼
+    ┌──────────────────────────────────────────────────────┐
+    │  external_audit/  (DASHlink + OpenSky)                │
+    │  cross_dataset_replication → generalization verdict    │
+    └──────────────────────────────────────────────────────┘
 ```
 
 ---
@@ -236,25 +243,38 @@ Additional studies cover feature ablations (energy-state, operational, weather p
 
 ### Gap-Closing Campaign
 
-| Version | Variant | Combined RMSE | Δ vs 228.25 | Improvement |
-|---------|---------|--------------:|-------------|-------------|
-| v1.0 | Official ensemble (frozen V4) | **228.25** | reference | baseline |
-| v1.1 | P1E phase affine + P2 Cat heavy specialist | **227.44** | −0.81 | heavy specialist |
-| R1 | P1E + OpenAP descriptors in heavy specialist | **226.19** | −2.06 | aircraft physics |
-| R2 | Fixed B744/B77L/A306 descriptors + R2 features | **225.25** | −3.00 | missing descriptor fix |
-| **R3** | **P1E + dynamic mass model (21 features)** | **221.33** | **−6.92** | **mass estimation** |
+| Version | Variant | Combined RMSE | Δ vs 228.25 | Improvement | Status |
+|---------|---------|--------------:|-------------|-------------|--------|
+| v1.0 | Official ensemble (frozen V4) | **228.25** | reference | baseline | reference |
+| v1.1 | P1E phase affine + P2 Cat heavy specialist | **227.44** | −0.81 | heavy specialist | superseded |
+| R1 | P1E + OpenAP descriptors in heavy specialist | **226.19** | −2.06 | aircraft physics | superseded |
+| R2 | Fixed B744/B77L/A306 descriptors | **225.25** | −3.00 | missing descriptors | superseded |
+| **R3** | **P1E + dynamic mass model (60 features)** | **221.33** | **−6.92** | **mass estimation** | **production** |
+| R4 | Cruise feature engineering (all families) | 224.62–229.94 | +1.3 to +5.7 | — | **rejected** |
 
-> Remaining gap to winner (201 kg): **≈20 kg**.  
-> Full leaderboard: `figures/table_current_rmse.csv`. RMSE audit: `CURRENT_MODEL_SUMMARY.md`.
+> Remaining gap to winner (~201 kg): **≈20 kg**. Cleanup report: `docs/CLEANUP_REPORT.md`.
 
-### R3 Dynamic Mass Model
+### Production Feature Pipeline (60 features)
 
-The single largest improvement comes from replacing the crude `mass = MTOW × 0.75` with 21 physics-informed mass features:
-- **Takeoff weight** and **landing mass** estimated from aircraft specs + flight duration
-- **Per-interval mass** via linear fuel-burn interpolation by flight fraction
-- **Mass consumed**, **mass rate**, **fuel fraction**, **remaining fuel**
-- Mass-scaled **potential/kinetic energy**, current **wing loading**
-- **Phase-aware mass** (climb/cruise/descent differing fuel states)
+| Family | Count | Source |
+|--------|-------|--------|
+| Base trajectory stats | 17 | `eval_framework.py` BASE_NUMERIC |
+| Energy-state features | 11 | `feature_engineering.py` ENERGY_FEATURES |
+| Weather proxies | 6 | `weather_features.py` WEATHER_FEATURES |
+| Physics baseline | 1 | `openap_baseline.py` physics_fuel_kg |
+| Categorical | 4 | aircraft_type, method, origin, destination |
+| **Dynamic mass** | **21** | `mass_model.py` — tow, landing, interval mass, consumption, phase mass, efficiency |
+| **Total** | **60** | |
+
+### Rejected Features (archived for reproducibility)
+
+| Task | Feature Families | Reason |
+|------|-----------------|--------|
+| R2 | Aircraft chars, mass proxies, cruise, interactions | No marginal gain over descriptor fix |
+| R4 | 20 cruise core + interaction features | All redundant with existing features; every family degrades RMSE |
+| P1 | Global/isotononic/class/haul affine | No Rank/Final transfer |
+| P3 | Global cruise residual | Worsened to 244.9 kg |
+| P5 | Ensemble reweight | No improvement |
 
 Mass features reduce bias from +24 kg to **+3.9 kg** and narrow both heavy (−12 kg) and narrowbody (−6 kg) RMSE.
 
@@ -342,8 +362,8 @@ PYTHONPATH=. pytest tests/ -m slow    # protocol runs only
 - OpenAP: <https://github.com/junzis/openap>
 - Project status: [PROJECT_STATUS_REPORT.md](PROJECT_STATUS_REPORT.md)
 - Current RMSE audit: [CURRENT_MODEL_SUMMARY.md](CURRENT_MODEL_SUMMARY.md)
+- Cleanup report: [docs/CLEANUP_REPORT.md](docs/CLEANUP_REPORT.md)
 - Dynamic mass model: [physics/mass_model.py](physics/mass_model.py)
-- R3 mass evaluation: [figures/table_rmse_R3_mass.csv](figures/table_rmse_R3_mass.csv), [figures/r3_summary.json](figures/r3_summary.json)
 - Benchmark parity: [docs/BENCHMARK_PARITY_AUDIT.md](docs/BENCHMARK_PARITY_AUDIT.md)
 - Gap attribution: [docs/RMSE_GAP_ATTRIBUTION.md](docs/RMSE_GAP_ATTRIBUTION.md)
 - RMSE improvement backlog: [RMSE_IMPROVEMENT_BACKLOG.md](RMSE_IMPROVEMENT_BACKLOG.md)
