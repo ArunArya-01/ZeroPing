@@ -1,6 +1,6 @@
 # AeroTwin Project Status Report
 
-**Date:** July 2026  
+**Date:** July 2026 (last repo update: 2026-07-23)  
 **Repository:** ZeroPing (AeroTwin)  
 **Dataset:** [`aerotwin/aero-data`](https://huggingface.co/datasets/aerotwin/aero-data) (EUROCONTROL PRC 2025)
 
@@ -18,12 +18,23 @@ Under the **released official** Rank + Final protocol (train-only fits; no Rank/
 | **Final** | 87.3 kg | **220.9 kg** | 0.918 |
 | **Combined** | 88.7 kg | **228.3 kg** | 0.913 |
 
-- **Best model:** Ensemble (XGB/LGBM/CatBoost × Direct + Fuel-Flow, Energy+Weather) + Ridge meta (chosen on train OOF only).
-- **Published winner (combined RMSE):** ≈ **201 kg**. **Δ ≈ +27 kg** (AeroTwin worse). Combined 95% CI **[207, 249] kg** — does **not** sit entirely below 201 → **no superiority claim**.
-- **Gap-closing campaign v1:** best accepted stack Combined **227.44 kg** (−0.81 kg). Remaining gap to winner ≈ **26 kg**.
-- **Reports:** `official_prc_benchmark_report.md`, `official_gap_closing_report.md`.
+- **Canonical frozen model:** Ensemble (XGB/LGBM/CatBoost × Direct + Fuel-Flow, Energy+Weather) + Ridge meta (chosen on train OOF only). Combined **228.25 kg**.
+- **Published winner (combined RMSE):** ≈ **201 kg**. Canonical Δ ≈ **+27 kg** (AeroTwin worse). Combined 95% CI **[207, 249] kg** — does **not** sit entirely below 201 → **no superiority claim**.
+- **Gap-closing campaign (v1 → R3, July 2026):** progressive train-only improvements on the official protocol:
 
-**Internal Level-1 holdout RMSE (~196–203 kg) is not the official score.** Rank/Final are harder; use Combined **228.3 kg** for all competition comparisons.
+| Version | Variant | Combined RMSE | Δ vs 228.25 |
+|---------|---------|--------------:|------------:|
+| v1.0 | Official ensemble (frozen V4) | **228.25** | reference |
+| v1.1 | P1E phase affine + P2 Cat heavy specialist | **227.44** | −0.81 |
+| R1 | P1E + OpenAP descriptors in heavy specialist | **226.19** | −2.06 |
+| R2 | Fixed B744/B77L/A306 descriptors + R2 features | **225.25** | −3.00 |
+| **R3 (current best)** | **P1E + dynamic mass model (21 features)** | **221.33** | **−6.92** |
+
+- **Current best Combined RMSE: 221.33 kg** (Rank **232.53** · Final **213.73**; bias ≈ **+3.9 kg**). Remaining gap to winner ≈ **20 kg**.
+- **Largest single step:** R3 dynamic mass (`physics/mass_model.py`) replaces crude `MTOW × 0.75` with 21 physics-informed mass features.
+- **Reports / artifacts:** `official_prc_benchmark_report.md`, `official_gap_closing_report.md`, `CURRENT_MODEL_SUMMARY.md`, `figures/r3_ensemble_summary.json`, `README.md` Results.
+
+**Internal Level-1 holdout RMSE (~196–203 kg) is not the official score.** Rank/Final are harder. Use **canonical Combined 228.25 kg** for frozen baseline comparisons; use **221.33 kg** for current best after gap-closing.
 
 ### Established findings (standard flight-level split; unseen flights, known aircraft families)
 
@@ -31,7 +42,7 @@ Under the **released official** Rank + Final protocol (train-only fits; no Rank/
 - **Direct hybrid tree ensembles** generalize to unseen flights at MAE ≈ 84–88 kg and RMSE ≈ 210–224 kg.
 - **Ensemble stacking (Direct kg)** reaches **RMSE = 202.90 kg** on the PRC Level-1 flight holdout — within ~1% of the published winner (200.83 kg) on the **same-dataset Direct track only**. This is **not** the official Rank/Final score.
 - **Fuel-Flow single models** on the **same** outer flight split reach lower error under a different target: best MAE **79.52 kg** (XGB Flow+Energy) and best single-model RMSE **196.24 kg** (LGBM Flow+Energy). These must **not** be ranked against the Direct stack as one leaderboard (see `figures/LEADERBOARD_AUDIT.md`). On **official** data, Fuel-Flow also beats Direct (best single combined RMSE: LGBM Flow ~230).
-- **Rejected under standard-split inference:** raw OpenAP alone; sparse-physics hypothesis; operational descriptors; weather-only; residual trees; MLP residual; heuristic mass features; vertical-rate embeddings; simple body-class routing as a universal LOTO solution.
+- **Rejected under standard-split inference:** raw OpenAP alone; sparse-physics hypothesis; operational descriptors; weather-only; residual trees; MLP residual; early **heuristic** mass features (distinct from kept R3 dynamic mass); vertical-rate embeddings; simple body-class routing as a universal LOTO solution.
 
 ### Suggestive / unresolved findings (aircraft-family shift; LOTO)
 
@@ -43,7 +54,8 @@ Under the **released official** Rank + Final protocol (train-only fits; no Rank/
 ### Failed / rejected hypotheses (preserved)
 
 - Residual learning (trees and MLP); sparsity-conditioned physics gains; MoE/experts as ensemble improvement; body-class hierarchical routing at LOTO macro level; Mahalanobis physical distance as primary transfer predictor.
-- **Official gap-closing (mostly rejected for large gains):** global/class/haul affine; isotonic; cruise residual; ensemble reweight. Tiny keeps only: phase-conditional affine + heavy FuelFlow CatBoost specialist (−0.81 kg Combined).
+- **Heuristic Level-1 mass features** (early V4 ablation): rejected under standard flight holdout (bootstrap CI includes zero).
+- **Official gap-closing rejections:** global/class/haul affine; isotonic; cruise residual; ensemble reweight. **Keeps:** phase-conditional affine (P1E), heavy FuelFlow specialist (P2), OpenAP heavy descriptors (R1), descriptor fixes (R2), **dynamic mass features (R3)**.
 
 ### External validation progress (July 2026)
 
@@ -56,10 +68,10 @@ Under the **released official** Rank + Final protocol (train-only fits; no Rank/
 
 ### Two active workstreams (see checklists)
 
-1. **§21 Official RMSE improvement checklist** — close (or honestly bound) the ~27 kg Combined gap to the published winner, targeting heavy / ultra-long SSE drivers.
-2. **§22 Final project completion checklist** — freeze numbers, package repo, write thesis/paper, define “done.”
+1. **§21 Official RMSE improvement checklist** — **R1–R3 done** (Combined **228.25 → 221.33**, −6.92 kg). Remaining open: asymmetric heavy loss, ultra-long / long-interval specialists, ensemble redesign, freeze docs. Remaining gap to winner ≈ **20 kg**.
+2. **§22 Final project completion checklist** — freeze **221.33** as current best (and **228.25** as canonical), package repo, write thesis/paper, define “done.”
 
-**Paper / major-project submission:** Strong internal + official evaluation; external evidence still **pilot-scale**. Submission waits on either further Tier-1 RMSE work *or* an explicit residual-gap discussion, figure consolidation, and write-up (§22).
+**Paper / major-project submission:** Strong internal + official evaluation; gap-closing through R3 complete; external evidence still **pilot-scale**. Primary remaining work is **§22** freeze + write-up (optional further Tier-1 items if chasing more RMSE).
 
 ---
 
@@ -548,10 +560,13 @@ Findings are classified as **Established**, **Suggestive**, **Exploratory**, or 
 | V4 experiments (mass, flow, embeddings) | ✅ Complete |
 | Ensemble / stacking / PRC benchmarking (Level 1) | ✅ Complete |
 | **Official Rank+Final featured datasets** | ✅ Complete (`featured_dataset_rank/final.parquet`) |
-| **Official frozen ensemble evaluation** | ✅ Complete — Combined RMSE **228.3 kg** (`official_prc_benchmark_report.md`) |
+| **Official frozen ensemble evaluation** | ✅ Complete — Combined RMSE **228.25 kg** (`official_prc_benchmark_report.md`) |
 | **Official error analysis (SSE drivers)** | ✅ Complete (`notebooks/18_official_error_analysis.py`) |
-| **Gap-closing campaign v1** | ✅ Complete — best Combined **227.44 kg** (−0.81 kg; gap still ~26 kg) |
-| **§21 Official RMSE improvement checklist** | ⬜ **Active** |
+| **Gap-closing campaign v1** | ✅ Complete — Combined **227.44 kg** (−0.81 kg) |
+| **R1 heavy OpenAP descriptors** | ✅ Complete — Combined **226.19 kg** (`notebooks/21_rmse_r1_heavy_features.py`) |
+| **R2 OpenAP descriptor fixes** | ✅ Complete — Combined **225.25 kg** (`notebooks/24_r2_heavy_features.py`) |
+| **R3 dynamic mass model** | ✅ Complete — Combined **221.33 kg** (`physics/mass_model.py`, `notebooks/25–26_r3_*.py`) |
+| **§21 Official RMSE improvement checklist** | 🔄 **Active** — R1–R3 done; residual gap ≈ **20 kg** |
 | SHAP explainability | ✅ Complete |
 | Aircraft-level analysis | ✅ Complete (exploratory) |
 | MoE / aircraft experts | ✅ Complete (exploratory; no ensemble gain) |
@@ -614,8 +629,15 @@ Findings are classified as **Established**, **Suggestive**, **Exploratory**, or 
 | `figures/table_v3_leaderboard.csv` | V3 model leaderboard |
 | `figures/table_flow_vs_prc.csv` | Flow variants vs PRC winner |
 | `figures/table_shap_catboost.csv` | SHAP feature importance |
-| `official_prc_benchmark_report.md` | Canonical official Rank/Final write-up |
-| `official_gap_closing_report.md` | Gap-closing campaign (−0.81 kg Combined) |
+| `official_prc_benchmark_report.md` | Canonical official Rank/Final write-up (228.25) |
+| `official_gap_closing_report.md` | Gap-closing campaign v1 (−0.81 kg Combined) |
+| `CURRENT_MODEL_SUMMARY.md` | Live RMSE audit / model architecture notes |
+| `physics/mass_model.py` | R3 dynamic mass feature builder (21 features) |
+| `figures/r1_summary.json` / `table_rmse_R1*.csv` | R1 heavy OpenAP descriptors (226.19) |
+| `figures/r2_summary.json` / `table_rmse_R2*.csv` | R2 descriptor fixes (225.25) |
+| `figures/r3_summary.json` / `r3_ensemble_summary.json` | R3 dynamic mass + ensemble (221.33 best) |
+| `figures/table_rmse_R3_*.csv` | R3 full / ensemble leaderboards |
+| `figures/fig_r3_dynamic_mass.png` | R3 mass evaluation figure |
 | `figures/table_official_leaderboard.csv` | Official per-model Rank/Final/Combined |
 | `figures/table_prc_comparison.csv` | Winner vs AeroTwin + CIs |
 | `figures/fig_official_leaderboard.png` | Official Rank vs Final bars |
@@ -628,8 +650,9 @@ Findings are classified as **Established**, **Suggestive**, **Exploratory**, or 
 | Level / track | Result | Detail |
 |---|---|---|
 | **Official Combined RMSE (canonical)** | **228.25 kg** | Frozen V4 ensemble Rank+Final; vs winner ≈ 201 (Δ +27) |
-| **Official best after gap-close** | **227.44 kg** | P1E phase affine + heavy Cat FuelFlow specialist |
-| **Official Rank / Final RMSE** | **239.2 / 220.9 kg** | Temporal shift; Final easier than Rank |
+| **Official best after gap-close R3** | **221.33 kg** | P1E + 21 dynamic mass features (−6.92 vs canonical) |
+| **Official Rank / Final (R3 best)** | **232.53 / 213.73 kg** | From `figures/r3_ensemble_summary.json` |
+| **Prior milestones** | 227.44 → 226.19 → 225.25 | v1.1 → R1 → R2 |
 | **Level 1 MAE (Fuel-Flow single)** | **79.52 kg** | XGB Flow+Energy — internal flight holdout only |
 | **Level 1 RMSE (Fuel-Flow single)** | **196.24 kg** | LGBM Flow+Energy — **not** official Rank/Final |
 | **Level 1 MAE (Direct single)** | **83.76 kg** | XGB Energy+Weather Hybrid |
@@ -647,13 +670,17 @@ Full audit: `figures/LEADERBOARD_AUDIT.md`. Official write-up: `official_prc_ben
 | Model | Combined RMSE (kg) | Rank | Final |
 |---|---:|---:|---:|
 | **Published PRC winner** | ≈ **201** | — | — |
-| **AeroTwin frozen V4 ensemble** | **228.25** | 239.18 | 220.86 |
+| **AeroTwin R3 best (P1E + dynamic mass)** | **221.33** | 232.53 | 213.73 |
+| AeroTwin R2 (descriptor fixes) | **225.25** | 234.81 | 218.82 |
+| AeroTwin R1 (OpenAP heavy descriptors) | **226.19** | 235.21 | 220.13 |
 | AeroTwin gap-close v1.1 (P1E + heavy Cat) | **227.44** | 235.30 | 222.18 |
+| **AeroTwin frozen V4 ensemble (canonical)** | **228.25** | 239.18 | 220.86 |
 | Best single (LGBM FuelFlow E+W) | 230.18 | 249.83 | 216.46 |
 | OpenAP physics only | 1268.37 | 1191.95 | 1315.65 |
 
-**Δ (ensemble − winner):** **+27.25 kg**. Combined 95% CI **[207.1, 249.4] kg** — no superiority claim.  
-**Artifacts:** `figures/table_official_leaderboard.csv`, `table_prc_comparison.csv`, `official_prc_benchmark_report.md`.
+**Δ (canonical ensemble − winner):** **+27.25 kg**. Combined 95% CI **[207.1, 249.4] kg** — no superiority claim.  
+**Δ (R3 best − winner):** ≈ **+20 kg**. Still no superiority claim without a CI entirely below 201.  
+**Artifacts:** `figures/table_official_leaderboard.csv`, `table_prc_comparison.csv`, `official_prc_benchmark_report.md`, `figures/r3_ensemble_summary.json`.
 
 ### 14.2 Internal Level-1 holdout (not official Rank/Final)
 
@@ -667,7 +694,7 @@ Legacy internal Direct stack RMSE **202.90** vs winner cite **200.83** is **trai
 | Optuna CatBoost | Direct single | 204.6 |
 | Energy+Weather Direct XGB | Direct single | ~212 |
 
-**Accurate conclusion:** Official Rank/Final Combined RMSE is **228.3 kg** (~27 kg behind the published winner). Internal holdout metrics remain useful for ablations but overstate competition performance relative to the temporal Rank/Final protocol.
+**Accurate conclusion:** Canonical official Rank/Final Combined RMSE is **228.25 kg** (~27 kg behind the published winner). After train-only gap-closing through **R3**, best Combined is **221.33 kg** (~20 kg behind winner). Internal holdout metrics remain useful for ablations but overstate competition performance relative to the temporal Rank/Final protocol.
 
 ---
 
@@ -681,16 +708,18 @@ V4 focused on fuel-flow targets, mass features, and vertical embeddings while pr
 - **Standard split:** statistically significant MAE improvement over direct Energy+Weather in targeted ablations; best single-model MAE ≈ 79.5 kg equivalents; ensemble RMSE competitive (206–204 kg).
 - **LOTO:** favourable macro point estimate (−17.4 kg vs direct) but **not statistically confirmed** (§18.3.1). Heterogeneous per-type results.
 
-### Mass Features — **Rejected**
+### Mass Features — **Level-1 heuristic rejected; official R3 dynamic mass kept**
 
-No significant gain; bootstrap CIs include zero.
+- **V4 heuristic mass (Level 1):** no significant gain; bootstrap CIs include zero — treated as rejected under the early ablation protocol.
+- **R3 dynamic mass (official Rank/Final, July 2026):** **kept**. Twenty-one physics-informed mass features (`physics/mass_model.py`) reduce Combined RMSE to **221.33 kg** (−6.92 vs canonical 228.25). Includes estimated takeoff/landing mass, per-interval mass by flight fraction, mass-scaled energy, wing loading, and phase-aware mass. Bias drops from ~+24 kg to ~**+3.9 kg**.
+- **Do not conflate** the rejected Level-1 heuristic with the successful official R3 mass model.
 
 ### Vertical Embeddings — **Rejected**
 
 No gain; bootstrap CI includes zero.
 
-**Notebook:** `notebooks/10_fuel_flow_target.py`  
-**Artifacts:** `figures/table_fuel_flow.csv`, `figures/fig_fuel_vs_flow.png`
+**Notebooks:** `notebooks/10_fuel_flow_target.py`, `notebooks/25_r3_dynamic_mass.py`, `notebooks/26_r3_ensemble_mass.py`  
+**Artifacts:** `figures/table_fuel_flow.csv`, `figures/fig_fuel_vs_flow.png`, `figures/table_rmse_R3_*.csv`, `figures/r3_summary.json`
 
 ---
 
@@ -726,14 +755,20 @@ Stacking improves **Direct** RMSE over single Energy+Weather Direct models (~212
 - Operational summary features as originally constructed
 - Weather-only representation
 - Residual trees; MLP residual correction
-- Heuristic mass features; vertical-rate embeddings
+- Early Level-1 **heuristic** mass features; vertical-rate embeddings
 - Simple body-class routing as universal transfer solution
+
+### Supported for paper (official gap-closing)
+
+- Heavy specialist + OpenAP descriptors (R1) and descriptor completeness (R2)
+- **Dynamic mass estimation (R3)** as largest Combined RMSE gain (−6.92 kg vs canonical)
 
 ### Suggestive / unresolved for paper
 
 - Flow target improves LOTO macro MAE but lacks robust type-level significance
 - Physical distance may relate to transfer error, but evidence is B77W-sensitive
 - Conditional target selection may be useful, but must first be explained by operational shift analysis
+- Remaining ~20 kg official gap (heavies / ultra-long / cruise SSE still dominate)
 
 ### Current Research Question
 
@@ -743,9 +778,9 @@ No single inductive bias dominates across unseen aircraft families.
 
 ### Immediate Next Experiment
 
-**Primary (if closing official RMSE):** §21 Tier 1 — heavy-only features, heavy asymmetric loss, ultra-long / long-interval specialists — under train-only protocol. Stop if gains stall (~1 kg) and freeze via §22.
+**Primary (recommended):** §22 Track 1–3 — freeze Combined **228.25** (canonical) and **221.33** (R3 best), package docs, write thesis/paper with honest residual-gap discussion (~20 kg to winner).
 
-**Primary (if finishing the project without further RMSE chase):** §22 Track 1–3 — freeze Combined **228.3 / 227.44**, package docs, write thesis/paper with honest residual-gap discussion.
+**Optional (if still chasing official RMSE):** remaining §21 items — asymmetric heavy loss, ultra-long / long-interval specialists, Flow-first ensemble redesign — under train-only protocol. Stop if gains stall (~1 kg) and freeze via §22.
 
 **Scientific depth (thesis transfer chapter):** Operational distribution-shift analysis (Priority 1; §20): for each LOTO held-out type, measure operational train–test distance and correlate with Direct MAE, Flow MAE, and **ΔMAE (Flow − Direct)**. Scale DASHlink external pilot or scope it as pilot-only (§20 / F5).
 
@@ -952,14 +987,16 @@ Global vs hard experts vs soft MoE on **standard split**. Experts improve single
 | OpenAP (official combined) | **1,268** | Official Rank+Final |
 | OpenAP (Level 1 holdout) | 1,582 | Internal flight split |
 | Official AeroTwin ensemble | **228.25** | **Canonical official Combined** |
-| Official gap-close v1.1 | **227.44** | Official + train-OOF cal/specialist |
+| Official gap-close v1.1 | **227.44** | P1E + heavy Cat specialist |
+| Official R1 / R2 | **226.19 / 225.25** | OpenAP heavy descriptors + fixes |
+| **Official R3 best (current)** | **221.33** | **P1E + dynamic mass** |
 | Best official single (LGBM Flow) | ~230 | Official Combined |
 | PRC2025 Winner | ≈ **201** | Published combined score |
 | Internal Direct ensemble | 202.90 | Level 1 holdout only |
 | LOTO Global Direct | ~469 (macro) | **Level 2 types** |
 | LOTO Global Flow+Energy | ~446 (macro) | **Level 2 types** |
 
-**Do not conflate** official Combined (~228 kg), internal holdout (~203 kg), and LOTO macro (~446–469 kg). They measure different protocols.
+**Do not conflate** canonical official Combined (**228.25**), gap-close best (**221.33**), internal holdout (~203 kg), and LOTO macro (~446–469 kg). They measure different protocols.
 
 ---
 
@@ -1127,8 +1164,8 @@ Group findings for the paper:
 
 | Category | Items |
 |---|---|
-| **Supported** | Energy-state; Energy+Weather; fuel-flow (Level 1); stacking |
-| **Rejected** | OpenAP alone; sparse physics; operational; weather-only; residual/MLP; mass; embeddings; body-class universal routing |
+| **Supported** | Energy-state; Energy+Weather; fuel-flow (Level 1); stacking; heavy specialist (P2/R1/R2); **R3 dynamic mass** (official) |
+| **Rejected** | OpenAP alone; sparse physics; operational; weather-only; residual/MLP; early heuristic mass (Level 1); embeddings; body-class universal routing |
 | **Suggestive** | Flow LOTO macro gain; physical distance (B77W-sensitive); conditional target selection pending operational analysis |
 
 Move secondary negative experiments and sensitivity tables to appendix.
@@ -1173,16 +1210,17 @@ Compare against baselines with clear labeling of oracle as upper bound.
 
 ### Recommended execution order
 
-1. ~~**Official Rank+Final evaluation**~~ ✅ Combined **228.3 kg**; reports frozen.
+1. ~~**Official Rank+Final evaluation**~~ ✅ Combined **228.25 kg**; reports frozen.
 2. ~~**Gap-closing campaign v1**~~ ✅ best **227.44 kg**; large global calibrations rejected.
-3. **§21 Tier 1 RMSE items** *or* **F3 accept residual gap** — see §21 stop rule.
-4. **§22 completion package** — freeze numbers, README, figures, thesis/paper.
-5. **Operational distribution-shift analysis** (Priority 1) — if thesis needs transfer mechanism chapter.
-6. ~~Dataset compatibility audit for NASA DASHlink~~ ✅
-7. ~~DASHlink pilot~~ ✅ (`audit_results/dashlink_pilot/`)
-8. **Scale DASHlink** or scope pilot-only (F5).
-9. **Optional OpenSky pilot** for telemetry-shift / physics-label robustness.
-10. Figure consolidation + paper drafting (§22 Track 3).
+3. ~~**§21 R1–R3**~~ ✅ R1 226.19 → R2 225.25 → **R3 221.33** (dynamic mass).
+4. **§22 completion package** — freeze **221.33 / 228.25**, sync docs, figures, thesis/paper.
+5. **Optional remaining §21** (asymmetric loss, ultra-long / long-interval) *or* **F3 accept residual ~20 kg gap**.
+6. **Operational distribution-shift analysis** (Priority 1) — if thesis needs transfer mechanism chapter.
+7. ~~Dataset compatibility audit for NASA DASHlink~~ ✅
+8. ~~DASHlink pilot~~ ✅ (`audit_results/dashlink_pilot/`)
+9. **Scale DASHlink** or scope pilot-only (F5).
+10. **Optional OpenSky pilot** for telemetry-shift / physics-label robustness.
+11. Figure consolidation + paper drafting (§22 Track 3).
 
 ---
 
@@ -1192,9 +1230,10 @@ Compare against baselines with clear labeling of oracle as upper bound.
 > **[`RMSE_IMPROVEMENT_BACKLOG.md`](RMSE_IMPROVEMENT_BACKLOG.md)** — claim work there.
 
 **Baseline (canonical frozen V4):** Combined RMSE **228.25 kg** · Rank **239.18** · Final **220.86**  
-**Best so far (gap-close v1.1):** Combined **227.44 kg** (−0.81 kg)  
-**Target reference:** published winner Combined ≈ **201 kg** (Δ ≈ **+27 kg**)  
-**Primary error drivers:** A359 + B77W + B744 ≈ **72% SSE**; cruise ≈ **87%**; ultra-long-haul ≈ **85%**; mean over-predict ≈ **+31 kg**.
+**Best so far (R3 dynamic mass + P1E):** Combined **221.33 kg** (−6.92 kg vs canonical) · Rank **232.53** · Final **213.73**  
+**Prior milestones:** v1.1 **227.44** → R1 **226.19** → R2 **225.25** → R3 **221.33**  
+**Target reference:** published winner Combined ≈ **201 kg** (Δ from R3 best ≈ **+20 kg**)  
+**Primary error drivers:** A359 + B77W + B744 ≈ **72% SSE**; cruise ≈ **87%**; ultra-long-haul ≈ **85%**; R3 bias ≈ **+3.9 kg** (was ~+24–31 kg).
 
 ### Protocol rules (do not violate)
 
@@ -1215,27 +1254,34 @@ Compare against baselines with clear labeling of oracle as upper bound.
 | G3 | Phase-conditional affine (P1E) | Combined **228.16** (−0.10) | ✅ tiny keep |
 | G4 | Heavy FuelFlow CatBoost specialist (P2) | Combined **227.44** (−0.81); B744 much better | ✅ keep |
 | G5 | Cruise residual (P3); ensemble reweight (P5) | Hurt or no beat of P2 | ❌ reject |
+| **R1** | Heavy-only OpenAP descriptors + interactions | Combined **226.19** (−2.06 vs 228.25) | ✅ keep |
+| **R2** | OpenAP descriptor fixes (B744/B77L/A306) + R2 features | Combined **225.25** (−3.00 vs 228.25) | ✅ keep |
+| **R3** | Dynamic mass model (21 features) + P1E ensemble path | Combined **221.33** (−6.92 vs 228.25) | ✅ keep |
 
-### Tier 1 — Highest expected impact (run these first)
+> **Note on IDs:** Early backlog named R2 “asymmetric loss” and R3 “ultra-long specialist”; implementation used **R2 = descriptor completeness** and **R3 = dynamic mass** (largest gain). Original backlog R2/R3 ideas remain open as **R2b** / **R3b** below.
 
-Target the remaining ~26 kg gap via **representation on hard subgroups**, not more global post-hoc maps.
+### Tier 1 — Remaining high-impact items
+
+Target the remaining ~20 kg gap via **representation on hard subgroups**, not more global post-hoc maps. Gate vs **221.33** (current best).
 
 | ID | Checklist item | Why | Expected gain | Gate | Status |
 |----|----------------|-----|---------------|------|:------:|
-| **R1** | **Heavy-only feature expansion** — OpenAP continuous descriptors + cruise altitude × duration interactions **inside** the heavy specialist only | Gap report next-bet #1; heavies drive ~72% SSE | −3 to −12 kg Combined | Combined ↓ vs 227.44; Rank/Final not both collapse | ⬜ |
-| **R2** | **Quantile / asymmetric / Huber-style loss on heavies** | B744 mean bias was ~+311 kg; cut over-predict tail | −2 to −8 kg | Combined ↓; bias on B744/B77W ↓ | ⬜ |
-| **R3** | **Ultra-long-haul specialist or haul-conditional FuelFlow path** (not global haul affine) | Ultra-long ≈ 85% SSE; haul affine already failed | −2 to −10 kg | Combined ↓; ultra-long RMSE ↓ without narrowbody regression | ⬜ |
-| **R4** | **Deploy-safe mass / load proxies** (if available without Rank/Final leakage) | Winner may use better mass/ops; heuristic mass failed Level 1 | exploratory | Train-OOF first; then official once | ⬜ |
-| **R5** | **Long-interval model** (iv 10–30 min and ≥ 30 min specialists or sample weights) | Long intervals ≈ 45% + 34% SSE | −2 to −8 kg | Combined ↓; long-iv RMSE ↓ | ⬜ |
+| **R1** | Heavy-only OpenAP descriptors + interactions | Heavies ~72% SSE | −3 to −12 kg | Combined ↓ | ✅ **done** (226.19) |
+| **R2 (impl.)** | OpenAP missing-descriptor fixes + heavy features | Incomplete aircraft physics | — | Combined ↓ | ✅ **done** (225.25) |
+| **R2b** | Quantile / asymmetric / Huber-style loss on heavies | Cut remaining over-predict tail | −2 to −8 kg | Combined ↓ vs 221.33; bias ↓ | ⬜ |
+| **R3 (impl.)** | Dynamic mass model (21 features) | Mass is first-order fuel driver | — | Combined ↓ | ✅ **done** (221.33) |
+| **R3b** | Ultra-long-haul specialist or haul-conditional FuelFlow path | Ultra-long ≈ 85% SSE; haul affine failed | −2 to −10 kg | Combined ↓; ultra-long ↓ | ⬜ |
+| **R4** | Further deploy-safe mass / load proxies | R3 already landed main mass path; only incremental | exploratory | Train-OOF then official | 🔄 largely superseded by R3 |
+| **R5** | Long-interval model (iv 10–30 min and ≥ 30 min) | Long intervals ≈ 45% + 34% SSE | −2 to −8 kg | Combined ↓; long-iv ↓ | ⬜ |
 
 ### Tier 2 — Medium impact / architecture
 
 | ID | Checklist item | Why | Expected gain | Status |
 |----|----------------|-----|---------------|:------:|
-| **R6** | **Fuel-Flow-first ensemble redesign** — drop weak Direct bases if train OOF justifies | Flow beats Direct on official; P5 Flow-only was close to but not better than P2 | −1 to −5 kg | ⬜ |
-| **R7** | **Nested Optuna / deeper trees on FuelFlow only** (train OOF; freeze before Rank/Final) | V4 frozen at 300 trees / lr 0.05 | −1 to −5 kg (unlikely −27) | ⬜ |
-| **R8** | **Temporal / seasonal shift features** train-safe (month-of-year, ISA deviation trends) | Train Apr–Aug → Rank Sep → Final Oct shift is real | −1 to −6 kg | ⬜ |
-| **R9** | **Promote gap-close v1.1 as new official floor** (document 227.44 as improved baseline) | Housekeeping so future Δ is honest | decision | ⬜ |
+| **R6** | **Fuel-Flow-first ensemble redesign** — drop weak Direct bases if train OOF justifies | Flow beats Direct on official; P5 was close | −1 to −5 kg | ⬜ |
+| **R7** | **Nested Optuna / deeper trees on FuelFlow only** (train OOF; freeze before Rank/Final) | V4 frozen at 300 trees / lr 0.05 | −1 to −5 kg | ⬜ |
+| **R8** | **Temporal / seasonal shift features** train-safe (month-of-year, ISA deviation trends) | Train Apr–Aug → Rank Sep → Final Oct | −1 to −6 kg | ⬜ |
+| **R9** | **Promote R3 as documented official floor** (221.33 current best; 228.25 canonical) | Housekeeping so future Δ is honest | decision | 🔄 partial (README updated) |
 
 ### Tier 3 — Low priority / closed
 
@@ -1253,9 +1299,10 @@ Target the remaining ~26 kg gap via **representation on hard subgroups**, not mo
 | Stretch / match winner | ≤ **201** | Match published winner **score** (not code-equivalence) |
 | Strong competitive | ≤ **210** | Competitive; CI may still overlap 201 |
 | Meaningful improvement | ≤ **220** (≈ −8+ kg from 228) | Report Δ + bootstrap CI |
-| Current best | **227.4 – 228.3** | No superiority |
+| **Current best** | **221.33** | No superiority (gap ≈ 20 kg) |
+| Canonical reference | **228.25** | Frozen V4 official |
 
-**Stop rule:** If each Tier-1 item fails the gate (Combined gain < ~1 kg or Rank/Final tradeoff is bad), **freeze the model**, accept residual gap with evidence from gap-closing + error analysis, and complete the project via **§22**.
+**Stop rule:** If each remaining Tier-1 item fails the gate (Combined gain < ~1 kg or Rank/Final tradeoff is bad), **freeze the model**, accept residual gap with evidence from gap-closing + R1–R3 + error analysis, and complete the project via **§22**.
 
 ### Reproduce current baselines
 
@@ -1263,6 +1310,10 @@ Target the remaining ~26 kg gap via **representation on hard subgroups**, not mo
 python notebooks/17_official_prc_evaluation.py --skip-build
 python notebooks/18_official_error_analysis.py
 python notebooks/19_gap_closing_campaign.py
+python notebooks/21_rmse_r1_heavy_features.py
+python notebooks/24_r2_heavy_features.py
+python notebooks/25_r3_dynamic_mass.py
+python notebooks/26_r3_ensemble_mass.py
 ```
 
 ---
@@ -1275,25 +1326,25 @@ Project is a **major project / thesis-scale** deliverable. Complete **Track 1 + 
 
 | ID | Checklist item | Notes | Status |
 |----|----------------|-------|:------:|
-| **F1** | Freeze **canonical official numbers** in status report + README | Combined **228.25** (optional v1.1 **227.44**); Rank/Final; CI; Δ vs winner | ⬜ |
+| **F1** | Freeze **canonical + best** official numbers in status report + README | Canonical **228.25**; R3 best **221.33**; Rank/Final; CI; Δ vs winner (~20 kg) | 🔄 README + this report updated; freeze tag still open |
 | **F2** | Freeze statistical protocol (confirmatory vs exploratory) | `papers/statistical_protocol.md` + `physics/statistical_protocol.py` | ✅ mostly |
-| **F3** | **Scope decision:** (A) run Tier-1 RMSE items **or** (B) accept residual ~26 kg gap and write it up | Do not leave ambiguous | ⬜ decision |
+| **F3** | **Scope decision:** (A) run remaining Tier-1 RMSE items **or** (B) accept residual ~20 kg gap and write it up | R1–R3 already run; decide on R2b/R3b/R5 vs freeze | ⬜ decision |
 | **F4** | Operational distribution-shift analysis (LOTO ΔMAE drivers) | Recommended if thesis emphasizes transfer; optional if scope is official RMSE only | ⬜ |
 | **F5** | External validation: scale DASHlink **or** explicit pilot-only scope in write-up | Do not over-claim from 15 flights | ⬜ |
-| **F6** | Consolidate **main** figures/tables for write-up | Official leaderboard, PRC vs AeroTwin, SSE drivers, LOTO gap, ablations | ⬜ |
-| **F7** | Limitations + negative-results appendix | Calibration fail, residual fail, gap-close −0.8 kg, no superiority | ⬜ |
-| **F8** | One-paragraph **canonical one-liner** locked for abstract | Already drafted in official report; copy to thesis abstract | ⬜ |
+| **F6** | Consolidate **main** figures/tables for write-up | Official leaderboard, R1–R3 progression, SSE drivers, LOTO gap, ablations | ⬜ |
+| **F7** | Limitations + negative-results appendix | Calibration fail, residual fail, residual ~20 kg gap, no superiority | ⬜ |
+| **F8** | One-paragraph **canonical one-liner** locked for abstract | Update for R3 best 221.33; copy to thesis abstract | ⬜ |
 
 ### Track 2 — Repo & documentation package
 
 | ID | Checklist item | Notes | Status |
 |----|----------------|-------|:------:|
-| **F9** | Update `README.md` Results with **official** Rank/Final/Combined | Demote internal 202.9 to “Level-1 holdout” | ⬜ |
-| **F10** | Keep `PROJECT_STATUS_REPORT.md` in sync (this section) | Tick boxes as work finishes | ✅ checklist added |
-| **F11** | End-to-end reproduce path for official eval | Audit → build Rank/Final features → eval → error analysis | ⬜ polish |
-| **F12** | Artifact index for official deliverables | `table_official_*`, `table_prc_comparison.csv`, `fig_official_*`, `fig_prc_vs_aerotwin.png`, bootstrap JSON | ⬜ |
+| **F9** | Update `README.md` Results with **official** Rank/Final/Combined + R3 | Demote internal 202.9 to “Level-1 holdout” | ✅ R3 table in README (2026-07-23) |
+| **F10** | Keep `PROJECT_STATUS_REPORT.md` in sync (this section) | Reflect R1–R3 after 2026-07-23 commits | ✅ updated |
+| **F11** | End-to-end reproduce path for official eval | Audit → build Rank/Final features → eval → R1–R3 notebooks | ⬜ polish |
+| **F12** | Artifact index for official deliverables | `table_official_*`, `table_rmse_R{1,2,3}_*`, `r3_*.json`, figures | ⬜ |
 | **F13** | CI green; no secrets in repo; cache policy documented | `.gitignore`, `HOW_TO_RUN_AUDIT.md` | ⬜ |
-| **F14** | Tag release after freeze (e.g. `v1.0-official-eval`) | Optional but recommended | ⬜ |
+| **F14** | Tag release after freeze (e.g. `v1.1-r3-mass`) | Optional but recommended | ⬜ |
 
 ### Track 3 — Thesis / major-project submission
 
@@ -1310,11 +1361,11 @@ Project is a **major project / thesis-scale** deliverable. Complete **Track 1 + 
 ### Recommended execution order (finish the project)
 
 ```text
-1. F3  Scope decision (chase RMSE vs freeze gap)
-2. §21 Tier 1  (only if F3 = chase)  → gate each item
-3. F1  Freeze numbers (228.3 and/or 227.44)
-4. F6–F7  Figures + limitations
-5. F9–F12 Repo/docs package
+1. F3  Scope decision (chase remaining RMSE vs freeze ~20 kg gap)
+2. Remaining §21  (only if F3 = chase: R2b / R3b / R5)  → gate each item
+3. F1  Freeze numbers (canonical 228.25 + best 221.33)
+4. F6–F7  Figures + limitations (include R1–R3 progression)
+5. F9–F12 Repo/docs package (README already has R3)
 6. F15–F21  Write-up + submission
 ```
 
@@ -1328,26 +1379,29 @@ F4 operational shift → F5 scaled external → update claims → then write-up
 
 All of the following:
 
-1. **Canonical official metrics frozen** and consistent across report, README, and abstract.
-2. Either **(a)** ≥1 Tier-1 RMSE experiment run and gated, **or** **(b)** residual gap **explicitly accepted** with gap-closing + SSE evidence.
-3. **Write-up** covers methods, results (Level 1 + official + LOTO + external pilot), and honest limitations.
+1. **Canonical + best official metrics frozen** and consistent across report, README, and abstract (**228.25** and **221.33**).
+2. Either **(a)** remaining Tier-1 items gated, **or** **(b)** residual ~20 kg gap **explicitly accepted** with gap-closing + R1–R3 + SSE evidence. *(R1–R3 already satisfy “≥1 Tier-1 run.”)*
+3. **Write-up** covers methods, results (Level 1 + official + LOTO + external pilot + gap-close R1–R3), and honest limitations.
 4. **Reproduce commands** and key artifacts match the frozen numbers.
 
 ---
 
 ## Final Executive Summary
 
-### Official position (July 2026)
+### Official position (July 2026 — updated after R3)
 
-- **Canonical Combined RMSE: 228.3 kg** (Rank 239.2 · Final 220.9) vs published winner ≈ **201 kg** (Δ ≈ **+27 kg**).
-- Gap-closing best: **227.44 kg**. **No superiority claim** (CI [207, 249]).
+- **Canonical Combined RMSE: 228.25 kg** (Rank 239.2 · Final 220.9) vs published winner ≈ **201 kg** (Δ ≈ **+27 kg**).
+- **Current best (R3 dynamic mass + P1E): 221.33 kg** (Rank 232.5 · Final 213.7; Δ vs winner ≈ **+20 kg**).
+- Gap-closing ladder: **228.25 → 227.44 → 226.19 → 225.25 → 221.33** (−6.92 kg total). **No superiority claim** (canonical CI [207, 249]).
 - Fuel-Flow beats Direct on official data; OpenAP alone fails (~1268 Combined RMSE).
+- **Dynamic mass** is the largest single improvement; bias reduced to ~**+3.9 kg**.
 
 ### Established (science)
 
 - Energy-state and Energy+Weather features yield bootstrap-supported gains on **unseen flights** (Level 1, PRC).
 - Fuel-flow targets improve Level-1 and official error vs Direct; keep protocol-separated leaderboards (`figures/LEADERBOARD_AUDIT.md`).
-- Multiple inductive biases **rejected** with preserved negative results.
+- Multiple inductive biases **rejected** with preserved negative results (including early heuristic mass under Level 1).
+- Official gap-closing **R1–R3 kept**: OpenAP heavy descriptors, descriptor fixes, dynamic mass.
 - External DASHlink pilot: energy + Flow **qualitatively replicate** at pilot scale only.
 
 ### Suggestive
@@ -1357,18 +1411,18 @@ All of the following:
 
 ### Must happen next (prioritized)
 
-1. **§21 Tier 1** (if chasing RMSE) — heavy features, heavy loss, ultra-long / long-interval specialists — **or** accept residual gap (F3).
-2. **§22 Track 1–2** — freeze numbers, README, figures, limitations.
+1. **§22 Track 1–2** — freeze **221.33 / 228.25**, figures, limitations, abstract one-liner.
+2. **F3** — accept residual ~20 kg gap **or** run remaining open items (R2b asymmetric loss, R3b ultra-long, R5 long-interval).
 3. **§22 Track 3** — thesis/paper write-up and submission package.
 4. Optional: operational-shift analysis + scaled external validation if the write-up claims broad transfer.
 
-**Paper / project readiness:** Official evaluation is **complete and honest**. Submission readiness depends on finishing **§22** (and optionally **§21** Tier 1). Do not claim winner-level performance.
+**Paper / project readiness:** Official evaluation + R1–R3 gap-closing are **complete and honest**. Submission readiness depends on finishing **§22**. Do not claim winner-level performance.
 
 ---
 
-*Report updated July 2026 (official PRC Rank+Final eval, gap-closing v1, RMSE + completion checklists).*
+*Report updated 2026-07-24 (synced to repo: official PRC Rank+Final, gap-closing v1, R1/R2/R3 through Combined 221.33, RMSE + completion checklists).*
 
-**Reproduce (core + official):**
+**Reproduce (core + official + gap-close):**
 
 ```bash
 PYTHONPATH=. python notebooks/05_baseline_modeling.py
@@ -1381,4 +1435,8 @@ PYTHONPATH=. python notebooks/16_dataset_audit.py
 PYTHONPATH=. python notebooks/17_official_prc_evaluation.py --skip-build
 PYTHONPATH=. python notebooks/18_official_error_analysis.py
 PYTHONPATH=. python notebooks/19_gap_closing_campaign.py
+PYTHONPATH=. python notebooks/21_rmse_r1_heavy_features.py
+PYTHONPATH=. python notebooks/24_r2_heavy_features.py
+PYTHONPATH=. python notebooks/25_r3_dynamic_mass.py
+PYTHONPATH=. python notebooks/26_r3_ensemble_mass.py
 ```
