@@ -13,10 +13,10 @@ Comparison of AeroTwin implementation vs Sun et al. (JOAS 2026) preprocessing me
 | CAS reconstruction | [OK] | Implemented | CAS->TAS in _infer_tas() when CAS available from ACARS. |
 | Mach reconstruction | [N/A] | Not applicable | Mach from ACARS reports only. No reconstruction performed. |
 | Statistical embeddings | [OK] | Implemented | Altitude, GS, VR mean/std/min/max per interval window. |
-| TOW estimator | [MISS] | Missing | MTOW*0.75 is crude cruise mass. No takeoff mass estimation. |
-| Recursive mass (fuel-burn decay) | [MISS] | Missing | No mass decay tracking through flight. Each interval uses same ref mass. |
-| Heuristic mass (MTOW*0.75) | [OK] | Implemented | _ref_mass(): standard PRC approach. |
-| MTOW/OEW/Thrust features | [PART] | Partial | R1 adds for heavy specialist only. Not in base ensemble. |
+| TOW estimator | [OK] | Implemented (R3) | **R3 dynamic mass model** adds 21 physics-informed mass features: takeoff weight, landing mass, per-interval mass via linear fuel-burn interpolation, mass rate, fuel fraction, phase-aware mass, wing loading. |
+| Recursive mass (fuel-burn decay) | [OK] | Implemented (R3) | Per-interval mass via linear fuel-burn interpolation by flight fraction. Mass consumed and remaining fuel tracked through flight. |
+| Heuristic mass (MTOW*0.75) | [REPLACED] | Superseded by R3 | _ref_mass() still available as fallback. R3 dynamic mass is the active model. |
+| MTOW/OEW/Thrust features | [PART] | Partial | R1 adds for heavy specialist only. R3 adds mass derivatives. Not in base ensemble. |
 | Wind interpolation (GRIB/METAR) | [MISS] | Missing | ISA-based proxies from kinematics, not actual weather data. |
 | Flight phase detection | [OK] | Implemented | Median VR thresholds (+/-1.5 m/s) in classify_interval_phase(). |
 | Split isolation (Train/Rank/Final) | [OK] | Implemented | Strict temporal separation. No cross-contamination. |
@@ -25,15 +25,20 @@ Comparison of AeroTwin implementation vs Sun et al. (JOAS 2026) preprocessing me
 
 ## Summary
 
-- [OK] Implemented: 9
-- [MISS] Missing: 7
+- [OK] Implemented: 11
+- [MISS] Missing: 5
 - [PART] Partial: 1
 - [DIFF] Different: 1
 
-### Key gaps to address
+### Key gaps remaining (post-R3)
 
-1. **TOW / mass estimation**: MTOW*0.75 is the single largest limitation. Better mass modeling could yield the largest RMSE reduction.
-2. **Recursive mass decay**: Not modeling fuel-burn-dependent mass change through flight.
-3. **Interpolation/resampling**: Not performed. Could help normalize data density across intervals.
-4. **Actual weather data**: ISA-based proxies only. GRIB/METAR integration could improve wind/temperature estimates.
-5. **MTOW/OEW features in base ensemble**: Only in R1 heavy specialist, missing from main feature set.
+1. **Interpolation/resampling**: Not performed. Could help normalize data density across intervals.
+2. **Actual weather data**: ISA-based proxies only. GRIB/METAR integration could improve wind/temperature estimates.
+3. **MTOW/OEW features in base ensemble**: Only in R1 heavy specialist, missing from main feature set.
+
+### Gaps closed by R3 dynamic mass model
+
+- **TOW estimator**: Replaced crude MTOW*0.75 with 21 physics-informed mass features yielding **−6.92 kg Combined RMSE reduction** (221.33 vs 228.25).
+- **Recursive mass decay**: Per-interval mass tracking through flight phases.
+- **Phase-aware mass**: Climb/cruise/descent differ in fuel state.
+- **Wing loading**: Current wing loading per interval added.

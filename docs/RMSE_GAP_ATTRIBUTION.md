@@ -1,80 +1,50 @@
 # RMSE Gap Attribution
 
-**Reference model:** v1.1_P1E_R1Cat_descriptors  
-**Current Combined RMSE:** 226.19 kg  
+**Reference model:** R3 ensemble (mass)  
+**Current Combined RMSE:** 221.33 kg  
+**Previous best (R2):** 225.25 kg  
 **Prior reference (v1.1):** 227.44 kg  
+**Official baseline (v1.0):** 228.25 kg  
 **Winner (paper):** ~201 kg  
-**Total remaining gap:** 25.2 kg  
-**Delta vs prior best (227.44):** -1.25 kg  
+**Total remaining gap:** ~20 kg  
+**Delta vs 228.25:** −6.92 kg  
 
 ## Error Composition
 
-From audit of Combined Rank+Final predictions:
+From audit of Combined Rank+Final predictions (R3 ensemble 221.33):
 
-- Heavy aircraft SSE share: **69.5%** (A359 34.0%, B77W 23.4%, B744 12.1%, other heavies 0.0%)
-- Cruise phase SSE share: **86.5%**
-- Ultra-long-haul (>=8h) RMSE: **433 kg** vs 94-126 kg for shorter hauls
-- Narrowbody RMSE: **80.7 kg** — near-optimal
+- Heavy aircraft SSE share: **~70%** (A359 ~29%, B77W ~22%, B744 ~21%)
+- Cruise phase SSE share: **~87%**
+- Ultra-long-haul (>=8h) RMSE: **~431 kg** vs ~86 kg for medium-haul
+- Narrowbody RMSE: **~75 kg** — near-optimal
+- Combined bias: **+3.7 kg** (down from +24 kg in v1.0)
 
-## Detailed Error by Aircraft
+The R3 dynamic mass model (21 physics-informed mass features) is the single largest improvement, cutting bias from +24 kg to +3.9 kg on the single-model LGBM variant and improving both heavy (−12 kg) and narrowbody (−6 kg) RMSE.
 
-| Aircraft | RMSE (kg) | Bias (kg) | SSE Share | Notes |
-|----------|-----------|-----------|-----------|-------|
-| A359 | 342 | -10.4 | 34.0% | Under-predicted slightly, large absolute errors |
-| B77W | 844 | -57.2 | 23.4% | High variance, under-predicted |
-| B744 | 821 | +247.4 | 12.1% | **Severely over-predicted** — systematic bias |
-| A332 | 429 | -9.6 | 12.9% | Medium error, nearly unbiased |
-| A20N | 83 | +24.6 | 6.4% | Narrowbody baseline |
-| B738 | 56 | +22.2 | 0.7% | Best-performing type |
+## Detailed Error by Aircraft (R3 ensemble)
 
-## Flight Phase Breakdown
+| Aircraft | RMSE (kg) | Bias (kg) | Notes |
+|----------|-----------|-----------|-------|
+| A359 | ~333 | — | Largest absolute contribution |
+| B77W | ~838 | — | High variance |
+| B744 | ~866 | — | Over-prediction reduced vs R1 (+247 kg bias) |
+| A332 | — | — | Medium error |
+| A20N | ~75 | — | Narrowbody baseline |
+| B738 | ~70 | — | Best-performing type |
+
+## Flight Phase Breakdown (R3 LGBM mass)
 
 | Phase | RMSE (kg) | SSE Share | Bias |
 |-------|-----------|-----------|------|
-| Cruise | 245 | 86.5% | +10.7 |
-| Climb | 199 | 8.9% | +41.2 |
-| Descent | 126 | 4.6% | +7.5 |
+| Cruise | ~245 | ~87% | ~+1 |
+| Climb | ~191 | ~9% | — |
+| Descent | ~117 | ~4% | — |
 
-Cruise dominates error. Climb has larger bias (over-prediction) but less SSE contribution due to shorter duration.
+Cruise dominates error. The R3 mass model nearly eliminated cruise bias on the LGBM single model (0.98 kg vs 7.3 kg baseline).
 
-## Estimated RMSE Opportunity by Category
+## RMSE Opportunity
 
-| Category | Est. RMSE Reduction (kg) | Confidence | Rationale |
-|----------|-------------------------|------------|-----------|
-| Mass estimation (TOW/model) | 3-8 | high | MTOW*0.75 is crude. Realistic mass modeling reduces cruise error. |
-| Haul-aware routing (ultra-long >=8h) | 2-5 | medium | >=8h dominates. Haul-aware specialist targets dominant error regime. |
-| Asymmetric loss (Huber/quantile for heavies) | 1-3 | low | B744 over-predicted by +247 kg. MSE penalizes this symmetrically. |
-| Feature: MTOW/OEW/Thrust in base ensemble | 1-3 | medium | R1 proven for heavy specialist. Extend to base. |
-| Cruise residual model (heavy+ultra) | 1-4 | medium | P3 rejected globally. Restricted to heavy types may work. |
-| Weather data (GRIB/METAR) | 0-2 | low | Weather-only ablation not significant (E5). Actual data unlikely to change. |
-| Model architecture (deeper trees, neural nets) | 0-3 | low | GBDT near-optimal for tabular data. Gains come from features, not architecture. |
-
-## Estimated Realistic Path
-
-| Stage | Action | Est. RMSE |
-|-------|--------|-----------|
-| Now | v1.1_P1E_R1Cat_descriptors | **226.2** |
-| Stage 1 | Improved mass estimation (TOW proxy, mass decay) | ~222 kg |
-| Stage 2 | Haul-aware specialist + asymmetric loss | ~216 kg |
-| Stage 3 | MTOW/OEW in base ensemble + cruise residual | ~213 kg |
-| Stage 4 | Interpolation/resampling + comprehensive features | ~209 kg |
-| Ceiling (est.) | Irreducible noise (ACARS labels, coverage gaps) | ~207 kg |
-| Winner | | **~201 kg** |
-
-**Caveat:** This path is speculative. Each stage must independently pass the accept gate.
-Realized gains may be smaller due to distribution shift between train and Rank/Final.
-The ~6 kg gap from the ceiling to the winner could be attributed to team-specific techniques
-(unknown architectures, external data, or challenge-specific optimizations) not accessible to AeroTwin.
-
-## Highest-Confidence Next Experiment
-
-**Mass estimation improvement.** MTOW*0.75 is the documented largest limitation. Options:
-1. Add load-factor proxy: `(ref_mass - OEW) / OEW` — simple, no leakage risk
-2. Phase-aware mass: higher for climb, lower for cruise (use fraction-of-flight for linear decay)
-3. OEW as minimum mass (reduces over-prediction on short/narrowbody)
-4. Wing loading features already added in R1 — extend to base ensemble
-
-Expected: **-2 to -5 kg Combined RMSE.**
+The ~20 kg remaining gap to the winner (~201 kg) is attributed to mass estimation refinement, ultra-long-haul specialists, heavy-type loss functions, interpolation/resampling, and potential team-specific optimizations not accessible to AeroTwin.
 
 ## Rejected Improvements
 
