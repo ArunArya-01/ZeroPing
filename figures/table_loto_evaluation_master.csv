@@ -5,3 +5,4 @@ loto,Global · Direct · E+W,global,direct_fuel,ew,loto_macro_avg,283.2480020687
 loto,Global · Flow/Mass · E+W,global,flow_per_mass,ew,loto_macro_avg,321.6833669756292,505.2369034115759,0.579723033931287,12
 loto,Body-class · Flow+Energy,hierarchical_body,fuel_flow,flow_energy,loto_macro_avg,378.0602208640364,600.0543733607857,0.20041552410781463,12
 loto,Body-class · Direct · E+W,hierarchical_body,direct_fuel,ew,loto_macro_avg,386.81239327012673,562.5804778918966,0.402189257891918,12
+loto,Global · Residual · E+W · CatBoost (matched),global,residual_kg,ew_no_physics,loto_macro_avg,523.2716793788604,790.2835322600066,0.0062057890675164635,12
