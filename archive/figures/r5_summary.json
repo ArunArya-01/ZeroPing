@@ -1,0 +1,7 @@
+{
+  "task": "R5",
+  "baseline_221_33": 221.33,
+  "best_variant": "R5a_uniform",
+  "best_combined_rmse": 224.22546751293143,
+  "n_variants": 10
+}

@@ -100,11 +100,12 @@ ZeroPing/
 │   ├── feature_engineering.py         # Energy and operational features
 │   ├── weather_features.py            # ISA and wind proxy features
 │   ├── mass_model.py                  # Dynamic mass estimation model (R3)
-│   ├── gap_closing.py                 # Calibrators, heavy specialist, R1/R2 features
+│   ├── gap_closing.py                 # Calibrators, heavy specialist (R1)
 │   ├── official_benchmark.py          # Frozen ensemble training + OOF matrix
 │   ├── build_featured_dataset.py      # Main featured dataset builder (PRC)
 │   ├── eval_framework.py              # Evaluation and bootstrap utilities
 │   ├── statistical_protocol.py        # Frozen inference/significance protocol
+│   ├── cruise_features.py             # Cruise features (archived, not in production)
 │   ├── shift_aware_routing.py         # Conditional shift-aware router
 │   ├── cross_dataset_alignment.py     # Schema/scale harmonization
 │   ├── external_vs_flow_eval.py       # Flow+Energy vs Direct on any parquet
@@ -118,6 +119,7 @@ ZeroPing/
 │       ├── build_featured_audit.py    # featured_dataset_audit.parquet
 │       ├── run_audit_pilot.py         # Pilot experiments A–E
 │       └── README.md
+├── archive/                            # Rejected experiments (R2, R4, R5)
 ├── notebooks/                         # Reproducible experiment scripts
 ├── tests/                             # Unit tests (incl. external_audit)
 ├── figures/                           # PRC plots, leaderboards, tables
@@ -342,11 +344,12 @@ PYTHONPATH=. pytest tests/ -m slow    # protocol runs only
 - OpenAP: <https://github.com/junzis/openap>
 - Project status: [PROJECT_STATUS_REPORT.md](PROJECT_STATUS_REPORT.md)
 - Current RMSE audit: [CURRENT_MODEL_SUMMARY.md](CURRENT_MODEL_SUMMARY.md)
+- Cleanup report: [docs/CLEANUP_REPORT.md](docs/CLEANUP_REPORT.md)
 - Dynamic mass model: [physics/mass_model.py](physics/mass_model.py)
-- R3 mass evaluation: [figures/table_rmse_R3_mass.csv](figures/table_rmse_R3_mass.csv), [figures/r3_summary.json](figures/r3_summary.json)
 - Benchmark parity: [docs/BENCHMARK_PARITY_AUDIT.md](docs/BENCHMARK_PARITY_AUDIT.md)
 - Gap attribution: [docs/RMSE_GAP_ATTRIBUTION.md](docs/RMSE_GAP_ATTRIBUTION.md)
 - RMSE improvement backlog: [RMSE_IMPROVEMENT_BACKLOG.md](RMSE_IMPROVEMENT_BACKLOG.md)
+- Rejected experiments: [archive/](archive/) — R2, R4, R5
 - External audit how-to: [HOW_TO_RUN_AUDIT.md](HOW_TO_RUN_AUDIT.md)
 - Audit package design: [AeroTwin_External_Dataset_Audit_Package.md](AeroTwin_External_Dataset_Audit_Package.md)
 - Hybrid model summary: [papers/hybrid_model_summary.md](papers/hybrid_model_summary.md)
