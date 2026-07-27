@@ -3,13 +3,39 @@
 
 **Project framing:** Multi-domain empirical study (AeroTwin aircraft + VED vehicles)  
 **Primary domain (fully frozen):** AeroTwin / EUROCONTROL PRC 2025  
-**Second domain (completed case study):** Vehicle Energy Dataset (VED)  
+**Second domain (numbers locked):** Vehicle Energy Dataset (VED) / VEE project  
 **Companion single-domain package:** `research.md` (AeroTwin-only; all numbers preserved here)  
+**VED status source:** `../vehicle/VEE/project_status_report.md` (2026-07-25) + `../vehicle/VEE/paper/results.md`  
 **Cross-domain diagnostic in-repo:** `docs/VED_PHENOMENA_REPLICATION.md`  
-**Last synced:** 2026-07-27  
+**Last synced:** 2026-07-27 (VED placeholders filled from status report)  
 **Tone:** Workshop / specialized-venue empirical paper — careful, non-overclaiming  
 
-This document is the **two-case-study writing package**. Expand into formal prose; do **not** invent metrics beyond what is listed. **AeroTwin numbers are frozen** — identical to `research.md` / official reports.
+This document is the **two-case-study writing package**. Expand into formal prose; do **not** invent metrics beyond what is listed. **AeroTwin numbers are frozen** — identical to `research.md` / official reports. **VED numbers** are locked from the VEE status report (units: liters of fuel, `cum_fuel_l`, unless noted).
+
+---
+
+## Placeholder fill log (this revision)
+
+| Placeholder / gap | Replacement (source) |
+|-------------------|----------------------|
+| `[VED: table_physics_vs_residual]` | residual_ml − physics_fb: ΔMAE **−0.0688** L; 95% CI **[−0.093, −0.047]**; significant (status §6.3) |
+| `[VED: table_physics_only]` | physics_fb LOEO: MAE **0.1270**, RMSE **0.196**, R² **0.761** |
+| Table V1 features / train-test | Primary cohort ICE+HEV; LOEO `engine_config` 20 folds; 23,464 test trips |
+| Table V1 physics model | Force-balance residual anchor `phys_fb_cum_fuel_l` (not MAF) |
+| Table V2 IID MAE | direct **0.0511**, residual **0.0487**, physics_fb **0.1441** (status §6.2) |
+| Table V2 IID RMSE (where reported) | From B/V ladder: direct **0.114**, residual **0.089**, rate **0.085** (status §6.6) |
+| Table V3 LOEO (primary) | Full primary leaderboard §H.4.0 (user + status §1 / §6.1) |
+| Table V3 vehicle holdout MAE | direct **0.0610**, residual **0.0596**, physics **0.1500** |
+| Table V4 entity ladder | IID / Vehicle / LOEO family / LOEO config MAE table §6.2 |
+| Residual vs Direct MAE claim | ΔMAE **+0.0004**; CI **[−0.002, +0.003]**; **not significant** |
+| Rate vs Direct | rate_integrate MAE **0.0618** > direct **0.0578** |
+| IID gap | direct **+13.0%** (1.13×); residual **+19.4%** (1.19×) |
+| Bias–variance hypothesis | **Rejected** (status §6.6) |
+| Domain-specific vehicle features | duration, distance, n_samples, phys_fb_cum_fuel_l, powertrain, displacement (perm. importance) |
+| VED path placeholder | `../vehicle/VEE/` |
+| “energy” target ambiguity | Primary target **`cum_fuel_l` (L)** on ICE+HEV cohort |
+
+No AeroTwin metrics were modified.
 
 ---
 
@@ -37,11 +63,11 @@ Title / Authors / Abstract
    4.3 Methods and protocols
    4.4 Results (L1, ablations, official, LOTO, external pilot)
    4.5 Domain-local conclusions
-5. Case Study 2 — VED (vehicle trip energy)
+5. Case Study 2 — VED (vehicle trip fuel; ICE/HEV cohort)
    5.1 Domain, data, scale
    5.2 Physics prior (force-balance) and features
    5.3 Methods and entity protocols (IID / vehicle holdout / LOEO)
-   5.4 Results (Direct vs Residual vs Rate; entity difficulty)
+   5.4 Results (Direct vs Residual vs Rate; entity difficulty; B/V)
    5.5 Domain-local conclusions
 6. Cross-domain analysis (modest)
    6.1 Shared structural comparison table
@@ -61,7 +87,7 @@ Appendix C — Artifact index
 | **Shared question first** | Intro frames *strategies*, not “we solve aviation and cars with one model.” |
 | **Domain-local rigor** | Each case study stands alone with its own metrics and protocol. |
 | **Modest cross-domain section** | One comparison section; no forced universal ranking. |
-| **Honesty over narrative neatness** | Residual helps VED physics baseline but does not cleanly beat Direct; AeroTwin residual loses; Rate is unreliable as a universal fix. |
+| **Honesty over narrative neatness** | VED residual beats physics and wins RMSE, but **not** MAE vs Direct; AeroTwin residual loses; Rate is not a universal fix. |
 | **Preserve AeroTwin freeze** | Official Combined **221.33 kg** (R3) and canonical **228.25 kg** unchanged. |
 
 ---
@@ -77,11 +103,12 @@ Appendix C — Artifact index
 | **Authors** | _[to fill]_ |
 | **Affiliation** | _[to fill]_ |
 | **Suggested venues** | Workshop on physics-informed ML / transportation ML; specialized journals open to multi-domain empirical studies; JOAS (if aviation-primary with VED as secondary); TR-C / IEEE ITS (if transportation framing) |
-| **Keywords** | cumulative energy prediction; hybrid physics–ML; residual learning; rate-then-integrate; entity shift; leave-one-entity-out; aircraft fuel burn; vehicle energy; partial observability |
+| **Keywords** | cumulative energy prediction; hybrid physics–ML; residual learning; rate-then-integrate; entity shift; leave-one-entity-out; aircraft fuel burn; vehicle fuel; partial observability |
 | **AeroTwin code** | https://github.com/ArunArya-01/ZeroPing |
 | **AeroTwin data** | https://huggingface.co/datasets/aerotwin/aero-data |
 | **VED data** | Vehicle Energy Dataset (Oh et al. / public VED release — cite original) |
-| **VED study status** | Completed case study (summary findings frozen for this package) |
+| **VED code / report** | `major project/vehicle/VEE/` · `project_status_report.md` |
+| **VED study status** | Primary LOEO + generalization ladder + bias–variance **locked** (2026-07-25) |
 
 ### Title options (new framing)
 
@@ -90,7 +117,7 @@ Appendix C — Artifact index
 | **T1 (recommended)** | Structural Strategies for Cumulative Energy Prediction under Partial Observation and Entity Shift: Aircraft Fuel and Vehicle Energy Case Studies |
 | **T2** | Direct, Residual, or Rate-Then-Integrate? An Empirical Two-Domain Study of Physics-Informed Cumulative Prediction |
 | **T3** | When Physics-Informed Structure Helps—and When It Does Not: Lessons from Aircraft Fuel Burn and Vehicle Energy Estimation |
-| **T4** | Evaluation Protocol Matters: Hybrid Modeling of Cumulative Fuel/Energy under Flight-Level and Vehicle-Level Shift |
+| **T4** | Evaluation Protocol Matters: Hybrid Modeling of Cumulative Fuel under Flight-Level and Engine-Config Shift |
 | **T5 (aviation-first)** | AeroTwin and Beyond: Hybrid Interval Fuel Prediction with a Comparative Vehicle Energy Case Study |
 | **Avoid** | Titles that claim “universal residual learning,” “cross-domain generalization of architecture X,” or “SOTA on both domains” |
 
@@ -100,15 +127,15 @@ Appendix C — Artifact index
 
 ## C.1 Abstract draft (≈220–280 words; trim for venue)
 
-Predicting **cumulative energy use**—aircraft fuel on ACARS-labeled intervals, or vehicle energy over trips—from partially observed kinematics is a recurring problem in transportation analytics. Practitioners often choose among three **structural strategies**: (i) **Direct** prediction of the cumulative quantity, (ii) **Residual** correction of a physics baseline, and (iii) **Rate-then-integrate** (predict instantaneous consumption, then multiply by duration). Whether these choices transfer across domains is unclear, and **entity-level** evaluation (unseen aircraft types or vehicles) can change rankings relative to random holdout.
+Predicting **cumulative fuel use**—aircraft fuel on ACARS-labeled intervals, or vehicle trip fuel—from partially observed kinematics is a recurring problem in transportation analytics. Practitioners often choose among three **structural strategies**: (i) **Direct** prediction of the cumulative quantity, (ii) **Residual** correction of a physics baseline, and (iii) **Rate-then-integrate** (predict instantaneous consumption, then multiply by duration). Whether these choices transfer across domains is unclear, and **entity-level** evaluation (unseen aircraft types or engine configurations) can change rankings relative to random holdout.
 
 We study this question in **two completed case studies** under domain-appropriate physics priors and protocols.
 
 **Case Study 1 (AeroTwin)** uses the EUROCONTROL PRC 2025 fused ADS-B/ACARS data (~10,000 training flights; 119,032 fuel intervals). Pure OpenAP physics is unusable (flight-holdout MAE ≈ 668 kg; R² ≈ −2.16). Direct hybrid gradient boosting with **energy-state** features yields bootstrap-supported gains; **residual learning underperforms** direct hybrid. Under the official Rank+Final protocol, a Direct+Fuel-Flow ensemble reaches combined RMSE **228.25 kg**, improved to **221.33 kg** with dynamic mass features—still short of the published winner (≈201 kg; no superiority claim). Leave-one-type-out inflates error by roughly **3×**, showing that flight-level metrics overestimate robustness under type shift.
 
-**Case Study 2 (VED)** analyzes **32,536 trips** from **384 vehicles**. Residual correction of a force-balance physics baseline **improves over pure physics**, but residual models do **not consistently beat strong Direct** predictors (especially on MAE). Rate-then-integrate does **not reliably** improve cumulative accuracy. Entity-level protocols (vehicle holdout / leave-one-entity-out) are harder than IID-style splits; difficulty is **not strictly monotonic** across entity granularities when micro-averaging and fold composition effects are considered.
+**Case Study 2 (VED)** analyzes **32,536 trips** from **384 vehicles** (primary ICE+HEV cohort: **27,100 trips / 341 vehicles**). Under leave-one-`engine_config`-out (20 folds; **23,464** test trips), all learned models significantly beat fair force-balance physics (physics MAE **0.127 L** vs Direct **0.0578 L**). Residual ML does **not** significantly beat Direct on MAE (0.0582 vs 0.0578; entity-bootstrap CI includes 0) but improves RMSE (**0.095** vs **0.116**) and R² (**0.944** vs **0.916**). Rate-then-integrate does **not** beat Direct on MAE (**0.0618**). IID underestimates LOEO error by **~13–19%** for ML models. A bias–variance hypothesis that structural models mainly reduce variance under shift is **rejected**.
 
-**Cross-domain takeaway:** structural preferences are **domain- and protocol-dependent**. We find **no strong evidence** that residual learning or rate-then-integrate transfer as default recipes from aircraft to cars. The practical message is to report Direct/Residual/Rate under **matched models**, multiple metrics, and entity-aware splits—not to export a single architecture across cumulative prediction tasks.
+**Cross-domain takeaway:** structural preferences are **domain- and protocol-dependent**. We find **no strong evidence** that residual learning or rate-then-integrate transfer as default recipes from aircraft to cars. Report Direct/Residual/Rate under **matched models**, **both MAE and RMSE**, and entity-aware splits.
 
 **Word target:** 150–250 for short venues; keep the three-strategy framing and the “no clean transfer” sentence in all versions.
 
@@ -116,12 +143,12 @@ We study this question in **two completed case studies** under domain-appropriat
 
 | Item | Statement |
 |------|-----------|
-| **Shared problem** | Predict cumulative energy/fuel from partial kinematics + imperfect physics priors under entity shift. |
+| **Shared problem** | Predict cumulative fuel from partial kinematics + imperfect physics priors under entity shift. |
 | **Three strategies** | Direct · Residual (physics + correction) · Rate-then-integrate. |
 | **AeroTwin headline** | Hybrid works; energy/mass help; residual loses; official **221.33 kg**; LOTO ~3× harder. |
-| **VED headline** | Residual beats pure physics; residual ≰ Direct (esp. MAE); Rate unreliable; entity eval harder; non-monotonic difficulty possible. |
+| **VED headline** | LOEO Direct MAE **0.0578 L** (best MAE); residual RMSE **0.095** / residual_rate **0.093** (best RMSE); residual ≰ Direct on MAE; Rate MAE **0.0618**; physics_fb **0.127**; IID gap **13–19%**. |
 | **Cross-domain claim** | Results are **domain-dependent**; protocol and metric choice matter; **no universal structural winner**. |
-| **What we do *not* claim** | Cross-domain architecture transfer; residual as general best practice; beating PRC winner. |
+| **What we do *not* claim** | Cross-domain architecture transfer; residual as general best practice; beating PRC winner; “structural models only reduce variance under shift.” |
 
 ---
 
@@ -129,10 +156,10 @@ We study this question in **two completed case studies** under domain-appropriat
 
 ## D.1 Cumulative prediction task (domain-agnostic)
 
-For labeled segment \(i\) belonging to entity \(e\) (flight, aircraft type, vehicle, …):
+For labeled segment \(i\) belonging to entity \(e\) (flight, aircraft type, engine config, vehicle, …):
 
 \[
-y_i = \text{cumulative energy or fuel over segment } i
+y_i = \text{cumulative fuel over segment } i
 \]
 
 Predict \(\hat{y}_i\) from kinematics \(\mathbf{x}_i\), metadata \(\mathbf{m}_i\), and optional physics baseline \(\hat{y}_i^{\text{phys}}\):
@@ -143,16 +170,18 @@ Predict \(\hat{y}_i\) from kinematics \(\mathbf{x}_i\), metadata \(\mathbf{m}_i\
 
 **Partial observation:** labels cover only part of operational time or depend on sparse sensors; physics inputs (mass, resistance coefficients, air data) are incomplete or assumed.
 
+**Domain units:** AeroTwin → kg; VED → liters (`cum_fuel_l`). Never plot on one axis without normalization.
+
 ## D.2 Three structural strategies (shared vocabulary)
 
 | Strategy | Predict | Recover \(y\) | Physics role |
 |----------|---------|---------------|--------------|
 | **Direct** | \(y_i\) | identity | Feature and/or ignored |
 | **Residual** | \(r_i = y_i - \hat{y}_i^{\text{phys}}\) | \(\hat{y}_i = \hat{y}_i^{\text{phys}} + \hat{r}_i\) | Explicit baseline; model corrects |
-| **Rate-then-integrate** | rate \(\rho_i\) (e.g. kg/s or energy/s) | \(\hat{y}_i = \hat{\rho}_i \cdot \Delta t_i\) | Optional; normalizes duration scale |
+| **Rate-then-integrate** | rate \(\rho_i\) (e.g. kg/s or L/s) | \(\hat{y}_i = \hat{\rho}_i \cdot \Delta t_i\) | Optional; normalizes duration scale |
 
 **AeroTwin names:** Direct kg · Residual kg · **Fuel-Flow** (rate).  
-**VED names:** Direct · Residual (force-balance) · Rate-then-integrate.
+**VED names:** `direct_ml` · `residual_ml` (FB + LGBM) · `rate_integrate` · `residual_rate` (residual on rate, then integrate).
 
 Use this shared vocabulary in §6 so readers can compare without equating implementations.
 
@@ -160,10 +189,10 @@ Use this shared vocabulary in §6 so readers can compare without equating implem
 
 | Axis | AeroTwin analogue | VED analogue | Claim type |
 |------|-------------------|--------------|------------|
-| **Random / quasi-IID segment groups** | Flight-level 80/20 (types still seen) | Trip/sample IID or random split | Unseen segments, entities partially seen |
-| **Entity holdout** | Leave-one-**type**-out (LOTO) | Vehicle holdout / LOEO | Unseen entity generalization |
-| **Temporal** | Official Rank/Final months | _(if used in VED study)_ | Time shift (not entity) |
-| **External data** | DASHlink pilot | _(if any)_ | Dataset shift |
+| **Random / quasi-IID segment groups** | Flight-level 80/20 (types still seen) | Random trip IID | Unseen segments, entities partially seen |
+| **Entity holdout** | Leave-one-**type**-out (LOTO) | LOEO on **`engine_config`** (primary); also vehicle, engine_family | Unseen entity generalization |
+| **Temporal** | Official Rank/Final months | Not primary VED axis | Time shift (not entity) |
+| **External data** | DASHlink pilot | Not in locked VED package | Dataset shift |
 
 **Rule:** Never treat entity-holdout metrics as interchangeable with random-holdout metrics.
 
@@ -172,7 +201,7 @@ Use this shared vocabulary in §6 so readers can compare without equating implem
 1. Cumulative targets with heterogeneous segment durations  
 2. Imperfect physics baselines (wrong mass, coefficients, or operating regime)  
 3. Partial / sparse observability  
-4. Entity heterogeneity (fleet types or individual vehicles)  
+4. Entity heterogeneity (fleet types or engine configs / vehicles)  
 5. Metric choice (MAE vs RMSE) can flip rankings  
 6. Leakage if segments from the same entity cross train/test  
 
@@ -182,19 +211,19 @@ Use this shared vocabulary in §6 so readers can compare without equating implem
 
 ## E.1 Primary (two-domain)
 
-> **RQ-Primary.** For cumulative energy/fuel prediction under partial observation, how do **Direct**, **Residual**, and **Rate-then-integrate** strategies behave under **random** versus **entity-level** evaluation—and do structural preferences **transfer** between commercial aircraft fuel intervals (AeroTwin) and vehicle trip energy (VED)?
+> **RQ-Primary.** For cumulative fuel prediction under partial observation, how do **Direct**, **Residual**, and **Rate-then-integrate** strategies behave under **random** versus **entity-level** evaluation—and do structural preferences **transfer** between commercial aircraft fuel intervals (AeroTwin) and vehicle trip fuel (VED)?
 
-**Expected answer style (write this into Results/Discussion):** preferences are **domain- and protocol-dependent**; residual and rate are **not** reliable universal defaults.
+**Expected answer style:** preferences are **domain- and protocol-dependent**; residual and rate are **not** reliable universal defaults. On VED, residual is competitive and wins second-moment metrics but not primary MAE.
 
 ## E.2 Shared structural questions
 
-| ID | Question | AeroTwin status | VED status (summary) |
-|----|----------|-----------------|----------------------|
-| **SQ1** | Does residual improve over **pure physics**? | Yes (hybrid ≫ OpenAP), but residual **architecture** loses to Direct | **Yes** — residual improves over force-balance physics |
-| **SQ2** | Does residual beat **strong Direct**? | **No** (Level-1 and matched LOTO) | **No** — not consistent (esp. MAE) |
-| **SQ3** | Does rate-then-integrate help vs Direct? | Often yes (official; many LOTO folds) but LOTO significance fragile | **No** — does not reliably help |
-| **SQ4** | Is entity-level evaluation harder than random/IID? | **Yes** (~3× MAE under LOTO) | **Yes** (vehicle / LOEO harder) |
-| **SQ5** | Is difficulty strictly monotonic in entity coarseness? | **Not testable** (only one pure entity rung: type LOTO) | **No** — not strictly monotonic (micro-avg + fold composition) |
+| ID | Question | AeroTwin status | VED status (locked) |
+|----|----------|-----------------|---------------------|
+| **SQ1** | Does residual improve over **pure physics**? | Yes (hybrid ≫ OpenAP), but residual **architecture** loses to Direct | **Yes** — residual_ml vs physics_fb ΔMAE **−0.0688** L, CI excludes 0 |
+| **SQ2** | Does residual beat **strong Direct**? | **No** (Level-1 and matched LOTO) | **No on MAE** (0.0582 vs 0.0578; CI includes 0); **Yes on RMSE/R²** |
+| **SQ3** | Does rate-then-integrate help vs Direct? | Often yes (official; many LOTO folds) but LOTO significance fragile | **No on MAE** (0.0618 > 0.0578); residual_rate best RMSE (**0.093**) |
+| **SQ4** | Is entity-level evaluation harder than random/IID? | **Yes** (~3× MAE under LOTO) | **Yes** — IID→LOEO config gap **+13%** (Direct) / **+19%** (Residual) |
+| **SQ5** | Is difficulty strictly monotonic in entity coarseness? | **Not testable** (only one pure entity rung: type LOTO) | **No** — e.g. LOEO family MAE > LOEO config; vehicle vs config not monotone |
 | **SQ6** | Do the same structural choices transfer aircraft → cars? | — | **No strong evidence of clean transfer** |
 
 ## E.3 Domain-local questions (keep; do not drop AeroTwin science)
@@ -215,16 +244,17 @@ Use this shared vocabulary in §6 so readers can compare without equating implem
 | AQ10 | Level-1 → LOTO transfer? | **No** (~3×) |
 | AQ11 | External pilot replication? | Pilot yes (energy, flow) |
 
-### VED-only (from completed case study summary)
+### VED-only (locked from status report)
 
 | ID | Question | Status |
 |----|----------|--------|
-| VQ1 | Residual vs pure force-balance physics? | Residual **better** |
-| VQ2 | Residual vs strong Direct (MAE)? | Residual **not consistently better** |
-| VQ3 | Residual vs strong Direct (RMSE)? | Domain-specific; do not claim universal residual RMSE win without tables |
-| VQ4 | Rate-then-integrate vs Direct? | **Not reliably helpful** |
-| VQ5 | Vehicle / LOEO vs IID difficulty? | Entity-level **harder** |
-| VQ6 | Monotonic difficulty across entity granularities? | **Not strictly monotonic** |
+| VQ1 | Residual vs pure force-balance physics? | **Yes** — significant (ΔMAE −0.0688 L) |
+| VQ2 | Residual vs strong Direct (**MAE**)? | **No** — not significant (ΔMAE +0.0004; CI crosses 0) |
+| VQ3 | Residual vs strong Direct (**RMSE / R²**)? | **Yes** — residual_ml RMSE **0.095** / R² **0.944** vs Direct **0.116** / **0.916**; residual_rate RMSE **0.093** / R² **0.946** |
+| VQ4 | Rate-then-integrate vs Direct on MAE? | **No** — 0.0618 > 0.0578 |
+| VQ5 | Vehicle / LOEO vs IID difficulty? | Entity-level **harder** for ML (+13–19% MAE IID→config LOEO) |
+| VQ6 | Monotonic difficulty across entity granularities? | **Not strictly** (family harder than config; vehicle intermediate) |
+| VQ7 | Structural models mainly reduce **variance** under shift? | **Rejected** (bias–variance ladder) |
 
 ## E.4 Hypotheses (paper-facing)
 
@@ -233,12 +263,14 @@ Use this shared vocabulary in §6 so readers can compare without equating implem
 | H-Cross1 | Residual is the best default for cumulative energy across domains | **Rejected** |
 | H-Cross2 | Rate-then-integrate is a reliable duration normalization fix across domains | **Rejected** |
 | H-Cross3 | Entity holdout is harder than random/IID-style splits in both domains | **Supported** (both domains) |
-| H-Cross4 | MAE and RMSE always agree on structural ranking | **Rejected** (flips appear; domain-specific) |
+| H-Cross4 | MAE and RMSE always agree on structural ranking | **Rejected** (VED: Direct best MAE, residual/residual_rate best RMSE) |
 | H-AT-Energy | Energy features help AeroTwin Level-1 | **Accepted** (bootstrap) |
 | H-AT-Res | Residual beats Direct on AeroTwin | **Rejected** (incl. matched CatBoost LOTO) |
 | H-AT-Mass | Dynamic mass improves official Combined RMSE | **Accepted** (221.33) |
-| H-VED-Phys | Residual helps over pure physics on VED | **Accepted** (case study) |
-| H-VED-Dir | Residual consistently beats Direct on VED | **Rejected** |
+| H-VED-Phys | Residual helps over pure physics on VED | **Accepted** |
+| H-VED-Dir-MAE | Residual consistently beats Direct on VED MAE | **Rejected** |
+| H-VED-Dir-RMSE | Residual improves RMSE/R² vs Direct under LOEO | **Accepted** (point estimates; optional RMSE bootstrap still open in VEE backlog) |
+| H-VED-BV | Structural models mainly reduce variance under entity shift | **Rejected** |
 
 ---
 
@@ -246,19 +278,19 @@ Use this shared vocabulary in §6 so readers can compare without equating implem
 
 Write contributions as **empirical + methodological**, not “we win both leaderboards.”
 
-1. **Unified structural framing** of cumulative energy prediction via Direct / Residual / Rate-then-integrate, applied to two real operational domains with domain-appropriate physics priors (OpenAP; force-balance vehicle model).
+1. **Unified structural framing** of cumulative fuel prediction via Direct / Residual / Rate-then-integrate, applied to two real operational domains with domain-appropriate physics priors (OpenAP; force-balance vehicle model).
 
 2. **Case Study 1 (AeroTwin):** large-scale hybrid aircraft fuel modeling with flight-level and official Rank+Final evaluation; energy-state and dynamic-mass gains; residual architectures rejected; official Combined RMSE **228.25 → 221.33 kg**; LOTO ~3× degradation; pilot external audit.
 
-3. **Case Study 2 (VED):** completed vehicle energy study on **32,536 trips / 384 vehicles** comparing Direct, Residual, and Rate under IID and entity-level protocols; residual beats pure physics but not consistently strong Direct; Rate unreliable; entity difficulty non-monotonic under micro-averaging/fold effects.
+3. **Case Study 2 (VED):** LOEO on `engine_config` (20 folds, 23,464 test trips) over ICE+HEV cohort (27,100 trips / 341 vehicles) within full VED (32,536 / 384). Learned models ~**2×** better than fair FB physics on MAE; residual **not** significant vs Direct on MAE but better on RMSE/R²; rate_integrate does not win MAE; IID underestimates LOEO by **13–19%**; bias–variance “variance-only under shift” hypothesis **rejected**.
 
-4. **Cross-domain analysis (modest):** side-by-side comparison showing **domain-dependent** structural outcomes and **no strong evidence** of clean architecture transfer from aircraft to cars.
+4. **Cross-domain analysis (modest):** side-by-side comparison showing **domain-dependent** structural outcomes and **no strong evidence** of clean architecture transfer from aircraft to cars—while **metric disagreement** (MAE vs RMSE) is itself a transferable reporting lesson.
 
-5. **Protocol contribution:** emphasis on matched-model comparisons, entity-aware splits, multi-metric reporting (MAE and RMSE), and flight-/entity-clustered inference where applicable—so rankings are not artifacts of split choice.
+5. **Protocol contribution:** matched-model comparisons, entity-aware splits, multi-metric reporting, and entity-clustered bootstrap (VED: 2000 entity reps; AeroTwin: 10k flight-clustered where used).
 
-6. **Negative and mixed results as first-class findings:** residual and rate are not universal; sparsity-conditioned physics gains rejected on AeroTwin; LOTO significance for fuel-flow is fragile.
+6. **Negative and mixed results as first-class findings:** residual and rate are not universal; AeroTwin residual fails under type shift; VED residual is MAE-neutral but RMSE-helpful; MAF physics circularity documented as validity threat.
 
-7. **Reproducible AeroTwin artifacts** (loaders, featured dataset, frozen statistical protocol, figures/tables). VED reproducibility pointer to the completed case-study package _[path/citation to fill]_.
+7. **Reproducible artifacts:** AeroTwin (`ZeroPing`); VED/VEE (`vehicle/VEE/`, `project_status_report.md`, `results/loeo_engine_config_default/`).
 
 ---
 
@@ -338,160 +370,257 @@ All **Fig. 1–22** and **Tables 1–12** in `research.md` remain valid for Case
 ---
 
 # Part H — Case Study 2: VED  
-## (completed case study — write from these findings; fill numeric tables from VED artifacts)
+## (numbers locked from `vehicle/VEE/project_status_report.md`, 2026-07-25)
 
-> **Honesty rule:** Use the user’s completed findings as hard constraints. Where exact decimal metrics live in the VED study package, **paste from those tables**—do not invent. Placeholders marked `[VED: …]` must be filled before submission.
+> **Honesty rule:** All decimals below come from the VEE status report / paper results. Units are **liters** of cumulative trip fuel (`cum_fuel_l`) unless noted. Do not strengthen claims beyond bootstrap results.
 
 ### H.1 Domain snapshot
 
 | Item | Value |
 |------|--------|
 | Dataset | Vehicle Energy Dataset (VED) |
-| Scale | **32,536 trips**, **384 vehicles** |
-| Task | Cumulative trip / segment **energy** (domain units as in VED study) |
-| Physics prior | **Force-balance** (longitudinal dynamics / resistance model) |
-| Partial observation | Real driving telemetry; not full lab-grade energy instrumentation on all axes |
-| Entity unit | **Vehicle** (and finer/coarser LOEO-style entity definitions used in the study) |
+| Full scale | **32,536 trips**, **384 vehicles** (54 weeks) |
+| ICE / HEV / PHEV / EV | 18,926 / 9,501 / 3,605 / 504 trips |
+| **Primary cohort** | **ICE+HEV, valid fuel >0: 27,100 trips / 341 vehicles** |
+| Target | Trip-level cumulative fuel **`cum_fuel_l` (L)** |
+| Physics prior (fair) | Force-balance cumulative fuel `phys_fb_cum_fuel_l` |
+| Physics (diagnostic only) | MAF / Algorithm-1 path — **circular** with many labels; not a fair baseline |
+| Partial observation | Public VED: no OEM manufacturer/model; `vehicle_class` ~92% UNKNOWN; labels often Alg.1 when OEM FuelRate missing |
+| Primary entity | **`engine_config`** (structural proxy for type; LOTO-analogue) |
+| Primary protocol | LOEO on `engine_config`, **20** multi-vehicle folds, **23,464** pooled test trips |
+| Learner | LightGBM for ML models (`direct_ml`, `residual_ml`, …) |
 
 ### H.2 Why VED is a valid second case study
 
 | Parallel | AeroTwin | VED |
 |----------|----------|-----|
-| Cumulative target | Fuel kg over interval | Energy over trip/segment |
-| Physics baseline | OpenAP fuel flow | Force-balance power/energy |
-| Heterogeneous “entities” | Aircraft types / flights | Vehicles / drivers / trips |
-| Structural menu | Direct / Residual / Rate | Direct / Residual / Rate |
-| Risk | Type shift (LOTO) | Vehicle holdout / LOEO |
+| Cumulative target | Fuel kg over interval | Fuel **L** over trip |
+| Physics baseline | OpenAP fuel flow | Force-balance (`physics_fb`) |
+| Heterogeneous “entities” | ICAO aircraft types | `engine_config` / vehicle / engine_family |
+| Structural menu | Direct / Residual / Rate | `direct_ml` / `residual_ml` / `rate_integrate` (+ `residual_rate`) |
+| Risk | Type shift (LOTO) | Engine-config LOEO |
 
-**Do not claim identical data regimes.** Aircraft intervals are ACARS-sparse aviation telemetry; VED is ground-vehicle trips. Parallelism is **structural**, not physical identity.
+**Do not claim identical data regimes.** Parallelism is **structural**, not physical identity.
 
 ### H.3 Methods (VED)
 
 #### H.3.1 Strategies
 
-| Strategy | Definition on VED | Expected writing claim |
-|----------|-------------------|------------------------|
-| **Direct** | Predict cumulative energy end-to-end | Strong baseline |
-| **Residual** | Predict \(y - y_{\text{physics}}\) (force-balance) then add back | Beats pure physics; **not** consistent winner vs Direct |
-| **Rate-then-integrate** | Predict rate × duration | **Does not reliably help** |
+| Strategy | VED model ID | Definition | Locked claim |
+|----------|--------------|------------|--------------|
+| **Direct** | `direct_ml` | LGBM: \(f(x)\to y\) | Best **MAE** under primary LOEO |
+| **Residual** | `residual_ml` | FB residual + LGBM; add FB | Beats physics; **≈ Direct on MAE**; better RMSE/R² |
+| **Rate-then-integrate** | `rate_integrate` | Predict rate × duration | **Does not** beat Direct on MAE |
+| **Residual-rate** | `residual_rate` | Residual on rate vs physics rate, then integrate | Best **RMSE / R²** under primary LOEO |
+| **Fair physics** | `physics_fb` | Force-balance only | Weak LOEO baseline |
+| **MAF physics** | `physics_maf` | Diagnostic only | **Circular** with Alg.1 labels for many types |
 
-#### H.3.2 Evaluation protocols (must appear)
+#### H.3.2 Evaluation protocols
 
-| Protocol | What is held out | Role in paper |
-|----------|------------------|---------------|
-| **IID / random** | Random trips or samples (as defined in VED study) | Upper-bound “easy” generalization |
-| **Vehicle holdout** | Unseen vehicles | Entity-level difficulty |
-| **LOEO** (leave-one-entity-out) | One entity at a time (vehicle or other entity grain) | Stress test |
-| **Multiple entity granularities** | Finer vs coarser entity definitions | Non-monotonic difficulty analysis |
+| Protocol | What is held out | Role |
+|----------|------------------|------|
+| **IID / random** | Random trips | Upper-bound; **overstates** accuracy |
+| **Vehicle holdout** | Unseen vehicles (type overlap allowed) | Intermediate regime |
+| **LOEO `engine_family`** | Coarser structural family | Harder for ML than config LOEO |
+| **LOEO `engine_config` (primary)** | Exact engine configuration string | Primary paper protocol |
+| Inference | Entity paired bootstrap (**2000** reps) for key ΔMAE tests | Significance |
 
-Report **both MAE and RMSE** (or domain-standard pair) for every structural comparison.
+Report **both MAE and RMSE** for every structural comparison.
 
-#### H.3.3 Models
+#### H.3.3 Models and residual anchor
 
-State learner family used in the completed VED study (e.g., GBDT / RF / linear) and keep **matched** when comparing Direct vs Residual vs Rate—same lesson as AeroTwin matched CatBoost residual LOTO.
+- Residual physics anchor: **`phys_fb_cum_fuel_l` (not MAF)**  
+- Matched LGBM comparisons across Direct / Residual / Rate  
+- Metrics: MAE, RMSE, R², bias, MedAE, MAPE, macro/micro  
 
-### H.4 Results (findings-locked; numbers from VED package)
+### H.4 Results (locked)
+
+#### H.4.0 Primary LOEO leaderboard (engine_config, 20 folds, n = 23,464)
+
+| Model | MAE (L) | RMSE | R² |
+|-------|--------:|-----:|---:|
+| **direct_ml** (LGBM) | **0.0578** | 0.116 | 0.916 |
+| residual_ml (FB + LGBM) | 0.0582 | **0.095** | **0.944** |
+| residual_rate | 0.0594 | **0.093** | **0.946** |
+| rate_integrate | 0.0618 | 0.099 | 0.939 |
+| physics_fb (fair physics) | 0.1270 | 0.196 | 0.761 |
+| physics_maf (diagnostic) | 0.0618 | 0.244 | 0.632 |
+
+**Interpretation (locked):** Learned models roughly **halve** fair force-balance MAE. Ranking is **metric-dependent**: Direct wins MAE by a razor-thin margin; residual / residual_rate win RMSE and R² (better large-error control). **Do not** use physics_maf as a competitive baseline (label circularity).
 
 #### H.4.1 Physics vs hybrid
 
-| Comparison | Finding (locked) | Table to cite |
-|------------|------------------|---------------|
-| Residual vs **pure physics** | Residual **improves** | `[VED: table_physics_vs_residual]` |
-| Pure physics absolute error | Large / structured | `[VED: table_physics_only]` |
+| Comparison | Result | Source |
+|------------|--------|--------|
+| residual_ml vs physics_fb | ΔMAE = **−0.0688** L; 95% CI **[−0.093, −0.047]**; **significant** (residual better) | Entity bootstrap, 2000 reps |
+| All ML vs physics_fb | All significantly better under entity bootstrap | Status §6.1 |
+| physics_fb absolute LOEO | MAE **0.1270**, RMSE **0.196**, R² **0.761** | Primary leaderboard |
 
 #### H.4.2 Residual vs Direct
 
-| Comparison | Finding (locked) | Writing language |
-|------------|------------------|------------------|
-| Residual vs strong Direct (**MAE**) | Residual does **not consistently** beat Direct | “No consistent MAE advantage for residual” |
-| Residual vs strong Direct (**RMSE**) | Report actual VED outcome; **do not import AeroTwin residual loss as if identical** | Domain-local only |
-| Interpretation | Residual useful as physics correction, not automatic champion | |
+| Quantity | Value |
+|----------|------:|
+| residual_ml MAE | 0.0582 |
+| direct_ml MAE | **0.0578** |
+| ΔMAE (res − dir) | **+0.0004** |
+| 95% CI | **[−0.002, +0.003]** |
+| Significant on MAE? | **No** |
+| residual_ml RMSE / R² | **0.095** / **0.944** |
+| direct_ml RMSE / R² | 0.116 / 0.916 |
+| Entity wins (lowest MAE among physics/direct/residual) | Direct **11** · Residual **8** · physics_fb **1** |
+
+**Writing language:** “We **cannot** claim residual dominates Direct on primary MAE under LOEO. Residual is competitive and improves second-moment metrics.”
 
 #### H.4.3 Rate-then-integrate
 
-| Comparison | Finding (locked) |
-|------------|------------------|
-| Rate vs Direct | **Does not reliably help** cumulative accuracy |
-| When it appears to help | Treat as fold/metric-specific; not a default recommendation |
+| Model | MAE | vs Direct MAE |
+|-------|----:|---------------|
+| rate_integrate | **0.0618** | worse than 0.0578 |
+| residual_rate | 0.0594 | slightly worse MAE; **best RMSE (0.093)** |
 
-#### H.4.4 Entity-level difficulty
+**Locked claim:** Rate structure alone does **not** beat direct cumulative regression on MAE in this trip-level setting.
 
-| Finding (locked) | Implication |
-|------------------|-------------|
-| Vehicle holdout / LOEO **harder** than IID | Entity shift is first-class |
-| Difficulty **not strictly monotonic** across entity granularities | Micro-averaging + fold composition can reverse naive “coarser = harder” stories |
-| Do not over-smooth with a single macro number | Show per-granularity + sensitivity |
+#### H.4.4 Entity-level difficulty / generalization ladder (MAE)
 
-#### H.4.5 Placeholder result tables (fill from VED study)
+| Model | IID | Vehicle | LOEO family | LOEO config (primary) |
+|-------|----:|--------:|------------:|----------------------:|
+| residual_ml | 0.0487 | 0.0596 | **0.0710** | 0.0582 |
+| direct_ml | 0.0511 | 0.0610 | **0.0703** | **0.0578** |
+| physics_fb | 0.1441 | 0.1500 | 0.1374 | 0.1270 |
+
+**IID → LOEO config gap (ML):**
+
+| Model | IID MAE | LOEO MAE | Gap | Ratio |
+|-------|--------:|---------:|----:|------:|
+| residual_ml | 0.0487 | 0.0582 | **+19.4%** | **1.19×** |
+| direct_ml | 0.0511 | 0.0578 | **+13.0%** | **1.13×** |
+| physics_fb | 0.1441 | 0.1270 | −11.9%* | 0.88× |
+
+\*Physics “improves” under LOEO largely due to **different test composition** (only large multi-vehicle entities)—**do not over-interpret** as negative generalization gap.
+
+**Non-monotonicity (locked narrative):**  
+For Direct MAE, ordering by regime is **not** a simple “coarser always harder” ladder:  
+IID (0.0511) < LOEO config (0.0578) < Vehicle (0.0610) < LOEO family (0.0703).  
+Coarser **family** LOEO is hardest for ML; **vehicle** holdout can exceed **config** LOEO error because type overlap and fold composition differ. Document aggregation and entity definition whenever claiming difficulty order.
+
+#### H.4.5 Dataset and protocol summary tables (filled)
 
 **Table V1 — Dataset summary**
 
 | Quantity | Value |
 |----------|------:|
-| Trips | 32,536 |
-| Vehicles | 384 |
-| Features / sensors | `[VED]` |
-| Train/test definition | `[VED]` |
-| Physics model | Force-balance `[VED ref]` |
+| Weeks | 54 |
+| All trips / vehicles | **32,536 / 384** |
+| Primary cohort (ICE+HEV, fuel>0) | **27,100 trips / 341 vehicles** |
+| LOEO test pool | **23,464 trips** (20 `engine_config` entities) |
+| Target | `cum_fuel_l` (liters) |
+| Features (examples) | trip scale (`duration_s`, `distance_km`, `n_samples`); physics (`phys_fb_cum_fuel_l`); powertrain / displacement; kinematics aggregates from VED preprocess |
+| Train/test definition | LOEO: train on all other engine configs; test held-out config (multi-vehicle entities only in primary) |
+| Physics model | Force-balance cumulative fuel (`physics_fb`); residual anchor `phys_fb_cum_fuel_l` |
+| MAF note | Diagnostic only — circular with Algorithm-1 labels for many types |
 
-**Table V2 — Strategy comparison under IID**
+**Table V2 — Strategy comparison under IID (MAE locked; RMSE from B/V ladder where available)**
 
-| Strategy | MAE | RMSE | vs Direct |
-|----------|----:|-----:|-----------|
-| Physics only | `[VED]` | `[VED]` | — |
-| Direct | `[VED]` | `[VED]` | ref |
-| Residual | `[VED]` | `[VED]` | not consistently better (MAE) |
-| Rate-then-integrate | `[VED]` | `[VED]` | not reliable |
+| Strategy | MAE (L) | RMSE (B/V) | vs Direct (MAE) |
+|----------|--------:|-----------:|-----------------|
+| physics_fb | 0.1441 | — | much worse |
+| direct_ml | **0.0511** | 0.114 | ref |
+| residual_ml | **0.0487** | 0.089 | slightly better MAE (IID only; not primary claim) |
+| rate_integrate | 0.053* | 0.085 | competitive RMSE; not primary LOEO winner |
 
-**Table V3 — Strategy comparison under vehicle holdout / LOEO**
+\*B/V table reports rate IID MAE ≈ 0.053 (rounded); use generalization ladder as primary MAE source for Direct/Residual/Physics.
 
-| Strategy | MAE | RMSE | Notes |
-|----------|----:|-----:|-------|
-| Direct | `[VED]` | `[VED]` | |
-| Residual | `[VED]` | `[VED]` | |
-| Rate | `[VED]` | `[VED]` | |
-| Difficulty vs IID | higher | higher | entity harder |
+**Table V3 — Primary entity holdout (LOEO engine_config)**
 
-**Table V4 — Entity granularity ladder**
+| Strategy | MAE (L) | RMSE | R² | Notes |
+|----------|--------:|-----:|---:|-------|
+| direct_ml | **0.0578** | 0.116 | 0.916 | **Best MAE** |
+| residual_ml | 0.0582 | **0.095** | **0.944** | MAE ≈ Direct (NS); better RMSE/R² |
+| residual_rate | 0.0594 | **0.093** | **0.946** | Best RMSE/R² |
+| rate_integrate | 0.0618 | 0.099 | 0.939 | Worse MAE than Direct |
+| physics_fb | 0.1270 | 0.196 | 0.761 | Fair physics baseline |
 
-| Granularity | Macro MAE | Macro RMSE | Micro MAE | Note |
-|-------------|----------:|-----------:|----------:|------|
-| Fine entity | `[VED]` | `[VED]` | `[VED]` | |
-| Medium | `[VED]` | `[VED]` | `[VED]` | |
-| Coarse (e.g. vehicle) | `[VED]` | `[VED]` | `[VED]` | not strictly mono. |
+**Vehicle holdout MAE (intermediate):** direct 0.0610 · residual 0.0596 · physics_fb 0.1500.
+
+**Table V4 — Entity granularity ladder (MAE)**
+
+| Granularity / regime | residual_ml | direct_ml | physics_fb | Note |
+|----------------------|------------:|----------:|-----------:|------|
+| IID (random trips) | 0.0487 | 0.0511 | 0.1441 | Easiest for ML |
+| Vehicle holdout | 0.0596 | 0.0610 | 0.1500 | Intermediate; type overlap allowed |
+| LOEO engine_config | 0.0582 | **0.0578** | 0.1270 | **Primary** |
+| LOEO engine_family | **0.0710** | **0.0703** | 0.1374 | Hardest for ML (coarser blocks) |
+
+Macro MAE on primary LOEO (from paper results, where reported): direct **0.0620**, residual **0.0627**, residual_rate **0.0621**, rate **0.0644**, physics_fb **0.1392**.
+
+**Table V5 — Statistical tests (entity bootstrap, 2000 reps)**
+
+| Comparison | ΔMAE (L) | 95% CI | Significant? |
+|------------|---------:|--------|--------------|
+| residual_ml − physics_fb | −0.0688 | [−0.093, −0.047] | **Yes** (residual better) |
+| residual_ml − direct_ml | +0.0004 | [−0.002, +0.003] | **No** |
+
+**Table V6 — Bias–variance (train bootstrap, 40 reps; selected rungs)**
+
+| Regime | Model | Bias² | Variance | MSE | RMSE |
+|--------|-------|------:|---------:|----:|-----:|
+| IID | direct | 0.0139 | 0.0015 | 0.0154 | 0.114 |
+| IID | residual | 0.0080 | 0.0006 | 0.0087 | 0.089 |
+| IID | rate | 0.0073 | 0.0004 | 0.0077 | 0.085 |
+| LOEO_config | direct | 0.0160 | 0.0023 | 0.0182 | 0.108 |
+| LOEO_config | residual | 0.0088 | 0.0017 | 0.0105 | 0.089 |
+| LOEO_config | rate | 0.0094 | 0.0018 | 0.0112 | 0.095 |
+
+**Hypothesis:** “structural models act mainly as variance reducers under entity shift.”  
+**Verdict: NOT SUPPORTED.** Residual/Direct variance ratio is **best under IID (0.44×)** and **worse under LOEO (~0.75×)**. Residual improves **both Bias² and Variance** vs Direct at every rung—not variance-only under shift.
+
+#### H.4.6 Per-entity heterogeneity (residual_ml)
+
+- **Hardest:** `5-FI 2.5L` (MAE 0.099), hybrid V6 `6-GAS/ELECTRIC 3.5L`, `4-GAS/ELECTRIC 2.0L`, turbo I4, large V6 ICE.  
+- **Easiest:** small turbo `4-FI T/C 1.4L`, high-volume hybrids `4-GAS/ELECTRIC 1.8L/1.5L`.  
+- Difficulty concentrates in **rare architectures and large-displacement ICE**.
+
+#### H.4.7 Feature importance under shift (residual_ml, permutation)
+
+Under **LOEO**, `phys_fb_cum_fuel_l` importance **increases** (+0.022 ΔMAE) vs IID, while `duration_s`, `powertrain`, and `engine_displacement_l` collapse. Qualitative support that physics structure matters more when entity identity cues fail—even though residual MAE ≈ direct MAE overall.
 
 ### H.5 Domain-local conclusions (VED)
 
-1. Force-balance physics alone is insufficient; **residual correction helps over pure physics**.  
-2. Once a **strong Direct** model is available, residual is **not a consistent winner**—especially on **MAE**.  
-3. **Rate-then-integrate** is not a reliable structural upgrade.  
-4. **Entity-level** evaluation is essential; IID overstates performance.  
-5. **Non-monotonic** difficulty across entity grains is a real reporting hazard—document aggregation choices.
+1. Fair force-balance physics alone is weak under LOEO (MAE **0.127 L**); learned models cut error roughly in half.  
+2. Residual significantly beats pure physics, but **does not significantly beat Direct on MAE**.  
+3. Residual / residual_rate **do** improve RMSE and R² (metric-dependent ranking).  
+4. Rate-then-integrate does **not** outperform Direct on MAE.  
+5. IID **overstates** ML accuracy by **13–19%** vs engine-config LOEO.  
+6. Entity difficulty is **not strictly monotonic** in coarseness (family hardest; vehicle vs config intermediate/non-monotone).  
+7. Bias–variance “mainly variance reduction under shift” hypothesis is **rejected**.  
+8. MAF physics must not be used as a fair baseline (circular labels).
 
-### H.6 VED figures still needed for the paper
+### H.6 VED figures (export from VEE `results/`)
 
-| Paper ID | Suggested filename | Content | Status |
-|----------|-------------------|---------|--------|
-| **Fig. V1** | `fig_ved_dataset_overview.png` | Trips/vehicles distribution, energy histogram | **Needed** (or export from VED study) |
-| **Fig. V2** | `fig_ved_physics_vs_actual.png` | Force-balance vs ground truth scatter | **Needed** |
-| **Fig. V3** | `fig_ved_strategy_iid.png` | Direct / Residual / Rate under IID (MAE+RMSE) | **Needed** |
-| **Fig. V4** | `fig_ved_strategy_entity.png` | Same under vehicle holdout / LOEO | **Needed** |
-| **Fig. V5** | `fig_ved_entity_difficulty_ladder.png` | Error vs entity granularity (macro + micro) | **Needed** — supports non-monotonic claim |
-| **Fig. V6** | `fig_ved_residual_vs_direct_scatter.png` | Per-fold or per-vehicle Δ(Residual−Direct) | **Needed** |
-| **Fig. V7** | `fig_ved_rate_ablation.png` | Rate-then-integrate reliability / failures | **Needed** |
-| **Fig. V8** | `fig_ved_mae_rmse_ranking.png` | Ranking flips MAE vs RMSE if present | **Needed if flips exist** |
-| **Fig. V9** | `fig_ved_error_by_vehicle_cluster.png` | Heterogeneity across vehicles | Optional but strong |
+| Paper ID | Suggested filename / source | Content | Status |
+|----------|----------------------------|---------|--------|
+| **Fig. V1** | dataset overview | Trips/vehicles, cohort pie, fuel hist | Export from VEE reports |
+| **Fig. V2** | physics_fb vs actual | Force-balance scatter | Needed / export |
+| **Fig. V3** | `generalization_bars.png` | IID / vehicle / family / config MAE | **Exists** in VEE paper_assets |
+| **Fig. V4** | primary LOEO bars | Direct / Residual / Rate / physics MAE+RMSE | Export leaderboard |
+| **Fig. V5** | `generalization_gap_pct.png` | IID→LOEO gap % | **Exists** |
+| **Fig. V6** | residual vs direct per entity | Win counts 11/8/1 | Needed |
+| **Fig. V7** | rate vs direct | MAE comparison | Needed |
+| **Fig. V8** | MAE vs RMSE ranking flip | Direct best MAE; residual best RMSE | **High value** |
+| **Fig. V9** | `bv_variance_bias_ladder.png` | Bias–variance across rungs | **Exists** in VEE |
+| **Fig. V10** | permutation importance IID vs LOEO | Physics feature rises under shift | Export |
 
-### H.7 VED tables still needed
+### H.7 VED tables for the paper
 
-| Paper ID | Content |
-|----------|---------|
-| **Table V1** | Dataset summary (32,536 / 384 + splits) |
-| **Table V2** | IID leaderboard Direct / Residual / Rate / Physics |
-| **Table V3** | Entity-holdout leaderboard |
-| **Table V4** | Entity granularity ladder (macro & micro) |
-| **Table V5** | Statistical tests / bootstrap / paired tests used in VED study |
-| **Table V6** | Hyperparameters and matched-model protocol |
+| Paper ID | Content | Status |
+|----------|---------|--------|
+| **Table V1** | Dataset summary (§H.4.5) | **Filled** |
+| **Table V2** | IID leaderboard | **Filled** (MAE + partial RMSE) |
+| **Table V3** | Primary LOEO leaderboard | **Filled** |
+| **Table V4** | Entity granularity ladder | **Filled** |
+| **Table V5** | Bootstrap significance | **Filled** |
+| **Table V6** | Bias–variance summary | **Filled** |
+| **Table V7** | Hyperparameters / LGBM config | From `configs/default.yaml` (cite VEE) |
 
 ---
 
@@ -501,40 +630,46 @@ State learner family used in the completed VED study (e.g., GBDT / RF / linear) 
 
 | Structural question | AeroTwin | VED | Transfer? |
 |---------------------|----------|-----|-----------|
-| Pure physics usable alone? | **No** (MAE ~668, R² −2.16) | Weak / insufficient (residual improves on it) | Shared: physics alone inadequate |
-| Residual beats pure physics? | Hybrid ≫ physics; residual *form* still loses to Direct | **Yes** | Partial (physics correction valuable; form differs) |
-| Residual beats strong Direct? | **No** (L1 + matched LOTO) | **No** (not consistent; esp. MAE) | **Agreement: residual ≠ automatic winner** |
-| Rate-then-integrate helps? | Often helpful (official; many folds); LOTO stats fragile | **Not reliable** | **Does not transfer cleanly** |
-| Entity holdout harder than random? | **Yes** (~3× LOTO) | **Yes** | **Yes — shared lesson** |
-| Difficulty monotonic in entity grain? | Untestable (one pure entity rung) | **Not strictly** | VED-specific nuance; AeroTwin cannot confirm |
-| Energy / mass feature engineering | Strong (energy, R3 mass) | Domain-specific vehicle features `[VED]` | Features **do not** port as-is |
-| Best “production” recipe | Direct+Flow ensemble + mass/calibration | Strong Direct (residual optional vs physics) | **Domain-specific pipelines** |
+| Pure physics usable alone? | **No** (MAE ~668 kg, R² −2.16) | **No** (physics_fb MAE 0.127 L under LOEO) | Shared: physics alone inadequate |
+| Residual beats pure physics? | Hybrid ≫ physics; residual *form* still loses to Direct | **Yes** (ΔMAE −0.0688 L, significant) | Partial |
+| Residual beats strong Direct on **MAE**? | **No** | **No** (NS; 0.0582 vs 0.0578) | **Agreement** |
+| Residual better on **RMSE**? | **No** (residual worse on matched LOTO) | **Yes** (0.095 / 0.093 vs 0.116) | **Does not transfer** |
+| Rate-then-integrate helps MAE? | Often helpful (official); LOTO stats fragile | **No** (0.0618 > 0.0578) | **Does not transfer cleanly** |
+| Entity holdout harder than random? | **Yes** (~3× LOTO) | **Yes** (+13–19% IID→config LOEO) | **Yes — shared lesson** (scale differs) |
+| Difficulty monotonic in entity grain? | Untestable (one pure entity rung) | **Not strictly** (family > config; vehicle intermediate) | VED-specific nuance |
+| “Structure mainly cuts variance under shift”? | Not the AeroTwin primary hypothesis | **Rejected** on VED B/V ladder | Do not claim for either domain |
+| Feature engineering | Energy + dynamic mass | Trip scale + FB physics feature (importance rises under LOEO) | Features **do not** port as-is |
+| Best “production” recipe | Direct+Flow ensemble + mass/calibration | Direct for MAE; residual/residual_rate if RMSE prioritized | **Domain- and metric-specific** |
 
 ## I.2 What *does* transfer (safe claims)
 
-1. **Physics-only baselines are insufficient** for operational cumulative prediction in both studied regimes.  
-2. **Entity-aware evaluation is necessary**; random/IID (or flight-random with types seen) overestimates robustness.  
-3. **Structural choice is not free**: Direct vs Residual vs Rate can change error by large margins and can reverse under shift.  
-4. **Metric choice matters**: MAE vs RMSE can disagree (document both).  
-5. **Matched-model comparisons** are required to avoid confounding architecture with inductive bias (AeroTwin residual LOTO lesson).
+1. **Physics-only baselines are insufficient** in both regimes.  
+2. **Entity-aware evaluation is necessary**; random/IID overestimates robustness (AeroTwin ~3×; VED ~1.13–1.19×).  
+3. **Structural choice is not free** and can reverse under shift.  
+4. **Metric choice matters**: MAE vs RMSE can disagree (clear on VED; also appears in AeroTwin Direct vs Flow / ensemble).  
+5. **Matched-model comparisons** are required.  
+6. Residual is **not** an automatic MAE champion once a strong Direct model exists.
 
 ## I.3 What does *not* transfer (safe claims)
 
-1. **Residual learning as a universal champion** — loses on AeroTwin vs Direct; fails to consistently beat Direct on VED MAE.  
-2. **Rate-then-integrate as a universal duration fix** — helpful in parts of AeroTwin, unreliable on VED.  
-3. **Feature recipes** (OpenAP energy, dynamic mass, force-balance terms) — domain physics differ; do not claim portability of feature lists.  
-4. **Absolute error scales** — kg aircraft fuel ≠ vehicle energy units; never plot on one axis without normalization.  
-5. **“Harder entity = coarser entity”** — VED shows non-monotonic patterns; AeroTwin lacks coarser pure holdout to test.
+1. **Residual as universal champion** — AeroTwin residual loses badly under LOTO; VED residual ≈ Direct on MAE.  
+2. **Residual RMSE advantage** — present on VED, absent (reversed) on AeroTwin matched residual LOTO.  
+3. **Rate-then-integrate as universal duration fix** — helpful in parts of AeroTwin; fails MAE test on VED.  
+4. **Feature recipes** — OpenAP energy/mass ≠ force-balance trip features.  
+5. **Absolute error scales** — kg ≠ L.  
+6. **Magnitude of entity gap** — AeroTwin LOTO inflation ≫ VED IID→LOEO gap; do not equate percentages.
 
 ## I.4 Mechanistic intuition (discussion, labeled as hypothesis)
 
 | Observation | Plausible mechanism (not proven universal) |
 |-------------|--------------------------------------------|
-| AeroTwin residual fails hard on some LOTO types | Broken OpenAP scale for held-out widebodies; residual **inherits** baseline error; Direct re-learns absolute scale from kinematics |
+| AeroTwin residual fails hard on some LOTO types | Broken OpenAP scale for held-out widebodies; residual **inherits** baseline error |
 | VED residual helps vs pure physics | Force-balance captures useful structure; residual absorbs coefficient/regime error |
-| VED residual ≰ Direct on MAE | Trees already approximate cumulative mapping; explicit residual adds little once features are rich |
-| Rate helps sometimes | Duration heterogeneity; rate normalizes scale—but integration amplifies rate bias |
-| Non-monotonic entity difficulty | Micro-averaging weights frequent entities; fold composition can dominate coarseness |
+| VED residual ≈ Direct on MAE, better RMSE | Second-moment control / large-error tails; not a first-moment win |
+| VED residual_rate best RMSE | Rate residual may stabilize extremes; still not MAE winner |
+| Rate fails MAE on VED | Integration amplifies rate bias at trip scale |
+| Non-monotonic entity difficulty | Fold composition + structural block size; family removes more shared structure than config |
+| B/V hypothesis fails | Residual reduces bias² and variance at every rung; variance ratio best under IID, not LOEO |
 
 Keep language: “suggests,” “consistent with,” not “proves.”
 
@@ -542,17 +677,17 @@ Keep language: “suggests,” “consistent with,” not “proves.”
 
 | Paper ID | Filename | Content |
 |----------|----------|---------|
-| **Fig. X1** | `fig_cross_strategy_heatmap.png` | 2 domains × 3 strategies × (IID, entity) qualitative or normalized ranks |
-| **Fig. X2** | `fig_cross_entity_difficulty.png` | Side-by-side “random vs entity” error inflation (normalized) |
-| **Fig. X3** | `fig_cross_transfer_summary.png` | Simple icon/table graphic: transfer vs no-transfer findings |
+| **Fig. X1** | `fig_cross_strategy_heatmap.png` | 2 domains × strategies × metrics (MAE/RMSE ranks) |
+| **Fig. X2** | `fig_cross_entity_difficulty.png` | Relative inflation: AeroTwin LOTO/L1 vs VED LOEO/IID |
+| **Fig. X3** | `fig_cross_transfer_summary.png` | Transfer vs no-transfer findings |
 | **Table X1** | Comparison matrix (Section I.1) | Main cross-domain table |
-| **Table X2** | Protocol dictionary | Align AeroTwin LOTO ↔ VED LOEO terminology |
+| **Table X2** | Protocol dictionary | LOTO ICAO type ↔ LOEO `engine_config` |
 
-**Normalization note:** For Fig. X2 use **relative inflation** (entity / random − 1), not raw units.
+**Normalization note:** Fig. X2 uses **relative inflation**, not raw kg/L.
 
 ## I.6 Cross-domain discussion paragraph (draft)
 
-> Across aircraft fuel intervals and vehicle trip energy, we observe a consistent **methodological** pattern rather than a consistent **architectural** winner. Physics baselines alone underperform operational hybrid models, and **entity-level** holdout substantially increases error relative to random or within-entity splits. Residual learning improves upon pure physics in the vehicle setting and is dominated by strong Direct hybrids in the aircraft setting; in neither domain do we obtain robust evidence that residual correction should replace Direct prediction as a default. Rate-then-integrate is helpful in some AeroTwin configurations but does not reliably improve VED cumulative accuracy. We therefore recommend reporting all three strategies under **matched models**, **both MAE and RMSE**, and **entity-aware splits**, and we caution against transferring structural choices between cumulative prediction domains without re-evaluation.
+> Across aircraft fuel intervals and vehicle trip fuel, we observe a consistent **methodological** pattern rather than a consistent **architectural** winner. Physics baselines alone underperform learned hybrids, and **entity-level** holdout increases error relative to random splits—by roughly **3×** MAE under aircraft type LOTO, and by **13–19%** under vehicle engine-config LOEO. Residual learning significantly improves upon force-balance physics on VED and is dominated by Direct hybrids on AeroTwin; on VED it is **statistically indistinguishable from Direct on MAE** while improving RMSE/R². Rate-then-integrate is helpful in some AeroTwin configurations but does **not** beat Direct on VED MAE. A VED bias–variance analysis further rejects the idea that structural models act mainly as variance reducers under shift. We recommend reporting all three strategies under **matched models**, **both MAE and RMSE**, and **entity-aware splits**, and we caution against transferring structural choices between cumulative prediction domains without re-evaluation.
 
 ---
 
@@ -564,12 +699,14 @@ Keep language: “suggests,” “consistent with,” not “proves.”
 |---|--------|
 | A1 | Two real domains share a cumulative prediction structure and the Direct/Residual/Rate design space. |
 | A2 | AeroTwin: hybrid ≫ OpenAP; energy features significant on Level-1; residual underperforms Direct; official Combined **221.33 kg** (R3) / **228.25 kg** (canonical); LOTO ~3× harder; no superiority vs ≈201 kg winner. |
-| A3 | VED: residual improves over pure force-balance physics; residual does **not consistently** beat strong Direct (esp. MAE); rate-then-integrate not reliable; entity eval harder; difficulty not strictly monotonic across entity grains. |
-| A4 | Entity-level evaluation is harder than random/IID-style evaluation in **both** domains. |
-| A5 | Structural preferences are **domain- and protocol-dependent**. |
-| A6 | **No strong evidence** that residual or rate-then-integrate transfer cleanly as default recipes from aircraft to cars. |
-| A7 | Negative/mixed results are scientifically valuable. |
-| A8 | Matched-model residual comparisons are required (AeroTwin matched CatBoost LOTO). |
+| A3 | VED primary LOEO: Direct MAE **0.0578 L** (best MAE); residual_ml MAE **0.0582** (NS vs Direct); residual RMSE **0.095** / residual_rate **0.093** (best second-moment); physics_fb MAE **0.1270**; all ML ≫ fair physics; rate_integrate MAE **0.0618** does not beat Direct. |
+| A4 | IID underestimates VED LOEO ML error by **~13–19%**. |
+| A5 | VED bias–variance hypothesis that structure mainly reduces variance under shift is **rejected**. |
+| A6 | Entity-level evaluation is harder than random/IID-style evaluation in **both** domains (different magnitudes). |
+| A7 | Structural preferences are **domain- and protocol- and metric-dependent**. |
+| A8 | **No strong evidence** that residual or rate-then-integrate transfer cleanly as default recipes from aircraft to cars. |
+| A9 | MAF physics is circular with Alg.1 labels for many VED entities—not a fair baseline. |
+| A10 | Matched-model residual comparisons are required (AeroTwin matched CatBoost LOTO; VED matched LGBM). |
 
 ## J.2 Forbidden / unsupported claims
 
@@ -581,26 +718,32 @@ Keep language: “suggests,” “consistent with,” not “proves.”
 | F4 | “AeroTwin beats the PRC winner.” |
 | F5 | “LOTO fuel-flow gains are statistically confirmed” (AeroTwin: suggestive; CIs cross zero). |
 | F6 | Equating Level-1 ensemble RMSE (~203) with official Combined (221–228). |
-| F7 | Plotting AeroTwin kg and VED energy on one unnormalized axis as if comparable. |
-| F8 | Claiming AeroTwin confirms VED non-monotonic entity difficulty (insufficient coarser entity ladder). |
-| F9 | Claiming VED residual RMSE pattern “replicates” on AeroTwin (it does **not**; see `docs/VED_PHENOMENA_REPLICATION.md`). |
-| F10 | Implying multi-domain results validate a single shared trained model (studies are **separate case studies**). |
+| F7 | Plotting AeroTwin kg and VED liters on one unnormalized axis. |
+| F8 | Claiming AeroTwin confirms VED non-monotonic entity difficulty (AeroTwin lacks coarser pure entity ladder). |
+| F9 | Claiming VED residual RMSE pattern “replicates” on AeroTwin (it does **not**). |
+| F10 | Implying multi-domain results validate a single shared trained model. |
+| F11 | “Residual significantly beats Direct on VED MAE” (CI includes 0). |
+| F12 | “Structural models mainly reduce variance under entity shift” (rejected on VED). |
+| F13 | Treating physics_maf as a fair competitive baseline. |
+| F14 | Over-interpreting physics_fb “IID → LOEO improvement” (−11.9%) as true negative gap. |
 
 ## J.3 Soft claims (allowed with hedging)
 
 | Claim | Required hedge |
 |-------|----------------|
-| Residual inherits bad physics under type shift | “consistent with / suggests” + B77W example |
+| Residual inherits bad physics under aircraft type shift | “consistent with / suggests” + B77W example |
 | Direct preferred when physics prior is mis-scaled | “in our aircraft LOTO setting” |
-| Multi-metric reporting needed | Cite specific flips (AeroTwin Direct vs Flow; VED if present) |
-| Aggregation choices drive non-monotonic difficulty | “micro-averaging and fold composition” |
+| Multi-metric reporting needed | Cite VED Direct MAE vs residual RMSE; AeroTwin flips where present |
+| Residual improves large-error control on VED | Supported by RMSE/R²; optional RMSE bootstrap still listed as future work in VEE |
+| Aggregation choices drive non-monotonic difficulty | Cite family vs config vs vehicle MAE order |
 
 ## J.4 Metric and leaderboard hygiene
 
 1. Separate **Case Study 1** and **Case Study 2** result sections.  
-2. Within AeroTwin: never mix Fuel-Flow and Direct tracks without labels (`figures/LEADERBOARD_AUDIT.md`).  
-3. Always state protocol: Flight / Official / LOTO / VED-IID / VED-vehicle / LOEO.  
-4. Prefer paired/bootstrap tests with correct clustering unit.
+2. Within AeroTwin: never mix Fuel-Flow and Direct tracks without labels.  
+3. Within VED: always state **LOEO engine_config** vs IID vs vehicle vs family.  
+4. Always state units (**kg** vs **L**).  
+5. Prefer entity-clustered bootstrap for VED ΔMAE claims (2000 reps as locked).
 
 ---
 
@@ -620,28 +763,32 @@ Unknown true mass; partial ACARS labels; fleet imbalance; weather proxies only; 
 
 ## K.3 VED-specific
 
-1. Entity definitions and aggregation (macro vs micro) affect difficulty rankings.  
-2. Force-balance assumptions and parameter choices condition residual headroom.  
-3. Driving context (urban/highway mix, climate, vehicle class balance) may limit external vehicle fleets.  
-4. Exact numeric tables must be locked from the VED study package before camera-ready.  
-5. If VED study used different statistical rigor than AeroTwin’s 10k flight bootstrap, state the difference explicitly—do not pretend identical inference.
+1. Public VED has **no OEM manufacturer/model**; `engine_config` is a structural proxy, not true OEM LOEO.  
+2. **MAF / Algorithm-1 label circularity** for many entities—FB residual only is fair.  
+3. Primary experiments are **trip-level** (no sequence models yet).  
+4. PHEV/EV dual-energy track **not** in primary cohort.  
+5. Entity bootstrap uses **2000** reps (not AeroTwin’s 10k flight bootstrap)—state the difference.  
+6. Optional residual-vs-direct **RMSE bootstrap** not completed in VEE backlog.  
+7. `vehicle_class` ~92% UNKNOWN limits class-conditioned analysis.  
+8. Test-set composition differs across regimes (n and entity filters)—especially for physics gap interpretation.
 
 ## K.4 Cross-domain comparison limits
 
-1. Different units and scales.  
-2. Different entity hierarchies (ICAO type vs vehicle ID).  
-3. AeroTwin coarser entity holdout not run (deferred after residual gate).  
-4. “Transfer” here means **qualitative structural lessons**, not weight transfer or identical pipelines.
+1. Different units and scales (kg vs L).  
+2. Different entity hierarchies (ICAO type vs engine_config / vehicle).  
+3. Different entity-gap magnitudes (~3× vs ~1.1–1.2×).  
+4. AeroTwin coarser entity holdout not run (deferred after residual gate).  
+5. “Transfer” means **qualitative structural lessons**, not weight transfer.
 
 ---
 
 # Part L — Updated conclusions (draft bullets)
 
-1. Cumulative energy prediction under partial observation admits a common **structural menu** (Direct / Residual / Rate) but **not** a common winner.  
-2. **AeroTwin:** hybrid physics–ML is effective; energy and dynamic mass matter; residual loses to Direct; official Combined **221.33 kg**; entity (type) shift is severe.  
-3. **VED:** residual corrects force-balance physics but does not consistently dominate Direct; rate is unreliable; entity evaluation is essential and can be non-monotonic in grain.  
-4. **Cross-domain:** entity-aware protocols and multi-metric reporting transfer as lessons; residual and rate recipes do **not**.  
-5. Future work should expand entity ladders, stress-test physics anchors under shift, and treat structural choice as an empirical, protocol-conditioned decision.
+1. Cumulative fuel prediction under partial observation admits a common **structural menu** (Direct / Residual / Rate) but **not** a common winner.  
+2. **AeroTwin:** hybrid physics–ML is effective; energy and dynamic mass matter; residual loses to Direct; official Combined **221.33 kg**; entity (type) shift is severe (~3×).  
+3. **VED:** under LOEO `engine_config`, Direct MAE **0.0578 L** leads first-moment accuracy; residual/residual_rate lead RMSE/R²; residual does not significantly beat Direct on MAE; rate_integrate does not win MAE; fair physics is weak (0.127 L); IID overstates ML by 13–19%; B/V “variance-only under shift” is rejected.  
+4. **Cross-domain:** entity-aware protocols and multi-metric reporting transfer as lessons; residual and rate **recipes** do not.  
+5. Future work: optional VED RMSE bootstrap; AeroTwin coarser entity ladder; sequence models; physics-quality diagnostics that predict when residual is safe.
 
 ---
 
@@ -649,13 +796,14 @@ Unknown true mass; partial ACARS labels; fleet imbalance; weather proxies only; 
 
 | Priority | Idea |
 |----------|------|
-| High | Fill VED numeric tables/figures into this package from the completed study |
-| High | Standardized reporting template: Direct/Residual/Rate × IID/entity × MAE/RMSE |
+| High | Export VED figures from `VEE/results/paper_assets/` into paper |
+| High | Optional residual vs direct **RMSE** entity bootstrap (VEE backlog) |
 | Medium | Coarser entity holdout on AeroTwin (body/family) for Phenomenon A only |
+| Medium | HEV-only vs ICE-only LOEO stratified analysis |
 | Medium | Physics-quality diagnostics that predict when residual is safe |
-| Medium | Shared synthetic cumulative-prediction stress tests (controlled mass/coeff error) |
+| Low | PHEV/EV dual-energy LOEO track |
+| Low | Sequence-level rate models |
 | Low | Additional domains (maritime, rail) with same structural menu |
-| Low | Deep sequence models with strict entity leakage controls |
 
 ---
 
@@ -667,26 +815,30 @@ Unknown true mass; partial ACARS labels; fleet imbalance; weather proxies only; 
 |----|---------|--------|
 | **Fig. 1** | Shared structural strategies diagram (Direct / Residual / Rate) | **New** |
 | **Fig. 2** | Two-domain evaluation axes (random vs entity vs temporal) | **New** |
-| **Fig. 3–6** | AeroTwin data + physics + hybrid scatter (subset of AT figs) | `research.md` / `figures/` |
+| **Fig. 3–6** | AeroTwin data + physics + hybrid scatter | `research.md` / `figures/` |
 | **Fig. 7–8** | AeroTwin ablations + residual rejection | existing |
 | **Fig. 9** | AeroTwin official + gap-closing | existing |
 | **Fig. 10** | AeroTwin LOTO / entity | existing |
-| **Fig. 11–13** | VED overview + strategy IID + entity | **VED exports needed** |
-| **Fig. 14** | VED entity granularity (non-monotonic) | **Needed** |
-| **Fig. 15** | Cross-domain strategy heatmap / transfer summary | **New** |
+| **Fig. 11** | VED generalization bars (IID→LOEO) | VEE `generalization_bars.png` |
+| **Fig. 12** | VED primary LOEO strategy comparison (MAE+RMSE) | Export leaderboard |
+| **Fig. 13** | VED MAE vs RMSE ranking flip | **New from locked table** |
+| **Fig. 14** | VED bias–variance ladder | VEE `bv_variance_bias_ladder.png` |
+| **Fig. 15** | Cross-domain strategy / transfer summary | **New** |
 
-Appendix: remaining AeroTwin SHAP, DASHlink, full VED diagnostics.
+Appendix: remaining AeroTwin SHAP, DASHlink, VED per-entity and importance plots.
 
 ## N.2 Main text tables
 
 | ID | Content |
 |----|---------|
 | **Table 1** | Two-domain task comparison |
-| **Table 2** | Strategy definitions (shared) |
+| **Table 2** | Strategy definitions (shared + model IDs) |
 | **Table 3–6** | AeroTwin core results (official, ablation, LOTO) |
-| **Table 7–9** | VED core results (IID, entity, granularity) |
+| **Table 7** | VED primary LOEO leaderboard (H.4.0) |
+| **Table 8** | VED generalization ladder + IID gap |
+| **Table 9** | VED bootstrap + B/V summary |
 | **Table 10** | Cross-domain transfer matrix (Section I.1) |
-| **Table 11** | Claims checklist / protocol constants |
+| **Table 11** | Protocol constants (both domains) |
 
 ---
 
@@ -708,12 +860,16 @@ Appendix: remaining AeroTwin SHAP, DASHlink, full VED diagnostics.
 
 ### VED integrity
 
-- [ ] 32,536 trips / 384 vehicles stated  
-- [ ] Residual > physics; residual ≰ Direct (MAE) stated  
-- [ ] Rate not reliable stated  
-- [ ] Entity harder + non-monotonic difficulty stated  
-- [ ] Numeric tables filled from VED study (`[VED]` cleared)  
-- [ ] VED figures V1–V8 produced  
+- [x] 32,536 trips / 384 vehicles stated  
+- [x] Primary cohort 27,100 / 341 stated  
+- [x] Primary LOEO table filled (0.0578 / 0.0582 / 0.0594 / 0.0618 / 0.1270)  
+- [x] Residual > physics; residual ≰ Direct on MAE (NS) stated  
+- [x] Residual better RMSE/R² stated without overclaiming MAE win  
+- [x] Rate not better than Direct on MAE stated  
+- [x] IID gap 13–19% stated  
+- [x] B/V hypothesis rejected stated  
+- [x] Numeric tables filled (`[VED]` cleared)  
+- [ ] VED figures exported into manuscript assets  
 
 ### Cross-domain integrity
 
@@ -721,6 +877,7 @@ Appendix: remaining AeroTwin SHAP, DASHlink, full VED diagnostics.
 - [ ] No universal residual/rate claim  
 - [ ] Units not falsely equated  
 - [ ] Transfer = qualitative lessons only  
+- [ ] Residual RMSE advantage marked VED-only  
 
 ### Claims policy pass
 
@@ -732,11 +889,11 @@ Appendix: remaining AeroTwin SHAP, DASHlink, full VED diagnostics.
 
 # Part P — Narrative thread (writing order)
 
-1. **Hook:** Cumulative energy matters in air and on road; data are partial; physics is imperfect.  
+1. **Hook:** Cumulative fuel matters in air and on road; data are partial; physics is imperfect.  
 2. **Menu:** Direct / Residual / Rate look transferable—are they?  
 3. **Case 1 deep dive:** AeroTwin—what works (hybrid, energy, mass) and what fails (residual, sparse myth).  
-4. **Case 2 deep dive:** VED—residual helps physics, not necessarily Direct; rate falters; entity protocols bite.  
-5. **Bridge:** Side-by-side matrix; shared protocol lessons; non-transfer of architecture defaults.  
+4. **Case 2 deep dive:** VED—physics weak; Direct wins MAE; residual wins RMSE; Rate fails MAE; IID lies; B/V myth fails.  
+5. **Bridge:** Side-by-side matrix; shared protocol lessons; non-transfer of architecture defaults; metric flips.  
 6. **Close:** Evaluate structure under entity shift; do not export recipes without re-testing.
 
 ---
@@ -756,22 +913,28 @@ Appendix: remaining AeroTwin SHAP, DASHlink, full VED diagnostics.
 | LOTO Direct macro MAE | ~283 kg |
 | Residual vs Direct | Residual worse (matched) |
 
-## Q.2 VED (findings-locked)
+## Q.2 VED (locked)
 
 | Item | Value |
 |------|------:|
-| Trips | **32,536** |
-| Vehicles | **384** |
-| Residual vs pure physics | Residual better |
-| Residual vs Direct (MAE) | Not consistently better |
-| Rate-then-integrate | Not reliable |
-| Entity vs IID | Entity harder |
-| Entity grain difficulty | Not strictly monotonic |
+| Trips / vehicles (full) | **32,536 / 384** |
+| Primary cohort | **27,100 trips / 341 vehicles** |
+| Primary protocol | LOEO `engine_config`, 20 folds, **23,464** test trips |
+| Target unit | **liters** (`cum_fuel_l`) |
+| direct_ml MAE / RMSE / R² | **0.0578** / 0.116 / 0.916 |
+| residual_ml MAE / RMSE / R² | 0.0582 / **0.095** / **0.944** |
+| residual_rate MAE / RMSE / R² | 0.0594 / **0.093** / **0.946** |
+| rate_integrate MAE | 0.0618 |
+| physics_fb MAE / RMSE / R² | 0.1270 / 0.196 / 0.761 |
+| residual − direct ΔMAE | +0.0004; CI [−0.002, +0.003]; **NS** |
+| residual − physics ΔMAE | −0.0688; CI [−0.093, −0.047]; **sig.** |
+| IID→LOEO gap | Direct **+13%**; Residual **+19%** |
+| B/V “variance under shift” | **Rejected** |
 | Cross-domain architecture transfer | No strong evidence |
 
 ## Q.3 One-sentence thesis
 
-> **Structural strategies for cumulative energy prediction must be re-validated per domain and per evaluation protocol; residual correction and rate-then-integrate are useful tools in some regimes but are not portable defaults from aircraft fuel estimation to vehicle energy estimation.**
+> **Structural strategies for cumulative fuel prediction must be re-validated per domain, metric, and evaluation protocol; residual correction and rate-then-integrate are useful in some regimes (e.g., VED RMSE) but are not portable defaults from aircraft fuel estimation to vehicle trip fuel estimation—and residual does not significantly beat strong Direct models on VED MAE.**
 
 ---
 
@@ -785,7 +948,9 @@ Appendix: remaining AeroTwin SHAP, DASHlink, full VED diagnostics.
 | `official_prc_benchmark_report.md` | Official evaluation |
 | `papers/statistical_protocol.md` | Frozen AeroTwin inference rules |
 | `papers/hybrid_model_summary.md` | AeroTwin hybrid narrative seed |
-| VED case-study package | _[path/citation to fill — source of VED decimals]_ |
+| `../vehicle/VEE/project_status_report.md` | **VED numbers source of truth** |
+| `../vehicle/VEE/paper/results.md` | VED paper-facing results tables |
+| `../vehicle/VEE/results/loeo_engine_config_default/` | Primary LOEO artifacts |
 
 ---
 
@@ -793,11 +958,11 @@ Appendix: remaining AeroTwin SHAP, DASHlink, full VED diagnostics.
 
 | Venue focus | Emphasize | Compress |
 |-------------|-----------|----------|
-| Aviation (JOAS) | Case Study 1 full; VED as comparative appendix/section | VED methods detail |
-| Transportation / ITS | Equal case studies; energy framing | PRC winner comparison detail |
-| Physics-informed ML workshop | Structural strategies + transfer failure | Fleet operational detail |
-| Evaluation / ML methodology | Protocol, entity shift, metric flips | Domain physics depth |
+| Aviation (JOAS) | Case Study 1 full; VED as comparative section | VED B/V detail |
+| Transportation / ITS | Equal case studies; fuel framing | PRC winner comparison detail |
+| Physics-informed ML workshop | Structural strategies + transfer failure + metric flips | Fleet operational detail |
+| Evaluation / ML methodology | Protocol, entity shift, MAE/RMSE disagreement, B/V negative result | Domain physics depth |
 
 ---
 
-*End of two-domain writing package. Preserve AeroTwin freezes; fill VED `[VED]` numeric cells from the completed vehicle study before submission; keep cross-domain claims modest and protocol-aware.*
+*End of two-domain writing package. AeroTwin freezes preserved. VED `[VED]` placeholders filled from `vehicle/VEE/project_status_report.md` (2026-07-25). Keep cross-domain claims modest, multi-metric, and protocol-aware.*
