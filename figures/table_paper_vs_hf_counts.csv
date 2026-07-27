@@ -1,7 +1,0 @@
-source,split,flights,intervals
-paper_Table1,train,11037,131530
-paper_Table1,rank,1888,24289
-paper_Table1,final,2836,37456
-hf_aerotwin,train,11037,131530
-hf_aerotwin,rank,1888,24289
-hf_aerotwin,final,2836,37456

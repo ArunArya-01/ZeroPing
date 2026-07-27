@@ -1,5 +1,0 @@
-check,status,detail
-featured_dataset.parquet built from train only via AeroDataLoader default split,PASS_expected,physics/build_featured_dataset.py uses AeroDataLoader() default train
-internal notebooks use featured_dataset*.parquet (train-derived),PASS_expected,No notebook loads split=rank or split=final for training
-Rank/Final never used for hyperparameter tuning in repo scripts,PASS_expected,Rank/Final previously unavailable; eval framework uses train-only parquet
-Zero flight_id overlap train/rank/final,PASS,"[{'pair': 'train_vs_rank', 'flight_id_overlap': 0, 'fuel_flight_id_overlap': 0, 'trajectory_stem_overlap': 0, 'interval_key_overlap': 0, 'pass_zero_overlap': 1}, {'pair': 'train_vs_final', 'flight_id_overlap': 0, 'fuel_flight_id_overlap': 0, 'trajectory_stem_overlap': 0, 'interval_key_overlap': 0, 'pass_zero_overlap': 1}, {'pair': 'rank_vs_final', 'flight_id_overlap': 0, 'fuel_flight_id_overlap': 0, 'trajectory_stem_overlap': 0, 'interval_key_overlap': 0, 'pass_zero_overlap': 1}]"

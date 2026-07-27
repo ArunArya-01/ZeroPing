@@ -1,9 +1,0 @@
-experiment,approach,model,mae,label
-baseline,OpenAP Hybrid,XGB,86.30553201747955,baseline / OpenAP Hybrid
-E5,No Physics,XGB,89.45686033725492,E5 / No Physics
-E5,OpenAP Hybrid,XGB,86.30553201747955,E5 / OpenAP Hybrid
-E5,Weather Hybrid,XGB,86.58769351587448,E5 / Weather Hybrid
-E6,Energy Hybrid,XGB,84.48070967501623,E6 / Energy Hybrid
-E6,Energy+Weather Hybrid,XGB,83.75996267132038,E6 / Energy+Weather Hybrid
-E6,OpenAP Hybrid,XGB,86.30553201747955,E6 / OpenAP Hybrid
-E7,MLP Residual,XGB,103.7293947941116,E7 / MLP Residual

@@ -11,7 +11,7 @@
 ## Table of Contents
 
 - [Overview](#overview)
-- [Why ZeroPing](#why-zeroping)
+- [Why AeroTwin](#why-aerotwin)
 - [Architecture](#architecture)
 - [Repository Structure](#repository-structure)
 - [Installation](#installation)
@@ -21,10 +21,8 @@
 - [Results](#results)
 - [Cross-Dataset Validation](#cross-dataset-validation)
 - [Testing & Quality Gates](#testing--quality-gates)
-- [Contributing](#contributing)
 - [References](#references)
 - [License](#license)
-- [Citation](#citation)
 
 ---
 
@@ -43,6 +41,8 @@ predicted_fuel_kg = f(trajectory, aircraft, route, physics_fuel_kg, engineered_f
 
 Dataset: [`aerotwin/aero-data`](https://huggingface.co/datasets/aerotwin/aero-data) on Hugging Face.
 
+**Current best Combined RMSE: 221.33 kg** (R3 ensemble with dynamic mass). Remaining gap to winner (~201 kg): ~20 kg.
+
 ---
 
 ## Why AeroTwin
@@ -54,36 +54,44 @@ Dataset: [`aerotwin/aero-data`](https://huggingface.co/datasets/aerotwin/aero-da
 | **Leakage-safe evaluation** | Flight-level splits and flight-clustered bootstrap significance testing. |
 | **External validation** | Independent DASHlink / OpenSky auditors to check generalization, not just in-sample fit. |
 | **Explainability** | Native SHAP attribution for the production CatBoost hybrid. |
-| **Modular & tested** | Clean `data` / `physics` / `notebooks` separation with CI and unit tests. |
+| **Modular & tested** | Installable `aerotwin` package with CI and unit tests. |
 
 ---
 
 ## Architecture
 
 ```text
-               ┌────────────────────────────┐
-  ADS-B/ACARS  │       data/loader.py       │  (Hugging Face: hf://)
-  telemetry ─▶ │  AeroDataLoader (remote)   │
-               └──────────────┬─────────────┘
-                              │ flightlist, fuel labels, traj parquet
-                              ▼
-               ┌────────────────────────────┐
-               │   physics/openap_baseline   │  OpenAP interval fuel-flow
-               │   + feature_engineering     │  energy / operational features
-               │   + weather_features        │  ISA & wind proxies
-               └──────────────┬─────────────┘
-                              │ featured_dataset.parquet
-                              ▼
-   ┌──────────────────────────────────────────────────────┐
-   │  eval_framework  →  Direct / Residual / Stacking /     │
-   │  Experts  →  SHAP  →  flight-clustered bootstrap       │
-   └──────────────┬───────────────────────────────────────┘
-                  │
-                  ▼
-   ┌──────────────────────────────────────────────────────┐
-   │  external_audit/  (DASHlink + OpenSky)                │
-   │  cross_dataset_replication → generalization verdict    │
-   └──────────────────────────────────────────────────────┘
+                         ┌───────────────────────────────────┐
+  ADS-B/ACARS            │  src/aerotwin/data/loader.py      │
+  telemetry ───────────▶ │  AeroDataLoader (Hugging Face)    │
+                         └───────────────┬───────────────────┘
+                                         │ flightlist, fuel labels, traj
+                                         ▼
+                         ┌───────────────────────────────────┐
+                         │  src/aerotwin/engine/              │
+                         │  · openap_baseline (fuel-flow)     │
+                         │  · feature_engineering (energy)    │
+                         │  · weather_features (ISA/wind)     │
+                         │  · mass_model (R3 dynamic mass)    │
+                         └───────────────┬───────────────────┘
+                                         │ featured_dataset
+                                         ▼
+    ┌────────────────────────────────────────────────────────────────┐
+    │  experiments/                                                    │
+    │  · 03_baselines / 04_hybrid_models / 05_ensemble               │
+    │  · 06_loto_generalization / 07_gap_closing                     │
+    │  · 08_external_validation / 09_interpretability                 │
+    │  Models: XGBoost / LightGBM / CatBoost × Direct / Fuel-Flow    │
+    │  Specialists: heavy-aircraft R1, P1E phase affine, R3 mass     │
+    └──────────────┬─────────────────────────────────────────────────┘
+                   │
+                   ▼
+    ┌────────────────────────────────────────────────────────────────┐
+    │  src/aerotwin/validation/                                       │
+    │  · audit/ (DASHlink + OpenSky loaders)                         │
+    │  · cross_dataset_replication / external_energy_ablation        │
+    │  · external_vs_flow_eval                                       │
+    └────────────────────────────────────────────────────────────────┘
 ```
 
 ---
@@ -92,53 +100,59 @@ Dataset: [`aerotwin/aero-data`](https://huggingface.co/datasets/aerotwin/aero-da
 
 ```text
 ZeroPing/
-├── data/
-│   ├── __init__.py
-│   └── loader.py                      # Remote Hugging Face dataset loader
-├── physics/
-│   ├── openap_baseline.py             # OpenAP interval fuel baseline
-│   ├── feature_engineering.py         # Energy and operational features
-│   ├── weather_features.py            # ISA and wind proxy features
-│   ├── mass_model.py                  # Dynamic mass estimation model (R3)
-│   ├── gap_closing.py                 # Calibrators, heavy specialist (R1)
-│   ├── official_benchmark.py          # Frozen ensemble training + OOF matrix
-│   ├── build_featured_dataset.py      # Main featured dataset builder (PRC)
-│   ├── eval_framework.py              # Evaluation and bootstrap utilities
-│   ├── statistical_protocol.py        # Frozen inference/significance protocol
-│   ├── cruise_features.py             # Cruise features (archived, not in production)
-│   ├── shift_aware_routing.py         # Conditional shift-aware router
-│   ├── cross_dataset_alignment.py     # Schema/scale harmonization
-│   ├── external_vs_flow_eval.py       # Flow+Energy vs Direct on any parquet
-│   ├── external_energy_ablation.py    # Energy-feature ablation on 2nd dataset
-│   ├── cross_dataset_replication.py   # Multi-dataset replication verdict
-│   ├── transformer_residual.py        # Transformer feature-token residual corrector
-│   └── external_audit/                # Second-dataset validation package
-│       ├── audit_utils.py             # Phase, energy, sparsity, intervals
-│       ├── dashlink_loader.py         # Project 85 MAT → traj + fuel intervals
-│       ├── opensky_loader.py          # OpenSky Trino + physics labels
-│       ├── build_featured_audit.py    # featured_dataset_audit.parquet
-│       ├── run_audit_pilot.py         # Pilot experiments A–E
-│       └── README.md
-├── archive/                            # Rejected experiments (R2, R4, R5)
-├── notebooks/                         # Reproducible experiment scripts
-├── tests/                             # Unit tests (incl. external_audit)
-├── figures/                           # PRC plots, leaderboards, tables
-├── docs/                              # Audit deliverables (parity, gap attribution)
-├── audit_results/                     # External audit outputs
-├── papers/                            # Research summaries
-├── AeroTwin_External_Dataset_Audit_Package.md
-├── HOW_TO_RUN_AUDIT.md                # Step-by-step external audit guide
-├── PROJECT_STATUS_REPORT.md
-├── requirements.txt
+├── src/aerotwin/                     # Installable Python package
+│   ├── data/                         # Data loading (Hugging Face)
+│   ├── engine/                       # Core physics pipeline
+│   │   ├── openap_baseline.py        # OpenAP interval fuel baseline
+│   │   ├── feature_engineering.py    # Energy/operational features
+│   │   ├── weather_features.py       # ISA/wind proxy features
+│   │   ├── mass_model.py             # R3 dynamic mass (21 features)
+│   │   ├── eval_framework.py         # Evaluation + bootstrap utilities
+│   │   ├── statistical_protocol.py   # Frozen inference protocol
+│   │   ├── gap_closing.py            # Calibrators, heavy specialist (R1)
+│   │   ├── official_benchmark.py     # Official ensemble + OOF matrix
+│   │   └── build_featured_dataset.py # Featured dataset builder
+│   ├── models/                       # Specialized model architectures
+│   │   ├── shift_aware_routing.py    # Conditional shift-aware router
+│   │   ├── transformer_residual.py   # Transformer feature-token corrector
+│   │   └── mlp_residual.py           # MLP residual regressor
+│   └── validation/                   # Cross-dataset validation
+│       ├── audit/                    # DASHlink + OpenSky audit pipeline
+│       ├── external_vs_flow_eval.py
+│       ├── external_energy_ablation.py
+│       ├── cross_dataset_alignment.py
+│       └── cross_dataset_replication.py
+├── experiments/                      # Reproducible experiment scripts
+│   ├── 01_data_exploration/         # Dataset overview, fuel labels, traj
+│   ├── 02_feature_engineering/      # Physics baseline, V2/V3 features
+│   ├── 03_baselines/                # Baseline modeling, ablation
+│   ├── 04_hybrid_models/            # CatBoost, fuel-flow, optuna
+│   ├── 05_ensemble/                 # Stacking, ensemble verification
+│   ├── 06_loto_generalization/      # LOTO, residual matched, transfer
+│   ├── 07_gap_closing/              # Official eval, R1–R3 gap close
+│   ├── 09_interpretability/         # SHAP explainability
+│   └── 10_advanced/                 # Transformer residual, significance
+├── tests/                            # Unit and integration tests
+│   ├── unit/
+│   └── integration/
+├── docs/
+│   ├── reports/                     # Status, RMSE audit, benchmark parity
+│   │   ├── figures/                 # PRC plots, leaderboards, tables
+│   │   ├── tables/                  # CSV results
+│   │   └── audit/                   # External audit outputs
+│   ├── paper/                       # Research paper drafts
+│   └── validation/                  # External audit guides
+├── scripts/                         # Build/run utilities
+├── data/                            # Data artifacts (symlinks or local)
+├── Dataset/                         # CMAPSS turbofan RUL (separate)
+├── pyproject.toml
 ├── setup.cfg
-└── pyproject.toml
+└── requirements.txt
 ```
 
 ---
 
 ## Installation
-
-ZeroPing targets **Python 3.11+** (current `openap` releases require it).
 
 ```bash
 git clone https://github.com/ArunArya-01/ZeroPing.git
@@ -148,23 +162,16 @@ python -m venv .venv
 source .venv/bin/activate
 
 python -m pip install --upgrade pip
+pip install -e .           # install aerotwin package in editable mode
 pip install -r requirements.txt
-```
-
-Some experimental scripts import optional ML packages (e.g. `xgboost`) that are not required for the core loader and audit pipeline. Install them only when running those experiments:
-
-```bash
-pip install xgboost       # for XGBoost-based experiments
 ```
 
 ---
 
 ## Data Access
 
-The project reads the dataset remotely from Hugging Face via `hf://` paths, Polars, and `huggingface_hub`. A full local download is **not** required for the loader.
-
 ```python
-from data import AeroDataLoader
+from aerotwin.data import AeroDataLoader
 
 loader = AeroDataLoader()
 flightlist = loader.get_flightlist("train")
@@ -172,54 +179,55 @@ fuel = loader.get_fuel_labels("train")
 paths = loader.sample_flight_files(split="train", n=5)
 ```
 
-If authentication is required, set `HF_TOKEN` in your environment.
+Set `HF_TOKEN` in your environment if authentication is required.
 
 ---
 
 ## Quick Start
 
-Build (or refresh) the featured dataset:
+Build the featured dataset:
 
 ```bash
-PYTHONPATH=. python physics/build_featured_dataset.py
+PYTHONPATH=src python src/aerotwin/engine/build_featured_dataset.py
 ```
 
-Run baseline and feature-ablation experiments:
+Run experiments:
 
 ```bash
-PYTHONPATH=. python notebooks/05_baseline_modeling.py
-PYTHONPATH=. python notebooks/09_physics_features_v3.py
-PYTHONPATH=. python notebooks/12_verify_ensemble.py
-PYTHONPATH=. python notebooks/14_shap_explainability.py
-PYTHONPATH=. python notebooks/19_gap_closing_campaign.py
-PYTHONPATH=. python notebooks/23_rmse_audit_agent.py
-PYTHONPATH=. python notebooks/25_r3_dynamic_mass.py
-PYTHONPATH=. python notebooks/26_r3_ensemble_mass.py
+PYTHONPATH=src python experiments/03_baselines/05_baseline_modeling.py
+PYTHONPATH=src python experiments/07_gap_closing/25_r3_dynamic_mass.py
+PYTHONPATH=src python experiments/07_gap_closing/26_r3_ensemble_mass.py
 ```
 
-Offline audit smoke test (no external data required):
+Or use the convenience runner:
 
 ```bash
-python -m physics.external_audit.run_audit_pilot --source demo --max-flights 8
+./scripts/run.sh experiments/03_baselines/05_baseline_modeling.py
 ```
 
-Run the test suite:
+Offline audit smoke test:
 
 ```bash
-PYTHONPATH=. pytest tests/ -q
+python -m aerotwin.validation.audit.run_audit_pilot --source demo --max-flights 8
+```
+
+Run tests:
+
+```bash
+python -m pytest tests/unit -q
 ```
 
 ---
 
 ## Modeling Approach
 
-The experiments compare three model families on interval-level fuel burn:
+Three model families on interval-level fuel burn:
 
 1. **OpenAP-only physics baseline** — interpretable, no learning.
 2. **Direct hybrid** — predicts `actual_fuel_kg` with `physics_fuel_kg` as an input feature.
 3. **Residual models** — predict `actual_fuel_kg − physics_fuel_kg`.
 
-Additional studies cover feature ablations (energy-state, operational, weather proxies, mass, vertical embeddings), stacking ensembles, aircraft-type experts, leave-one-type-out (LOTO) generalization, and CatBoost SHAP explainability. Evaluation uses flight-level splits and flight-clustered bootstrap significance testing.
+Additional studies: feature ablations (energy-state, operational, weather, mass, vertical embeddings), stacking ensembles, aircraft-type experts, leave-one-type-out (LOTO) generalization, CatBoost SHAP explainability, and R3 dynamic mass model.
 
 ---
 
@@ -233,108 +241,43 @@ Additional studies cover feature ablations (energy-state, operational, weather p
 | **Final** (Oct 2025) | 87.35 | 220.86 | 0.918 |
 | **Combined** | 88.75 | **228.25** | 0.913 |
 
-**Best model:** Ensemble (XGB/LGBM/CatBoost × Direct + Fuel-Flow, Energy+Weather) + Ridge meta.  
-**Published winner:** ≈201 kg Combined RMSE.  
-
 ### Gap-Closing Campaign
 
-| Version | Variant | Combined RMSE | Δ vs 228.25 | Improvement |
-|---------|---------|--------------:|-------------|-------------|
-| v1.0 | Official ensemble (frozen V4) | **228.25** | reference | baseline |
-| v1.1 | P1E phase affine + P2 Cat heavy specialist | **227.44** | −0.81 | heavy specialist |
-| R1 | P1E + OpenAP descriptors in heavy specialist | **226.19** | −2.06 | aircraft physics |
-| R2 | Fixed B744/B77L/A306 descriptors + R2 features | **225.25** | −3.00 | missing descriptor fix |
-| **R3** | **P1E + dynamic mass model (21 features)** | **221.33** | **−6.92** | **mass estimation** |
+| Version | Variant | Combined RMSE | Δ vs 228.25 |
+|---------|---------|--------------:|------------:|
+| v1.0 | Official ensemble (frozen V4) | **228.25** | reference |
+| v1.1 | P1E phase affine + P2 Cat heavy specialist | **227.44** | −0.81 |
+| R1 | P1E + OpenAP descriptors in heavy specialist | **226.19** | −2.06 |
+| R2 | Fixed B744/B77L/A306 descriptors + R2 features | **225.25** | −3.00 |
+| **R3** | **P1E + dynamic mass model (21 features)** | **221.33** | **−6.92** |
 
-> Remaining gap to winner (201 kg): **≈20 kg**.  
-> Full leaderboard: `figures/table_current_rmse.csv`. RMSE audit: `CURRENT_MODEL_SUMMARY.md`.
-
-### R3 Dynamic Mass Model
-
-The single largest improvement comes from replacing the crude `mass = MTOW × 0.75` with 21 physics-informed mass features:
-- **Takeoff weight** and **landing mass** estimated from aircraft specs + flight duration
-- **Per-interval mass** via linear fuel-burn interpolation by flight fraction
-- **Mass consumed**, **mass rate**, **fuel fraction**, **remaining fuel**
-- Mass-scaled **potential/kinetic energy**, current **wing loading**
-- **Phase-aware mass** (climb/cruise/descent differing fuel states)
-
-Mass features reduce bias from +24 kg to **+3.9 kg** and narrow both heavy (−12 kg) and narrowbody (−6 kg) RMSE.
-
-> Ablation results: `figures/table_rmse_R3_mass.csv`. Ensemble results: `figures/table_rmse_R3_mass_ensemble.csv`.  
-> Source: `physics/mass_model.py`, `notebooks/25_r3_dynamic_mass.py`, `notebooks/26_r3_ensemble_mass.py`.
-
-### Internal (PRC) leaderboard — protocol-separated
-
-| Track | Best model | MAE | RMSE | Notes |
-|-------|------------|----:|-----:|-------|
-| **A · Fuel-Flow single model** | XGB Flow+Energy / LGBM Flow+Energy | **79.5** / 80.3 | 208.4 / **196.2** | MAE-best vs RMSE-best differ |
-| **B · Direct single model** | XGB Energy+Weather | **83.8** | 212.0 | Main hybrid MAE story |
-| **C · Direct stacking (competition)** | LGBM_meta 5-fold OOF | 84.3 | **202.9** | vs PRC winner RMSE 200.83 |
-
-> Flow RMSE 196 and stack RMSE 203 are **not** ranked against each other (different targets / training). See `figures/LEADERBOARD_AUDIT.md`.
-
-### SHAP explainability
-
-Native CatBoost SHAP values on held-out flights identify `physics_fuel_kg`, energy-state, and operational features as the dominant drivers of the hybrid prediction. Outputs: `figures/table_shap_catboost.csv`, `figures/fig_shap_catboost_top_features.png`.
-
----
-
-## Cross-Dataset Validation
-
-Generalization is tested on an **independent** dataset rather than relying on in-sample fit alone.
-
-### DASHlink pilot (NASA Project 85)
-
-Real FDR data, tails 686/687, 15 airborne flights, 137 intervals, LightGBM, flight-level 75/25 split. Fuel targets integrated from `FF_1…FF_4` (LBS/HR → kg).
+### Cross-Dataset Validation (DASHlink pilot)
 
 | Experiment | MAE (kg) | Notes |
-|---|---:|---|
-| Physics-only (OpenAP) | 140.1 | Type/mass defaults may not match fleet |
+|---|---|---:|
+| Physics-only (OpenAP) | 140.1 | Type/mass defaults |
 | Direct · base + physics | 25.5 | |
-| Direct · base + energy + physics | 20.7 | Energy ablation ΔMAE ≈ **−4.9** (95% CI excludes 0) |
-| Flow · base + energy + physics | **18.1** | vs matched Direct ΔMAE ≈ **−2.6** (95% CI excludes 0) |
-
-**Qualitative verdict:** energy features **replicate**, Fuel-Flow target **replicates**, ML ≫ raw physics **replicates**. Absolute MAE is not comparable to PRC (~84 kg) due to differing interval scales, aircraft mix, and label construction. Details in `audit_results/dashlink_pilot/`. Full guide: [HOW_TO_RUN_AUDIT.md](HOW_TO_RUN_AUDIT.md).
+| Direct · base + energy + physics | 20.7 | Energy ΔMAE −4.9 (95% CI excludes 0) |
+| Flow · base + energy + physics | **18.1** | vs Direct ΔMAE −2.6 (95% CI excludes 0) |
 
 ---
 
 ## Testing & Quality Gates
 
-### CI & Quality Gates
+GitHub Actions runs:
 
-GitHub Actions (`.github/workflows/ci.yml`) runs:
+- Python 3.11 syntax compilation for `src/aerotwin` and `experiments/`
+- Ruff linting (E9, F63, F7, F82)
+- `pytest` unit tests
+- Safety dependency scanning
 
-- Python 3.11 environment setup.
-- Syntax compilation for `data`, `physics`, and `notebooks`.
-- Strict `flake8` fatal-error checks (E9, F63, F7, F82) for `data` and `physics`.
-- Dependency installation from `requirements.txt`.
-- Smoke imports for lightweight core modules.
-- Security scanning with `safety`.
-
-Heavier experimental modules requiring optional packages (e.g. `xgboost`) are syntax-checked but not smoke-imported.
-
-Useful local checks:
+Local checks:
 
 ```bash
-python -m compileall -q data physics notebooks
-flake8 data physics --count --select=E9,F63,F7,F82 --show-source --statistics
-PYTHONPATH=. pytest tests/ -q
-PYTHONPATH=. pytest tests/ -m slow    # protocol runs only
+python -m compileall -q src/aerotwin experiments
+ruff check src/aerotwin
+PYTHONPATH=src python -m pytest tests/unit -q
 ```
-
----
-
-## Troubleshooting
-
-| Issue | Fix |
-|---|---|
-| `openap` will not install on Python 3.10 | Use Python 3.11 or newer. |
-| `ModuleNotFoundError` for local packages | Run commands from the repo root with `PYTHONPATH=.`. |
-| Hugging Face access fails | Check network access and set `HF_TOKEN` if required. |
-| Experiment script cannot find parquet files | Generate the featured dataset first or confirm artifacts exist in the repo root. |
-| `ModuleNotFoundError: xgboost` | Install the optional experiment dependency: `pip install xgboost`. |
-| DASHlink `No trajectory channels found` | Use the updated `dashlink_loader` (extracts struct `.data`); probe with `--probe`. |
-| OpenSky empty result | Configure `pyopensky` Trino credentials, or use the demo/synthetic fallback for code checks only. |
 
 ---
 
@@ -342,17 +285,13 @@ PYTHONPATH=. pytest tests/ -m slow    # protocol runs only
 
 - Dataset: [`aerotwin/aero-data`](https://huggingface.co/datasets/aerotwin/aero-data)
 - OpenAP: <https://github.com/junzis/openap>
-- Project status: [PROJECT_STATUS_REPORT.md](PROJECT_STATUS_REPORT.md)
-- Current RMSE audit: [CURRENT_MODEL_SUMMARY.md](CURRENT_MODEL_SUMMARY.md)
-- Cleanup report: [docs/CLEANUP_REPORT.md](docs/CLEANUP_REPORT.md)
-- Dynamic mass model: [physics/mass_model.py](physics/mass_model.py)
-- Benchmark parity: [docs/BENCHMARK_PARITY_AUDIT.md](docs/BENCHMARK_PARITY_AUDIT.md)
-- Gap attribution: [docs/RMSE_GAP_ATTRIBUTION.md](docs/RMSE_GAP_ATTRIBUTION.md)
-- RMSE improvement backlog: [RMSE_IMPROVEMENT_BACKLOG.md](RMSE_IMPROVEMENT_BACKLOG.md)
-- Rejected experiments: [archive/](archive/) — R2, R4, R5
-- External audit how-to: [HOW_TO_RUN_AUDIT.md](HOW_TO_RUN_AUDIT.md)
-- Audit package design: [AeroTwin_External_Dataset_Audit_Package.md](AeroTwin_External_Dataset_Audit_Package.md)
-- Hybrid model summary: [papers/hybrid_model_summary.md](papers/hybrid_model_summary.md)
+- Status report: [`docs/reports/PROJECT_STATUS_REPORT.md`](docs/reports/PROJECT_STATUS_REPORT.md)
+- RMSE audit: [`docs/reports/CURRENT_MODEL_SUMMARY.md`](docs/reports/CURRENT_MODEL_SUMMARY.md)
+- Benchmark parity: [`docs/reports/BENCHMARK_PARITY_AUDIT.md`](docs/reports/BENCHMARK_PARITY_AUDIT.md)
+- Gap attribution: [`docs/reports/RMSE_GAP_ATTRIBUTION.md`](docs/reports/RMSE_GAP_ATTRIBUTION.md)
+- Improvement backlog: [`docs/reports/RMSE_IMPROVEMENT_BACKLOG.md`](docs/reports/RMSE_IMPROVEMENT_BACKLOG.md)
+- Dynamic mass model: [`src/aerotwin/engine/mass_model.py`](src/aerotwin/engine/mass_model.py)
+- Research paper: [`docs/paper/research.md`](docs/paper/research.md)
 
 ---
 

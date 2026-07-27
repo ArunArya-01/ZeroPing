@@ -1,4 +1,0 @@
-split,resource,path,rows,files,columns
-train,flightlist,hf://datasets/aerotwin/aero-data/flightlist_train.parquet,11037,,9
-train,fuel_labels,hf://datasets/aerotwin/aero-data/fuel_train.parquet,131530,,5
-train,flights,hf://datasets/aerotwin/aero-data/flights_train,,10000,13

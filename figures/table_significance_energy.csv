@@ -1,3 +1,0 @@
-comparison,mae_new,mae_baseline,delta_mae,bootstrap_mean,bootstrap_median,ci_lower,ci_upper,bootstrap_p,wilcoxon_stat,wilcoxon_p,cohens_d,effect_size,interpretation
-Energy Hybrid vs OpenAP Hybrid,84.48070967501623,86.30553201747955,-1.824822342463321,-1.8257294033995466,-1.8402907488197258,-2.922318162758914,-0.6659943730569775,0.0017,120195854.0,4.212383937430988e-35,-0.030448346786392754,Negligible,Energy Hybrid significantly better than OpenAP Hybrid
-No Physics vs OpenAP Hybrid,89.45686033725492,86.30553201747955,3.1513283197753736,3.134578647510241,2.9214744414410134,0.4219512331529771,7.083467890132335,0.9944,139980628.0,0.9999999999998587,0.04311633700565074,Negligible,OpenAP Hybrid significantly better than No Physics

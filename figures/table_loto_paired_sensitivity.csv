@@ -1,3 +1,0 @@
-subset,macro_delta_mae,median_delta_mae,wins,losses,hier_boot_ci_lower,hier_boot_ci_upper,hier_boot_p_flow_better,type_boot_ci_lower,type_boot_ci_upper
-all_12_types,-17.390998935631774,-16.277332158145057,7,5,-40.30257262677774,18.582678613990716,0.7267,-54.91394651612204,16.918827690735032
-exclude_B77W,-3.9519585315892543,-12.716053228228105,6,5,NaN,NaN,NaN,-31.181979610777756,23.831487326886595

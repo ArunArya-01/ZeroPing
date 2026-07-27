@@ -1,4 +1,0 @@
-pair,flight_id_overlap,fuel_flight_id_overlap,trajectory_stem_overlap,interval_key_overlap,pass_zero_overlap
-train_vs_rank,0,0,0,0,1
-train_vs_final,0,0,0,0,1
-rank_vs_final,0,0,0,0,1

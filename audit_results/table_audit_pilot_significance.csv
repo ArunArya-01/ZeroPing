@@ -1,3 +1,0 @@
-comparison,delta_mae,ci_lower,ci_upper,bootstrap_p,cohens_d,effect_size,interpretation
-Base+Energy vs Base,3.982705067364961,3.8703886265371104,4.106253152275606,1.0,0.6035949026647374,Medium,Base significantly better than Base+Energy
-Flow+Energy vs Direct+Energy,-17.01046626713007,-17.776974126838006,-16.31364094012286,0.0,-0.394025529829664,Small,Flow+Energy significantly better than Direct+Energy

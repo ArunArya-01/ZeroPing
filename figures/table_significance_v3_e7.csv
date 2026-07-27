@@ -1,2 +1,0 @@
-comparison,mae_new,mae_baseline,delta_mae,bootstrap_mean,bootstrap_median,ci_lower,ci_upper,bootstrap_p,wilcoxon_stat,wilcoxon_p,cohens_d,effect_size,interpretation
-MLP Residual vs OpenAP Hybrid,103.7293947941116,86.30553201747955,17.42386277663205,17.433857253009613,16.86333690695131,7.841153633242623,34.990852822815555,1.0,160415024.0,1.0,0.07922777615493107,Negligible,OpenAP Hybrid significantly better than MLP Residual

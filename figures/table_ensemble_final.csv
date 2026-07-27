@@ -1,7 +1,0 @@
-Model,MAE,RMSE,R2
-Ridge (5f OOF),84.5,203.4,0.9479
-ElasticNet (5f OOF),84.7,203.7,0.9477
-LGBM_meta (5f OOF) [best],84.3,202.9,0.9481
-Cat_meta (5f OOF),85.5,205.1,0.947
-XGB_meta (5f OOF),85.2,204.8,0.9472
-1-split Ridge (old dump),85.7,204.9,0.9471

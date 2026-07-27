@@ -1,9 +1,0 @@
-method,mae,rmse,r2,note
-SimpleAvg,86.2,206.8,0.9461,equal 0.25
-WeightedAvg,85.9,205.4,0.9468,"w=[0.33, 0.3, 0.12, 0.25]"
-RidgeStack,85.7,204.9,0.9471,alpha=1.0
-ElasticNetStack,85.8,205.1,0.947,alpha=0.1 l1=0.5
-Base-LGBM,86.67,208.61,0.9451,individual
-Base-XGB,83.76,212.03,0.9433,individual
-Base-RF,84.17,226.86,0.9351,individual
-Base-CAT,87.59,209.73,0.9445,individual

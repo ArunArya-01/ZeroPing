@@ -1,3 +1,0 @@
-comparison,vs,n_intervals,mae_hybrid,mae_other,delta_mae,bootstrap_mean,bootstrap_median,ci_lower,ci_upper,bootstrap_p,wilcoxon_stat,wilcoxon_p,cohens_d,effect_size,interpretation
-Hybrid Random Forest vs NoPhysics Random Forest,No Physics,23031,86.27280214661111,87.13081701507049,-0.858014868459378,-0.8540081278529651,-0.8494868192545013,-2.267347940937061,0.5240486626727526,0.1151,130467599.0,0.016761296898654836,-0.009841592123519448,Negligible,No significant evidence
-Hybrid Random Forest vs Physics Only,Physics Only,23031,86.27280214661111,667.6155755169532,-581.3427733703421,-580.6574184364828,-580.1002810968907,-633.0118117611634,-529.4905138389361,0.0,16259392.0,0.0,-0.4183683582982414,Small,Physics significantly helps

@@ -1,2 +1,0 @@
-n_train_flights,n_test_flights,n_test_intervals,max_seq_len,d_model,n_layers,epochs,device
-7980,1996,21920,24,64,2,12,cuda

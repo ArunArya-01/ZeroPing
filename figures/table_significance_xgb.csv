@@ -1,3 +1,0 @@
-comparison,vs,n_intervals,mae_hybrid,mae_other,delta_mae,bootstrap_mean,bootstrap_median,ci_lower,ci_upper,bootstrap_p,wilcoxon_stat,wilcoxon_p,cohens_d,effect_size,interpretation
-Hybrid XGBoost vs NoPhysics XGBoost,No Physics,23031,86.30553201747955,89.45686033725492,-3.1513283197753736,-3.134578647510241,-2.9214744414410134,-7.083467890132336,-0.42195123315297733,0.0056,125244368.0,1.413581350073314e-13,-0.04311633700565074,Negligible,Physics significantly helps
-Hybrid XGBoost vs Physics Only,Physics Only,23031,86.30553201747955,667.6155755169532,-581.3100434994736,-580.6257406458154,-580.2036629870322,-633.2841756343357,-529.1753089320883,0.0,17457996.0,0.0,-0.41745663698145313,Small,Physics significantly helps

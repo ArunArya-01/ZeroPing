@@ -1,4 +1,0 @@
-split,n_flightlist_rows,n_unique_flight_ids_flightlist,n_fuel_intervals,n_unique_flight_ids_fuel,n_trajectory_files,n_aircraft_types,n_origin_icao,n_destination_icao,mean_fuel_kg,median_fuel_kg,mean_interval_duration_s,flight_date_min,flight_date_max
-train,11037,11037,131530,11037,10000,26,273,260,557.7054841027111,200.0,531.4364403558124,2025-04-12,2025-08-31
-rank,1888,1888,24289,1888,1888,19,138,136,420.4327377770349,163.29312,442.7308246531352,2025-09-01,2025-09-27
-final,2836,2836,37456,2836,2836,21,159,152,413.098078071273,163.0,427.98921401110636,2025-10-01,2025-10-31

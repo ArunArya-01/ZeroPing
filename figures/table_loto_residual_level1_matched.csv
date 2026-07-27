@@ -1,3 +1,0 @@
-split,approach,label,mae,rmse,r2,model,matched_protocol
-flight_80_20,global_direct_ew,Standard split · Global · Direct · E+W · CatBoost,88.07362256880576,210.6588460832278,0.9440337066328407,CatBoost,true
-flight_80_20,global_residual_ew,Standard split · Global · Residual · E+W · CatBoost,94.39014044096535,232.19228675715976,0.9320072322399395,CatBoost,true
