@@ -20,9 +20,9 @@ pytest.importorskip("sklearn")
 pytest.importorskip("lightgbm")
 pytest.importorskip("xgboost")
 pytest.importorskip("matplotlib")
-from physics import cross_dataset_replication as cdr
-from physics.eval_framework import CATEGORICAL
+from aerotwin.validation import cross_dataset_replication as cdr
 
+from aerotwin.engine.eval_framework import CATEGORICAL
 
 def _make_synthetic_external(n_flights: int = 30, intervals_per_flight: int = 20, seed: int = 42) -> pl.DataFrame:
     """Mirror of the synthetic-data builder used by the external generalization tests."""

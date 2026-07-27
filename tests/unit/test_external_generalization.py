@@ -21,8 +21,8 @@ pytest.importorskip("sklearn")
 pytest.importorskip("lightgbm")
 pytest.importorskip("xgboost")
 pytest.importorskip("matplotlib")
-from physics import external_vs_flow_eval as eg
-from physics.eval_framework import CATEGORICAL
+from aerotwin.validation import external_vs_flow_eval as eg
+from aerotwin.engine.eval_framework import CATEGORICAL
 
 
 # --------------------------------------------------------------------------- #

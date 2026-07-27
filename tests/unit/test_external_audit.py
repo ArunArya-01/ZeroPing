@@ -6,7 +6,7 @@ import numpy as np
 import polars as pl
 import pytest
 
-from physics.external_audit.audit_utils import (
+from aerotwin.validation.audit.audit_utils import (
     classify_phase,
     compute_energy_rates,
     compute_phase_fractions,
@@ -16,13 +16,13 @@ from physics.external_audit.audit_utils import (
     integrate_rate,
     synthesize_demo_trajectory,
 )
-from physics.external_audit.build_featured_audit import (
+from aerotwin.validation.audit.build_featured_audit import (
     build_demo_featured,
     build_featured_from_trajectories,
     preferred_column_order,
 )
-from physics.external_audit.dashlink_loader import extract_fuel_series
-from physics.external_audit.opensky_loader import (
+from aerotwin.validation.audit.dashlink_loader import extract_fuel_series
+from aerotwin.validation.audit.opensky_loader import (
     clean_opensky_trajectory,
     make_synthetic_opensky_flights,
 )

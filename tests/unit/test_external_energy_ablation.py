@@ -21,7 +21,7 @@ pytest.importorskip("sklearn")
 pytest.importorskip("lightgbm")
 pytest.importorskip("xgboost")
 pytest.importorskip("matplotlib")
-from physics import external_energy_ablation as ea  # noqa: E402
+from aerotwin.validation import external_energy_ablation as ea  # noqa: E402
 
 
 # --------------------------------------------------------------------------- #
