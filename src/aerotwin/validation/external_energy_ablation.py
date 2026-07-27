@@ -18,14 +18,14 @@ from aerotwin.engine.eval_framework import (  # noqa: E402
     project_root,
     significance_test,
 )
+from aerotwin.engine.feature_engineering import ENERGY_FEATURES, enrich_from_columns  # noqa: E402
+from aerotwin.engine.weather_features import WEATHER_FEATURES, enrich_weather_from_columns  # noqa: E402
 from aerotwin.validation.external_vs_flow_eval import (  # noqa: E402
     avail,
     clean_for_eval,
     predict_cat,
     train_catboost,
 )
-from aerotwin.engine.feature_engineering import ENERGY_FEATURES, enrich_from_columns  # noqa: E402
-from aerotwin.engine.weather_features import WEATHER_FEATURES, enrich_weather_from_columns  # noqa: E402
 
 # Categorical features mirror notebooks/15 (the source protocol) so the external
 # run is directly comparable to the internal AeroTwin result.

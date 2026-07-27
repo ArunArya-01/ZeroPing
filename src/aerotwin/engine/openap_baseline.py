@@ -13,7 +13,6 @@ except ImportError as e:  # pragma: no cover
 # For phase detection
 import numpy as np  # available via requirements
 
-
 DEFAULT_REF_MASS_FRAC = 0.75  # crude cruise mass assumption; tune or replace with better estimator
 MIN_INTERVAL_SECONDS = 60  # below this, predictions are noisy/unreliable per data filters
 
@@ -358,6 +357,7 @@ if __name__ == "__main__":
 
     # Demo on two flights we probed during audit (known to exist + have labels)
     import logging
+
     from aerotwin.data import AeroDataLoader
 
     logging.basicConfig(level=logging.WARNING)

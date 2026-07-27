@@ -14,10 +14,11 @@ Design principles:
 
 from __future__ import annotations
 
-import numpy as np
-import polars as pl
 from pathlib import Path
 from typing import Any
+
+import numpy as np
+import polars as pl
 
 GRAVITY = 9.80665
 
