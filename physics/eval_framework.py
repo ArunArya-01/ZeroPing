@@ -252,12 +252,6 @@ MASS_FEATURES: list[str] = [
     "mass_consumed_est",
 ]
 
-VRATE_BIN_FEATURES: list[str] = [
-    *(f"vr_mean_{i}" for i in range(1, 11)),
-    *(f"vr_std_{i}" for i in range(1, 11)),
-]
-
-
 def train_predict(
     model_key: str,
     feature_cols: list[str],
