@@ -39,14 +39,14 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ env.PYTHON_VERSION }}
-      - name: Install package
+      - name: Install package and test deps
         run: |
           python -m pip install --upgrade pip
-          pip install -e ".[dev]"
-      - name: Run tests
+          pip install -e .
+          pip install pytest
+      - name: Run unit tests
         run: |
-          pip install openap
-          python -m pytest tests/unit -q --ignore=tests/integration
+          python -m pytest tests/unit -q
 
   security:
     name: Security Check

@@ -1,0 +1,13 @@
+{
+  "task": "R3_ensemble",
+  "best_variant": "R3_P1E_phase_affine",
+  "combined_rmse": 221.32639201284033,
+  "rank_rmse": 232.5338424742589,
+  "final_rmse": 213.7274279507162,
+  "bias": 3.8545244173010578,
+  "delta_vs_225_25": -3.92360798715967,
+  "delta_vs_228_25": -6.92360798715967,
+  "heavy_rmse": 416.09639606990396,
+  "narrow_rmse": 75.03375135071525,
+  "session_ensemble": 221.34125410352036
+}

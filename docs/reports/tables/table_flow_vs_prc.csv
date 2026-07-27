@@ -1,0 +1,6 @@
+variant,mae,rmse,r2,rmse_95ci_lo,rmse_95ci_hi,vs_prc_winner_200.83
+FuelFlow,81.96,205.88,0.9465,175.01,240.18,Statistically indistinguishable
+FuelFlow+Energy,82.2,206.32,0.9463,176.4,239.49,Statistically indistinguishable
+FuelFlow+Energy+Mass,81.34,204.18,0.9474,173.42,238.15,Statistically indistinguishable
+E+W+phys Ensemble (LGBM_meta 5f OOF),84.3,202.9,0.9481,NaN,NaN,Worse (historical)
+PRC2025 Winner (reported),NaN,200.83,NaN,NaN,NaN,Reference

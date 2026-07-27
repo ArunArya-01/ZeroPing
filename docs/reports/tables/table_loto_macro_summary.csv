@@ -1,0 +1,8 @@
+approach,label,routing,target,feature_group,mae,rmse,r2,n_types
+standard_split_global_direct_ew,Standard split · Global · Direct · E+W,global,direct_fuel,ew,88.07362256880576,210.6588460832278,0.9440337066328407,0
+global_direct_ew,Global · Direct · E+W,global,direct_fuel,ew,283.2480020687031,469.38541306670646,0.13606437576380404,12
+global_flow_energy,Global · Flow+Energy,global,fuel_flow,flow_energy,265.8570031330714,445.4954821211558,0.23023211954020792,12
+global_flow_per_mass_ew,Global · Flow/Mass · E+W,global,flow_per_mass,ew,321.6833669756292,505.2369034115759,0.579723033931287,12
+hier_body_direct_ew,Body-class · Direct · E+W,hierarchical_body,direct_fuel,ew,386.81239327012673,562.5804778918966,0.402189257891918,12
+hier_body_flow_energy,Body-class · Flow+Energy,hierarchical_body,fuel_flow,flow_energy,378.0602208640364,600.0543733607857,0.20041552410781463,12
+global_residual_ew,Global · Residual · E+W · CatBoost (matched),global,residual_kg,ew_no_physics,523.2716793788604,790.2835322600066,0.0062057890675164635,12

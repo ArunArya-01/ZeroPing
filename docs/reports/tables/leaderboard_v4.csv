@@ -1,0 +1,17 @@
+experiment,approach,model,mae
+fuel_ablation,Flow + Energy,XGB,79.51580898236583
+fuel_ablation,Flow + Energy+Weather+Mass,XGB,79.57398182796997
+fuel_ablation,Flow + Energy+Weather,XGB,80.05567957980793
+fuel_target,Fuel flow (E+W),XGB,80.05567957980793
+fuel_ablation,Flow + Mass,XGB,80.87471516344289
+fuel_ablation,Flow + base,XGB,81.4872076225793
+fuel_target,Direct fuel (E+W),XGB,83.75996267132038
+fuel_ablation,Direct (E+W) ref,XGB,83.75996267132038
+mass_ablation,A: Energy+Weather,XGB,83.75996267132038
+vrate,E+W (no bins),XGB,83.93409170892735
+vrate,E+W + vrate bins,XGB,84.04139238688238
+mass_ablation,B: Energy+Weather+Mass,XGB,84.64564977257923
+mass_ablation,D: Mass+OpenAP,XGB,85.2847071818454
+mass_ablation,C: Mass only,XGB,86.01909679850382
+mass_ablation,OpenAP Hybrid (ref),XGB,86.30553201747955
+baseline,OpenAP Hybrid,XGB,86.31

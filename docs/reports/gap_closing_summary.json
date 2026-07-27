@@ -1,0 +1,45 @@
+{
+  "baseline": {
+    "combined_rmse": 228.2505398783207,
+    "rank_rmse": 239.18031519148374,
+    "final_rmse": 220.8570993417157,
+    "combined_mae": 88.74505740577311
+  },
+  "best_variant": {
+    "variant": "P2_heavy_cat_flow_on_P1base",
+    "hypothesis": "A359/B77W/B744 drive 72% SSE; FuelFlow specialist on heavy types reduces long-haul error without touching narrowbodies",
+    "expected_gain": "\u22125 to \u221212 kg",
+    "rank_rmse": 235.30307111926163,
+    "final_rmse": 222.1807628140794,
+    "combined_rmse": 227.44022801436807,
+    "rank_mae": 85.49024878986187,
+    "final_mae": 81.2275055261275,
+    "combined_mae": 82.90666270988199,
+    "combined_bias": 15.003997971747637,
+    "pct_overpredict": 67.27595877902426,
+    "narrow_rmse": 83.20748098980849,
+    "heavy_rmse": 424.2642619935686,
+    "a20n_rmse": 86.34066959949008,
+    "a320_rmse": 69.11415859448682,
+    "a359_rmse": 343.8090838065408,
+    "b77w_rmse": 830.5358203482057,
+    "b744_rmse": 883.0309862756891,
+    "cruise_rmse": 245.63089746369755,
+    "climb_rmse": 203.90127864529123,
+    "descent_rmse": 131.00934007749385,
+    "ultralong_rmse": 437.4720907622366,
+    "medium_rmse": 98.94001894989708,
+    "delta_combined_vs_baseline": -0.8103118639526201,
+    "gate": "KEEP",
+    "gate_reason": "accepted"
+  },
+  "n_accepted": 3,
+  "accepted_names": [
+    "P1E_affine_by_phase",
+    "P2_heavy_lgbm_flow_on_P1base",
+    "P2_heavy_cat_flow_on_P1base"
+  ],
+  "winner_rmse": 201.0,
+  "remaining_gap_vs_winner": 26.440228014368074,
+  "improvement_vs_baseline": 0.8103118639526201
+}

@@ -1,0 +1,2 @@
+split,n_train_flights,n_test_flights,n_train_intervals,n_test_intervals,direct_base_mae,direct_energy_mae,flow_energy_mae,physics_mae
+flight_level,11,4,97,40,25.54149564926229,20.696128149161986,18.05789996813305,140.05185222245834

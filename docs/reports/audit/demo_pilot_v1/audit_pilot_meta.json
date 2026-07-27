@@ -1,0 +1,29 @@
+{
+  "n_intervals": 107,
+  "n_flights": 10,
+  "n_test_flights": 3,
+  "n_test_intervals": 33,
+  "model": "lgbm",
+  "test_size": 0.25,
+  "n_bootstrap": 2000,
+  "energy_features_used": [
+    "ref_mass_kg",
+    "mean_potential_energy_j",
+    "mean_kinetic_energy_j",
+    "mean_specific_energy_jpkg",
+    "specific_energy_start",
+    "specific_energy_end",
+    "energy_change_jpkg",
+    "energy_rate_jpkg_s",
+    "climb_efficiency",
+    "energy_efficiency",
+    "cumulative_energy_change_jpkg"
+  ],
+  "label_note": "",
+  "dataset_source": [
+    "demo"
+  ],
+  "label_source": [
+    "synthetic_demo"
+  ]
+}

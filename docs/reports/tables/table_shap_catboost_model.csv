@@ -1,0 +1,2 @@
+model,target,feature_set,n_train_flights,n_test_flights,n_shap_intervals,expected_value,mae,rmse,r2,best_iteration
+CatBoost,actual_fuel_kg,Energy+Weather+Physics,7980,1996,5000,578.699204101915,87.442836270115,209.55952120275262,0.9446163036155167,630

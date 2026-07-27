@@ -1,0 +1,3 @@
+experiment,approach,model,mae
+fuel_flow,Direct (E+W),XGB,83.75996267132038
+fuel_flow,Flow + Energy+Weather,XGB,80.05567957980793

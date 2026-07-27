@@ -24,6 +24,13 @@ dependencies = [
     "openap>=2.5.0",
 ]
 
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "ruff>=0.4.0",
+    "black>=24.0",
+]
+
 [tool.setuptools.packages.find]
 where = ["src"]
 include = ["aerotwin*"]

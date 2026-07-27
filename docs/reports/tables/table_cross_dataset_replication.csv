@@ -1,0 +1,4 @@
+dataset,n_test_flights,n_test_intervals,direct_mae_kg,flow_mae_kg,delta_mae_kg,p_flow_better,replicated,interpretation
+featured_dataset,1996,23031,88.20448423323923,82.19590885588133,-6.0085753773579,1.0,true,Flow+Energy significantly better than Direct
+featured_dataset_mass,1996,23031,88.20448423323923,82.19590885588133,-6.0085753773579,1.0,true,Flow+Energy significantly better than Direct
+featured_dataset_vrate,1996,23031,88.20448423323923,82.19590885588133,-6.0085753773579,1.0,true,Flow+Energy significantly better than Direct
