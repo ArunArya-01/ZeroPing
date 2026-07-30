@@ -1,0 +1,82 @@
+{
+  "run_name": "XLarge_seed2025",
+  "mode": "kd",
+  "alpha": 0.1,
+  "beta": 0.9,
+  "n_params": 6748673,
+  "device": "cuda",
+  "best_epoch": 78,
+  "best_val_rmse": 227.94431909265484,
+  "epochs_ran": 80,
+  "train_seconds": 335.58182406425476,
+  "train": {
+    "student": {
+      "rmse": 235.06929658701108,
+      "mae": 78.62057495117188,
+      "bias": -2.0125436782836914,
+      "r2": 0.9316975278921453
+    },
+    "teacher": {
+      "rmse": 251.78373587017313,
+      "mae": 81.63556671142578,
+      "bias": 0.7119617462158203,
+      "r2": 0.9216390029192993
+    },
+    "teacher_student_rmse_gap": -16.71443928316205,
+    "student_vs_teacher_rmse": 50.02418683854247
+  },
+  "val": {
+    "student": {
+      "rmse": 227.94431909265484,
+      "mae": 81.21354675292969,
+      "bias": -4.712423801422119,
+      "r2": 0.9317468888680168
+    },
+    "teacher": {
+      "rmse": 244.14115486523167,
+      "mae": 83.26862335205078,
+      "bias": -2.839256525039673,
+      "r2": 0.9217026802981712
+    },
+    "teacher_student_rmse_gap": -16.196835772576833,
+    "student_vs_teacher_rmse": 50.92371922227281
+  },
+  "config": {
+    "mode": "kd",
+    "alpha": 0.1,
+    "beta": 0.9,
+    "lr": 0.001,
+    "weight_decay": 0.0001,
+    "batch_size": 2048,
+    "max_epochs": 80,
+    "patience": 12,
+    "min_delta": 0.05,
+    "scheduler_factor": 0.5,
+    "scheduler_patience": 4,
+    "grad_clip": 1.0,
+    "seed": 2025,
+    "device": "auto",
+    "num_workers": 0,
+    "hidden_dims": [
+      2560,
+      2048
+    ],
+    "dropout": 0.1,
+    "run_name": "XLarge_seed2025",
+    "extras": {
+      "tier": "XLarge",
+      "target_params": "~5-10M",
+      "alpha": 0.1,
+      "beta": 0.9,
+      "stage": "step4_capacity",
+      "kd_name": "XLarge_seed2025",
+      "n_params": 6748673,
+      "in_dim": 582
+    }
+  },
+  "paths": {
+    "checkpoint": "C:\\Users\\mukun\\major project\\ZeroPing\\results\\distillation\\capacity_scaling\\runs\\XLarge_seed2025\\best_model.pt",
+    "training_curve": "C:\\Users\\mukun\\major project\\ZeroPing\\results\\distillation\\capacity_scaling\\runs\\XLarge_seed2025\\training_curve.csv",
+    "predictions": "C:\\Users\\mukun\\major project\\ZeroPing\\results\\distillation\\capacity_scaling\\runs\\XLarge_seed2025\\predictions.parquet"
+  }
+}

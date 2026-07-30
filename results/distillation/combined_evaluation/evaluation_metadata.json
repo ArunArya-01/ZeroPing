@@ -1,0 +1,18 @@
+{
+  "timestamp_utc": "2026-07-30T01:43:49.771320+00:00",
+  "git_commit": "aa6ebf16939d7e7dc94b2a8ba09e0f14f01dbe13",
+  "checkpoints": {
+    "Large": {
+      "path": "C:\\Users\\mukun\\major project\\ZeroPing\\results\\distillation\\capacity_scaling\\runs\\Large_seed42\\best_model.pt",
+      "sha256": "5d06cbe6aec76c79dde6cd67560f8d8942c78e0380955ece0a1a4b3bfe9ba1bd",
+      "n_params": 2887425
+    },
+    "XLarge": {
+      "path": "C:\\Users\\mukun\\major project\\ZeroPing\\results\\distillation\\capacity_scaling\\runs\\XLarge_seed42\\best_model.pt",
+      "sha256": "46582658b3ea630350dc1d465685cb203485f00d5234861e8db611d4893a9ca1",
+      "n_params": 6748673
+    }
+  },
+  "preprocessing": "train-fitted DistillationData scaler+OHE seed=42; transform-only",
+  "final_preds_source": "step5_reuse"
+}

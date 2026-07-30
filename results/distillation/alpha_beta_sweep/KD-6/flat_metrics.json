@@ -1,0 +1,23 @@
+{
+  "name": "KD-6",
+  "run_name": "KD-6",
+  "alpha": 0.9,
+  "beta": 0.1,
+  "val_rmse": 222.04391848918374,
+  "val_mae": 80.40188598632812,
+  "val_bias": -6.666625499725342,
+  "val_r2": 0.9310885159963521,
+  "teacher_val_rmse": 196.7724091147552,
+  "teacher_student_rmse_gap": 25.271509374428547,
+  "student_vs_teacher_rmse": 159.53540823439846,
+  "train_rmse": 245.66753233283976,
+  "train_mae": 65.91106414794922,
+  "train_bias": -11.090702056884766,
+  "train_r2": 0.9264738452686575,
+  "best_epoch": 78,
+  "epochs_ran": 80,
+  "train_seconds": 274.35032963752747,
+  "n_params": 1132545,
+  "device": "cuda",
+  "best_val_rmse": 222.04391848918374
+}

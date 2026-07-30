@@ -1,0 +1,243 @@
+{
+  "dataset": "C:\\Users\\mukun\\major project\\ZeroPing\\distillation_dataset.parquet",
+  "in_dim": 587,
+  "n_params": 1130497,
+  "hidden_dims": [
+    1024,
+    512
+  ],
+  "alpha": 0.5,
+  "beta": 0.5,
+  "seed": 42,
+  "total_seconds": 1368.6263370513916,
+  "models": {
+    "A": {
+      "run_name": "model_a_gt_only",
+      "mode": "gt",
+      "alpha": 0.5,
+      "beta": 0.5,
+      "n_params": 1130497,
+      "device": "cuda",
+      "best_epoch": 79,
+      "best_val_rmse": 279.0003453001433,
+      "epochs_ran": 80,
+      "train_seconds": 264.7157793045044,
+      "train": {
+        "student": {
+          "rmse": 228.9081498716273,
+          "mae": 65.2867202758789,
+          "bias": -8.611641883850098,
+          "r2": 0.9346281445586678
+        },
+        "teacher": {
+          "rmse": 250.18714684987174,
+          "mae": 81.40157318115234,
+          "bias": 0.869011402130127,
+          "r2": 0.9219094844491676
+        },
+        "teacher_student_rmse_gap": -21.278996978244436,
+        "student_vs_teacher_rmse": 157.11994555387784
+      },
+      "val": {
+        "student": {
+          "rmse": 279.0003453001433,
+          "mae": 86.40312194824219,
+          "bias": -10.576811790466309,
+          "r2": 0.9015843387797668
+        },
+        "teacher": {
+          "rmse": 250.60648389863343,
+          "mae": 84.23700714111328,
+          "bias": -3.5201854705810547,
+          "r2": 0.9205965560120314
+        },
+        "teacher_student_rmse_gap": 28.393861401509866,
+        "student_vs_teacher_rmse": 130.8563192382254
+      },
+      "config": {
+        "mode": "gt",
+        "alpha": 0.5,
+        "beta": 0.5,
+        "lr": 0.001,
+        "weight_decay": 0.0001,
+        "batch_size": 2048,
+        "max_epochs": 80,
+        "patience": 12,
+        "min_delta": 0.05,
+        "scheduler_factor": 0.5,
+        "scheduler_patience": 4,
+        "grad_clip": 1.0,
+        "seed": 42,
+        "device": "auto",
+        "num_workers": 0,
+        "hidden_dims": [
+          1024,
+          512
+        ],
+        "dropout": 0.1,
+        "run_name": "model_a_gt_only",
+        "extras": {
+          "experiment": "A",
+          "label": "Model A \u2014 Ground Truth Only"
+        }
+      },
+      "paths": {
+        "checkpoint": "C:\\Users\\mukun\\major project\\ZeroPing\\results\\distillation\\model_a_gt_only\\best_model.pt",
+        "training_curve": "C:\\Users\\mukun\\major project\\ZeroPing\\results\\distillation\\model_a_gt_only\\training_curve.csv",
+        "predictions": "C:\\Users\\mukun\\major project\\ZeroPing\\results\\distillation\\model_a_gt_only\\predictions.parquet"
+      }
+    },
+    "B": {
+      "run_name": "model_b_teacher_only",
+      "mode": "teacher",
+      "alpha": 0.5,
+      "beta": 0.5,
+      "n_params": 1130497,
+      "device": "cuda",
+      "best_epoch": 80,
+      "best_val_rmse": 258.1124428456392,
+      "epochs_ran": 80,
+      "train_seconds": 379.173344373703,
+      "train": {
+        "student": {
+          "rmse": 253.0125156249026,
+          "mae": 81.61156463623047,
+          "bias": -0.41951099038124084,
+          "r2": 0.9201357696749779
+        },
+        "teacher": {
+          "rmse": 250.18714684987174,
+          "mae": 81.40157318115234,
+          "bias": 0.869011402130127,
+          "r2": 0.9219094844491676
+        },
+        "teacher_student_rmse_gap": 2.825368775030853,
+        "student_vs_teacher_rmse": 77.80424453473883
+      },
+      "val": {
+        "student": {
+          "rmse": 258.1124428456392,
+          "mae": 83.86592102050781,
+          "bias": -4.889817237854004,
+          "r2": 0.9157688722522367
+        },
+        "teacher": {
+          "rmse": 250.60648389863343,
+          "mae": 84.23700714111328,
+          "bias": -3.5201854705810547,
+          "r2": 0.9205965560120314
+        },
+        "teacher_student_rmse_gap": 7.505958947005752,
+        "student_vs_teacher_rmse": 78.23838189686043
+      },
+      "config": {
+        "mode": "teacher",
+        "alpha": 0.5,
+        "beta": 0.5,
+        "lr": 0.001,
+        "weight_decay": 0.0001,
+        "batch_size": 2048,
+        "max_epochs": 80,
+        "patience": 12,
+        "min_delta": 0.05,
+        "scheduler_factor": 0.5,
+        "scheduler_patience": 4,
+        "grad_clip": 1.0,
+        "seed": 42,
+        "device": "auto",
+        "num_workers": 0,
+        "hidden_dims": [
+          1024,
+          512
+        ],
+        "dropout": 0.1,
+        "run_name": "model_b_teacher_only",
+        "extras": {
+          "experiment": "B",
+          "label": "Model B \u2014 Teacher Only"
+        }
+      },
+      "paths": {
+        "checkpoint": "C:\\Users\\mukun\\major project\\ZeroPing\\results\\distillation\\model_b_teacher_only\\best_model.pt",
+        "training_curve": "C:\\Users\\mukun\\major project\\ZeroPing\\results\\distillation\\model_b_teacher_only\\training_curve.csv",
+        "predictions": "C:\\Users\\mukun\\major project\\ZeroPing\\results\\distillation\\model_b_teacher_only\\predictions.parquet"
+      }
+    },
+    "C": {
+      "run_name": "model_c_kd",
+      "mode": "kd",
+      "alpha": 0.5,
+      "beta": 0.5,
+      "n_params": 1130497,
+      "device": "cuda",
+      "best_epoch": 78,
+      "best_val_rmse": 264.97080020272,
+      "epochs_ran": 80,
+      "train_seconds": 717.4724388122559,
+      "train": {
+        "student": {
+          "rmse": 229.5847234793292,
+          "mae": 72.00962829589844,
+          "bias": 1.9677774906158447,
+          "r2": 0.9342411401225645
+        },
+        "teacher": {
+          "rmse": 250.18714684987174,
+          "mae": 81.40157318115234,
+          "bias": 0.869011402130127,
+          "r2": 0.9219094844491676
+        },
+        "teacher_student_rmse_gap": -20.60242337054254,
+        "student_vs_teacher_rmse": 111.12968260677566
+      },
+      "val": {
+        "student": {
+          "rmse": 264.97080020272,
+          "mae": 82.93534088134766,
+          "bias": -1.4576696157455444,
+          "r2": 0.9112331583674183
+        },
+        "teacher": {
+          "rmse": 250.60648389863343,
+          "mae": 84.23700714111328,
+          "bias": -3.5201854705810547,
+          "r2": 0.9205965560120314
+        },
+        "teacher_student_rmse_gap": 14.364316304086572,
+        "student_vs_teacher_rmse": 99.50773603402511
+      },
+      "config": {
+        "mode": "kd",
+        "alpha": 0.5,
+        "beta": 0.5,
+        "lr": 0.001,
+        "weight_decay": 0.0001,
+        "batch_size": 2048,
+        "max_epochs": 80,
+        "patience": 12,
+        "min_delta": 0.05,
+        "scheduler_factor": 0.5,
+        "scheduler_patience": 4,
+        "grad_clip": 1.0,
+        "seed": 42,
+        "device": "auto",
+        "num_workers": 0,
+        "hidden_dims": [
+          1024,
+          512
+        ],
+        "dropout": 0.1,
+        "run_name": "model_c_kd",
+        "extras": {
+          "experiment": "C",
+          "label": "Model C \u2014 Knowledge Distillation"
+        }
+      },
+      "paths": {
+        "checkpoint": "C:\\Users\\mukun\\major project\\ZeroPing\\results\\distillation\\model_c_kd\\best_model.pt",
+        "training_curve": "C:\\Users\\mukun\\major project\\ZeroPing\\results\\distillation\\model_c_kd\\training_curve.csv",
+        "predictions": "C:\\Users\\mukun\\major project\\ZeroPing\\results\\distillation\\model_c_kd\\predictions.parquet"
+      }
+    }
+  }
+}

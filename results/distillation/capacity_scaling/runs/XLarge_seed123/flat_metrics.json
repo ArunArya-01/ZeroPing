@@ -1,0 +1,23 @@
+{
+  "name": "XLarge_seed123",
+  "run_name": "XLarge_seed123",
+  "alpha": 0.1,
+  "beta": 0.9,
+  "val_rmse": 229.90206962719859,
+  "val_mae": 81.2297592163086,
+  "val_bias": -3.629720449447632,
+  "val_r2": 0.9305694400163762,
+  "teacher_val_rmse": 244.14115486523167,
+  "teacher_student_rmse_gap": -14.239085238033084,
+  "student_vs_teacher_rmse": 58.25593811608242,
+  "train_rmse": 239.66777537779743,
+  "train_mae": 78.67426300048828,
+  "train_bias": -0.849024772644043,
+  "train_r2": 0.9289990930132594,
+  "best_epoch": 56,
+  "epochs_ran": 68,
+  "train_seconds": 285.34294033050537,
+  "n_params": 6748673,
+  "device": "cuda",
+  "best_val_rmse": 229.90206962719859
+}

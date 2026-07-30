@@ -1,0 +1,23 @@
+{
+  "name": "KD-5",
+  "run_name": "KD-5",
+  "alpha": 0.7,
+  "beta": 0.3,
+  "val_rmse": 209.22305143126903,
+  "val_mae": 77.48611450195312,
+  "val_bias": -4.209255695343018,
+  "val_r2": 0.9388166995963253,
+  "teacher_val_rmse": 196.7724091147552,
+  "teacher_student_rmse_gap": 12.450642316513836,
+  "student_vs_teacher_rmse": 139.10023206234968,
+  "train_rmse": 240.93198710423735,
+  "train_mae": 67.96807861328125,
+  "train_bias": -9.03271484375,
+  "train_r2": 0.929281139876157,
+  "best_epoch": 78,
+  "epochs_ran": 80,
+  "train_seconds": 278.25974774360657,
+  "n_params": 1132545,
+  "device": "cuda",
+  "best_val_rmse": 209.22305143126903
+}

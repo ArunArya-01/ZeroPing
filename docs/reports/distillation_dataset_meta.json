@@ -1,0 +1,288 @@
+{
+  "n_samples": 119032,
+  "n_features": 60,
+  "feature_cols": [
+    "duration_s",
+    "start_fraction_of_flight",
+    "end_fraction_of_flight",
+    "n_traj_pts",
+    "has_acars_in_window",
+    "mean_altitude",
+    "median_altitude",
+    "max_altitude",
+    "std_altitude",
+    "mean_groundspeed",
+    "std_groundspeed",
+    "max_groundspeed",
+    "mean_vertical_rate",
+    "std_vertical_rate",
+    "climb_fraction",
+    "cruise_fraction",
+    "descent_fraction",
+    "ref_mass_kg",
+    "mean_potential_energy_j",
+    "mean_kinetic_energy_j",
+    "mean_specific_energy_jpkg",
+    "specific_energy_start",
+    "specific_energy_end",
+    "energy_change_jpkg",
+    "energy_rate_jpkg_s",
+    "climb_efficiency",
+    "energy_efficiency",
+    "cumulative_energy_change_jpkg",
+    "headwind_mps",
+    "crosswind_mps",
+    "temperature_k",
+    "pressure_pa",
+    "isa_deviation_k",
+    "density_altitude_m",
+    "physics_fuel_kg",
+    "aircraft_type",
+    "method",
+    "origin_icao",
+    "destination_icao",
+    "r3_tow_kg",
+    "r3_landing_mass_kg",
+    "r3_mass_start_kg",
+    "r3_mass_end_kg",
+    "r3_mean_mass_kg",
+    "r3_min_mass_kg",
+    "r3_max_mass_kg",
+    "r3_mass_std_kg",
+    "r3_mass_consumed_kg",
+    "r3_mass_rate_kgps",
+    "r3_fuel_fraction",
+    "r3_remaining_fuel_frac",
+    "r3_phase_mass_kg",
+    "r3_cruise_mass_kg",
+    "r3_wing_loading_cur",
+    "r3_oew_base_kg",
+    "r3_mean_pe_j",
+    "r3_mean_ke_j",
+    "r3_fuel_mass_efficiency",
+    "r3_tow_mtow_ratio",
+    "r3_cruise_mass_fuel_ratio"
+  ],
+  "split_counts": {
+    "train": 119032
+  },
+  "aux_targets": [
+    "teacher_prediction",
+    "ridge_prediction",
+    "xgb_direct_prediction",
+    "lgbm_direct_prediction",
+    "cat_direct_prediction",
+    "xgb_flow_prediction",
+    "lgbm_flow_prediction",
+    "cat_flow_prediction",
+    "xgb_prediction",
+    "lgbm_prediction",
+    "cat_prediction",
+    "calibrated_prediction",
+    "openap_prediction",
+    "residual",
+    "phase",
+    "dynamic_mass",
+    "ref_mass_kg",
+    "r3_mass_start_kg",
+    "r3_mass_end_kg",
+    "r3_mass_consumed_kg",
+    "r3_phase_mass_kg",
+    "r3_fuel_fraction",
+    "p1e_phase_group"
+  ],
+  "parquet": "C:\\Users\\mukun\\major project\\ZeroPing\\distillation_dataset.parquet",
+  "report": "C:\\Users\\mukun\\major project\\ZeroPing\\docs\\reports\\distillation_dataset_report.md",
+  "teacher": {
+    "variant": "R3_P1E_phase_affine",
+    "meta_kind": "ridge",
+    "bases": [
+      [
+        "xgb",
+        "direct"
+      ],
+      [
+        "lgbm",
+        "direct"
+      ],
+      [
+        "cat",
+        "direct"
+      ],
+      [
+        "xgb",
+        "fuel_flow"
+      ],
+      [
+        "lgbm",
+        "fuel_flow"
+      ],
+      [
+        "cat",
+        "fuel_flow"
+      ]
+    ],
+    "oof_rmse_pre_p1e": 252.31752702406055,
+    "oof_rmse_teacher": 250.2702267315409,
+    "oof_bias_teacher": 7.623642664501621e-13,
+    "reference_combined_rmse": 221.33,
+    "reference_final_rmse": 213.73
+  },
+  "missing": {
+    "columns_with_missing": 25,
+    "total_missing_cells": 236691,
+    "per_column": {
+      "mean_altitude": {
+        "null_count": 3947,
+        "nan_count": 0,
+        "missing_count": 3947,
+        "missing_frac": 0.03315915048054305
+      },
+      "median_altitude": {
+        "null_count": 3947,
+        "nan_count": 0,
+        "missing_count": 3947,
+        "missing_frac": 0.03315915048054305
+      },
+      "max_altitude": {
+        "null_count": 3947,
+        "nan_count": 0,
+        "missing_count": 3947,
+        "missing_frac": 0.03315915048054305
+      },
+      "std_altitude": {
+        "null_count": 2987,
+        "nan_count": 0,
+        "missing_count": 2987,
+        "missing_frac": 0.025094092344915653
+      },
+      "mean_groundspeed": {
+        "null_count": 42696,
+        "nan_count": 0,
+        "missing_count": 42696,
+        "missing_frac": 0.3586934605820284
+      },
+      "std_groundspeed": {
+        "null_count": 2987,
+        "nan_count": 0,
+        "missing_count": 2987,
+        "missing_frac": 0.025094092344915653
+      },
+      "max_groundspeed": {
+        "null_count": 42696,
+        "nan_count": 0,
+        "missing_count": 42696,
+        "missing_frac": 0.3586934605820284
+      },
+      "mean_vertical_rate": {
+        "null_count": 42696,
+        "nan_count": 0,
+        "missing_count": 42696,
+        "missing_frac": 0.3586934605820284
+      },
+      "std_vertical_rate": {
+        "null_count": 2987,
+        "nan_count": 0,
+        "missing_count": 2987,
+        "missing_frac": 0.025094092344915653
+      },
+      "mean_potential_energy_j": {
+        "null_count": 2987,
+        "nan_count": 0,
+        "missing_count": 2987,
+        "missing_frac": 0.025094092344915653
+      },
+      "mean_kinetic_energy_j": {
+        "null_count": 2987,
+        "nan_count": 0,
+        "missing_count": 2987,
+        "missing_frac": 0.025094092344915653
+      },
+      "mean_specific_energy_jpkg": {
+        "null_count": 2987,
+        "nan_count": 0,
+        "missing_count": 2987,
+        "missing_frac": 0.025094092344915653
+      },
+      "specific_energy_start": {
+        "null_count": 2987,
+        "nan_count": 0,
+        "missing_count": 2987,
+        "missing_frac": 0.025094092344915653
+      },
+      "specific_energy_end": {
+        "null_count": 2987,
+        "nan_count": 0,
+        "missing_count": 2987,
+        "missing_frac": 0.025094092344915653
+      },
+      "energy_change_jpkg": {
+        "null_count": 2987,
+        "nan_count": 0,
+        "missing_count": 2987,
+        "missing_frac": 0.025094092344915653
+      },
+      "energy_rate_jpkg_s": {
+        "null_count": 2987,
+        "nan_count": 0,
+        "missing_count": 2987,
+        "missing_frac": 0.025094092344915653
+      },
+      "climb_efficiency": {
+        "null_count": 42696,
+        "nan_count": 0,
+        "missing_count": 42696,
+        "missing_frac": 0.3586934605820284
+      },
+      "energy_efficiency": {
+        "null_count": 2987,
+        "nan_count": 50,
+        "missing_count": 3037,
+        "missing_frac": 0.025514147456146247
+      },
+      "cumulative_energy_change_jpkg": {
+        "null_count": 2987,
+        "nan_count": 0,
+        "missing_count": 2987,
+        "missing_frac": 0.025094092344915653
+      },
+      "physics_fuel_kg": {
+        "null_count": 2987,
+        "nan_count": 50,
+        "missing_count": 3037,
+        "missing_frac": 0.025514147456146247
+      },
+      "r3_fuel_mass_efficiency": {
+        "null_count": 2987,
+        "nan_count": 50,
+        "missing_count": 3037,
+        "missing_frac": 0.025514147456146247
+      },
+      "r3_cruise_mass_fuel_ratio": {
+        "null_count": 2987,
+        "nan_count": 50,
+        "missing_count": 3037,
+        "missing_frac": 0.025514147456146247
+      },
+      "openap_prediction": {
+        "null_count": 2987,
+        "nan_count": 50,
+        "missing_count": 3037,
+        "missing_frac": 0.025514147456146247
+      },
+      "residual": {
+        "null_count": 2987,
+        "nan_count": 50,
+        "missing_count": 3037,
+        "missing_frac": 0.025514147456146247
+      },
+      "phase": {
+        "null_count": 2987,
+        "nan_count": 0,
+        "missing_count": 2987,
+        "missing_frac": 0.025094092344915653
+      }
+    }
+  },
+  "parquet_bytes": 42818403
+}

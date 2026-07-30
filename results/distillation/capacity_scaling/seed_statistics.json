@@ -1,0 +1,15 @@
+{
+  "n": 5,
+  "mean_val_rmse": 228.48527208110522,
+  "std_val_rmse": 0.9182040953470805,
+  "ci95_low": 227.68043070553463,
+  "ci95_high": 229.2901134566758,
+  "best_seed": 9999,
+  "best_val_rmse": 227.5826742851619,
+  "worst_seed": 123,
+  "worst_val_rmse": 229.90206962719859,
+  "teacher_val_rmse": 244.14115486523167,
+  "all_seeds_better_than_teacher": true,
+  "ci95_entirely_below_teacher": "True",
+  "mean_gap_vs_teacher": -15.655882784126447
+}

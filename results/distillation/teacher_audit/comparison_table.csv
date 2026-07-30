@@ -1,0 +1,7 @@
+source,rmse,mae,notes
+Official R3 Combined (Rank+Final protocol),221.32639201284033,,"From docs/reports/r3_ensemble_summary.json; best_variant=R3_P1E_phase_affine. Rank RMSE=232.53, Final RMSE=213.73. This is the ~221 kg number in project docs — NOT Final-only."
+Official R3 Final-only (same R3 run as Combined),213.7274279507162,,Same evaluation campaign as Combined; Final split component only.
+Step 5 held-out eval (test_evaluation metrics.json),213.6217985429934,74.13906475990117,Teacher inference via same r3_teacher_distillation_bundle.pkl on featured_dataset_final.
+This audit (reproduced Final inference),213.6217985429934,74.13906475990117,Exact re-run on featured_dataset_final; n=37170; n_flights=2824.
+Distillation meta reference_final_rmse,213.73,,Documented at dataset build time; expected ~213.73.
+Distillation meta reference_combined_rmse,221.33,,Documented Combined; expected ~221.33.

@@ -1,0 +1,23 @@
+{
+  "name": "KD-7",
+  "run_name": "KD-7",
+  "alpha": 1.0,
+  "beta": 0.0,
+  "val_rmse": 221.3150319264281,
+  "val_mae": 81.2995834350586,
+  "val_bias": -5.581536769866943,
+  "val_r2": 0.9315401943325331,
+  "teacher_val_rmse": 196.7724091147552,
+  "teacher_student_rmse_gap": 24.542622811672913,
+  "student_vs_teacher_rmse": 162.98589165454217,
+  "train_rmse": 247.70748332283574,
+  "train_mae": 65.64761352539062,
+  "train_bias": -9.65087604522705,
+  "train_r2": 0.9252476963663956,
+  "best_epoch": 78,
+  "epochs_ran": 80,
+  "train_seconds": 278.015988111496,
+  "n_params": 1132545,
+  "device": "cuda",
+  "best_val_rmse": 221.3150319264281
+}

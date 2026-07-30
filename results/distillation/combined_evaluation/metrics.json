@@ -1,0 +1,183 @@
+{
+  "protocol": {
+    "A_final": "Held-out Final only (Step 5)",
+    "B_combined": "Official PRC Combined = RMSE(concat Rank, Final)",
+    "alpha": 0.1,
+    "beta": 0.9
+  },
+  "datasets": {
+    "rank": {
+      "path": "C:\\Users\\mukun\\major project\\ZeroPing\\featured_dataset_rank.parquet",
+      "sha256": "37dae48a668663f5807538c9dc0598589f4e98df0f50dfe26b30dd9bcc5ae15a",
+      "n_rows": 24158,
+      "n_flights": 1881
+    },
+    "final": {
+      "path": "C:\\Users\\mukun\\major project\\ZeroPing\\featured_dataset_final.parquet",
+      "sha256": "4509b08399eb32d3dbd7e4315dbdbcd88e9b644e3464290d3cfba8537a4171fb",
+      "n_rows": 37170,
+      "n_flights": 2824
+    }
+  },
+  "teacher": {
+    "rank_rmse": 232.53,
+    "final_rmse": 213.62,
+    "combined_rmse": 221.33
+  },
+  "models": {
+    "Large": {
+      "checkpoint": "C:\\Users\\mukun\\major project\\ZeroPing\\results\\distillation\\capacity_scaling\\runs\\Large_seed42\\best_model.pt",
+      "n_params": 2887425,
+      "validation": {
+        "val_rmse": 229.69766955732914,
+        "val_mae": 81.70025634765625,
+        "val_bias": -4.2176737785339355,
+        "val_r2": 0.9306928430169216
+      },
+      "rank": {
+        "rmse": 240.66018847898383,
+        "mae": 81.30637408095355,
+        "bias": 3.9529623778633636,
+        "r2": 0.9031751209742437,
+        "mean_residual": 3.9529623778633636,
+        "median_residual": 5.792804241943358,
+        "std_residual": 240.62772160991597,
+        "p95_abs_error": 317.2814483458983,
+        "max_abs_error": 7574.556640625,
+        "n": 24158
+      },
+      "final": {
+        "rmse": 215.85043921364056,
+        "mae": 76.6889542993193,
+        "bias": 5.253184659896769,
+        "r2": 0.9220401093634516,
+        "mean_residual": 5.253184659896769,
+        "median_residual": 7.237678051757811,
+        "std_residual": 215.78650597210788,
+        "p95_abs_error": 280.6932044726556,
+        "max_abs_error": 6154.16748046875,
+        "n": 37170
+      },
+      "combined": {
+        "rmse": 225.948790821556,
+        "mae": 78.50782377304617,
+        "bias": 4.741008005034993,
+        "r2": 0.9146063259334717,
+        "mean_residual": 4.741008005034993,
+        "median_residual": 6.629390240478514,
+        "std_residual": 225.89904585194571,
+        "p95_abs_error": 294.91494857929683,
+        "max_abs_error": 7574.556640625,
+        "n": 61328
+      },
+      "gap_to_teacher_final": 2.230439213640551,
+      "gap_to_teacher_combined": 4.61879082155599,
+      "cpu_latency_ms": 0.2621099999487342
+    },
+    "XLarge": {
+      "checkpoint": "C:\\Users\\mukun\\major project\\ZeroPing\\results\\distillation\\capacity_scaling\\runs\\XLarge_seed42\\best_model.pt",
+      "n_params": 6748673,
+      "validation": {
+        "val_rmse": 228.13989462613395,
+        "val_mae": 81.28582000732422,
+        "val_bias": -0.17457929253578186,
+        "val_r2": 0.9316297166987774
+      },
+      "rank": {
+        "rmse": 244.4034223615959,
+        "mae": 81.97549023916574,
+        "bias": 5.590494211000725,
+        "r2": 0.9001396637531046,
+        "mean_residual": 5.590494211000725,
+        "median_residual": 5.027480126953122,
+        "std_residual": 244.33947539547796,
+        "p95_abs_error": 312.0406504121094,
+        "max_abs_error": 6866.59423828125,
+        "n": 24158
+      },
+      "final": {
+        "rmse": 218.5851522084573,
+        "mae": 77.36223174109236,
+        "bias": 6.414265542505065,
+        "r2": 0.9200521728987897,
+        "mean_residual": 6.414265542505065,
+        "median_residual": 5.920831769653319,
+        "std_residual": 218.49102032702555,
+        "p95_abs_error": 279.4492199333977,
+        "max_abs_error": 6465.58251953125,
+        "n": 37170
+      },
+      "combined": {
+        "rmse": 229.10293153990548,
+        "mae": 79.17946202410266,
+        "bias": 6.089769915279625,
+        "r2": 0.9122055729130352,
+        "mean_residual": 6.089769915279625,
+        "median_residual": 5.577745344238281,
+        "std_residual": 229.0219813523531,
+        "p95_abs_error": 292.20303192138647,
+        "max_abs_error": 6866.59423828125,
+        "n": 61328
+      },
+      "gap_to_teacher_final": 4.965152208457283,
+      "gap_to_teacher_combined": 7.772931539905471,
+      "cpu_latency_ms": 0.5206674999499228
+    }
+  },
+  "ranking": {
+    "validation_best": "XLarge",
+    "rank_best": "Large",
+    "final_best": "Large",
+    "combined_best": "Large",
+    "ranking_final_vs_combined_consistent": true
+  },
+  "comparison": [
+    {
+      "model": "R3 Teacher (frozen)",
+      "rank_rmse": 232.53,
+      "final_rmse": 213.62,
+      "combined_rmse": 221.33,
+      "mae": null,
+      "r2": null,
+      "parameters": "ensemble",
+      "cpu_latency_ms": 52.0,
+      "notes": "Rank/Combined from official R3 campaign; Final held-out audit 213.62"
+    },
+    {
+      "model": "Large MLP (~3M)",
+      "rank_rmse": 240.66018847898383,
+      "final_rmse": 215.85043921364056,
+      "combined_rmse": 225.948790821556,
+      "mae": 78.50782377304617,
+      "r2": 0.9146063259334717,
+      "parameters": 2887425,
+      "cpu_latency_ms": 0.2621099999487342,
+      "notes": "Combined MAE/R2 on concat Rank+Final"
+    },
+    {
+      "model": "XLarge MLP (~6.75M)",
+      "rank_rmse": 244.4034223615959,
+      "final_rmse": 218.5851522084573,
+      "combined_rmse": 229.10293153990548,
+      "mae": 79.17946202410266,
+      "r2": 0.9122055729130352,
+      "parameters": 6748673,
+      "cpu_latency_ms": 0.5206674999499228,
+      "notes": "Combined MAE/R2 on concat Rank+Final"
+    }
+  ],
+  "deployment_recommendation": "Large",
+  "wall_seconds": 3.890444755554199,
+  "timestamp_utc": "2026-07-30T01:43:49.771320+00:00",
+  "git_commit": "aa6ebf16939d7e7dc94b2a8ba09e0f14f01dbe13",
+  "python": "3.12.0",
+  "platform": "Windows-11-10.0.26200-SP0",
+  "plots": {
+    "rank_pred_vs_truth": "figures/fig_comb_rank_pred_vs_truth.png",
+    "rank_residual_hist": "figures/fig_comb_rank_residual_hist.png",
+    "combined_error_dist": "figures/fig_comb_combined_error_dist.png",
+    "teacher_vs_student": "figures/fig_comb_teacher_vs_student.png",
+    "final_vs_combined": "figures/fig_comb_final_vs_combined.png",
+    "large_vs_xlarge_protocols": "figures/fig_comb_large_vs_xlarge_protocols.png"
+  }
+}

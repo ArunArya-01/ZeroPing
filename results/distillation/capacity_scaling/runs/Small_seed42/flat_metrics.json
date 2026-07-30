@@ -1,0 +1,23 @@
+{
+  "name": "Small_seed42",
+  "run_name": "Small_seed42",
+  "alpha": 0.1,
+  "beta": 0.9,
+  "val_rmse": 241.72593938469169,
+  "val_mae": 83.8330078125,
+  "val_bias": 0.27766063809394836,
+  "val_r2": 0.9232441616564419,
+  "teacher_val_rmse": 244.14115486523167,
+  "teacher_student_rmse_gap": -2.4152154805399846,
+  "student_vs_teacher_rmse": 99.39170932472584,
+  "train_rmse": 264.46543660052964,
+  "train_mae": 82.55317687988281,
+  "train_bias": 2.496090888977051,
+  "train_r2": 0.9135465258798356,
+  "best_epoch": 80,
+  "epochs_ran": 80,
+  "train_seconds": 269.2507085800171,
+  "n_params": 504001,
+  "device": "cuda",
+  "best_val_rmse": 241.72593938469169
+}

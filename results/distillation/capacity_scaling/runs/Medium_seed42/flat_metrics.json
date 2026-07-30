@@ -1,0 +1,23 @@
+{
+  "name": "Medium_seed42",
+  "run_name": "Medium_seed42",
+  "alpha": 0.1,
+  "beta": 0.9,
+  "val_rmse": 235.04487956348464,
+  "val_mae": 82.46287536621094,
+  "val_bias": -1.4555186033248901,
+  "val_r2": 0.9274284338939505,
+  "teacher_val_rmse": 244.14115486523167,
+  "teacher_student_rmse_gap": -9.096275301747028,
+  "student_vs_teacher_rmse": 74.6425066724799,
+  "train_rmse": 249.30352840560508,
+  "train_mae": 80.0662841796875,
+  "train_bias": 1.6083369255065918,
+  "train_r2": 0.9231751966278029,
+  "best_epoch": 79,
+  "epochs_ran": 80,
+  "train_seconds": 252.10136699676514,
+  "n_params": 1125377,
+  "device": "cuda",
+  "best_val_rmse": 235.04487956348464
+}

@@ -1,0 +1,76 @@
+{
+  "run_name": "model_a_gt_only",
+  "mode": "gt",
+  "alpha": 0.5,
+  "beta": 0.5,
+  "n_params": 1130497,
+  "device": "cuda",
+  "best_epoch": 79,
+  "best_val_rmse": 279.0003453001433,
+  "epochs_ran": 80,
+  "train_seconds": 264.7157793045044,
+  "train": {
+    "student": {
+      "rmse": 228.9081498716273,
+      "mae": 65.2867202758789,
+      "bias": -8.611641883850098,
+      "r2": 0.9346281445586678
+    },
+    "teacher": {
+      "rmse": 250.18714684987174,
+      "mae": 81.40157318115234,
+      "bias": 0.869011402130127,
+      "r2": 0.9219094844491676
+    },
+    "teacher_student_rmse_gap": -21.278996978244436,
+    "student_vs_teacher_rmse": 157.11994555387784
+  },
+  "val": {
+    "student": {
+      "rmse": 279.0003453001433,
+      "mae": 86.40312194824219,
+      "bias": -10.576811790466309,
+      "r2": 0.9015843387797668
+    },
+    "teacher": {
+      "rmse": 250.60648389863343,
+      "mae": 84.23700714111328,
+      "bias": -3.5201854705810547,
+      "r2": 0.9205965560120314
+    },
+    "teacher_student_rmse_gap": 28.393861401509866,
+    "student_vs_teacher_rmse": 130.8563192382254
+  },
+  "config": {
+    "mode": "gt",
+    "alpha": 0.5,
+    "beta": 0.5,
+    "lr": 0.001,
+    "weight_decay": 0.0001,
+    "batch_size": 2048,
+    "max_epochs": 80,
+    "patience": 12,
+    "min_delta": 0.05,
+    "scheduler_factor": 0.5,
+    "scheduler_patience": 4,
+    "grad_clip": 1.0,
+    "seed": 42,
+    "device": "auto",
+    "num_workers": 0,
+    "hidden_dims": [
+      1024,
+      512
+    ],
+    "dropout": 0.1,
+    "run_name": "model_a_gt_only",
+    "extras": {
+      "experiment": "A",
+      "label": "Model A \u2014 Ground Truth Only"
+    }
+  },
+  "paths": {
+    "checkpoint": "C:\\Users\\mukun\\major project\\ZeroPing\\results\\distillation\\model_a_gt_only\\best_model.pt",
+    "training_curve": "C:\\Users\\mukun\\major project\\ZeroPing\\results\\distillation\\model_a_gt_only\\training_curve.csv",
+    "predictions": "C:\\Users\\mukun\\major project\\ZeroPing\\results\\distillation\\model_a_gt_only\\predictions.parquet"
+  }
+}

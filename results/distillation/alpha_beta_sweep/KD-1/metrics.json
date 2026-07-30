@@ -1,0 +1,80 @@
+{
+  "run_name": "KD-1",
+  "mode": "kd",
+  "alpha": 0.1,
+  "beta": 0.9,
+  "n_params": 1132545,
+  "device": "cuda",
+  "best_epoch": 80,
+  "best_val_rmse": 188.3065675990838,
+  "epochs_ran": 80,
+  "train_seconds": 438.73443603515625,
+  "train": {
+    "student": {
+      "rmse": 260.181296230145,
+      "mae": 81.06885528564453,
+      "bias": -7.9683003425598145,
+      "r2": 0.9175295293696567
+    },
+    "teacher": {
+      "rmse": 262.1930233171738,
+      "mae": 82.97389221191406,
+      "bias": -0.8862699866294861,
+      "r2": 0.9162492722229099
+    },
+    "teacher_student_rmse_gap": -2.0117270870288166,
+    "student_vs_teacher_rmse": 73.78117158177275
+  },
+  "val": {
+    "student": {
+      "rmse": 188.3065675990838,
+      "mae": 76.90866088867188,
+      "bias": -4.328866481781006,
+      "r2": 0.9504384624287427
+    },
+    "teacher": {
+      "rmse": 196.7724091147552,
+      "mae": 78.0060043334961,
+      "bias": 3.4690446853637695,
+      "r2": 0.9458819371934315
+    },
+    "teacher_student_rmse_gap": -8.4658415156714,
+    "student_vs_teacher_rmse": 110.80465033730397
+  },
+  "config": {
+    "mode": "kd",
+    "alpha": 0.1,
+    "beta": 0.9,
+    "lr": 0.001,
+    "weight_decay": 0.0001,
+    "batch_size": 2048,
+    "max_epochs": 80,
+    "patience": 12,
+    "min_delta": 0.05,
+    "scheduler_factor": 0.5,
+    "scheduler_patience": 4,
+    "grad_clip": 1.0,
+    "seed": 42,
+    "device": "auto",
+    "num_workers": 0,
+    "hidden_dims": [
+      1024,
+      512
+    ],
+    "dropout": 0.1,
+    "run_name": "KD-1",
+    "extras": {
+      "stage": "step3_alpha_beta_sweep",
+      "kd_name": "KD-1",
+      "alpha": 0.1,
+      "beta": 0.9,
+      "n_params": 1132545,
+      "in_dim": 589
+    }
+  },
+  "paths": {
+    "checkpoint": "C:\\Users\\mukun\\major project\\ZeroPing\\results\\distillation\\alpha_beta_sweep\\KD-1\\best_model.pt",
+    "training_curve": "C:\\Users\\mukun\\major project\\ZeroPing\\results\\distillation\\alpha_beta_sweep\\KD-1\\training_curve.csv",
+    "predictions": "C:\\Users\\mukun\\major project\\ZeroPing\\results\\distillation\\alpha_beta_sweep\\KD-1\\predictions.parquet"
+  }
+}

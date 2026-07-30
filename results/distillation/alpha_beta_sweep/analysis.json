@@ -1,0 +1,110 @@
+{
+  "best_by_val_rmse": {
+    "name": "KD-1",
+    "alpha": 0.1,
+    "beta": 0.9,
+    "val_rmse": 188.3065675990838,
+    "val_mae": 76.90866088867188,
+    "val_bias": -4.328866481781006,
+    "val_r2": 0.9504384624287427,
+    "student_vs_teacher_rmse": 110.80465033730397,
+    "teacher_student_rmse_gap": -8.4658415156714
+  },
+  "worst_by_val_rmse": {
+    "name": "KD-6",
+    "alpha": 0.9,
+    "beta": 0.1,
+    "val_rmse": 222.04391848918374
+  },
+  "best_teacher_imitation": {
+    "name": "KD-2",
+    "alpha": 0.2,
+    "beta": 0.8,
+    "student_vs_teacher_rmse": 110.19787649953213
+  },
+  "worst_teacher_imitation": {
+    "name": "KD-7",
+    "alpha": 1.0,
+    "beta": 0.0,
+    "student_vs_teacher_rmse": 162.98589165454217
+  },
+  "group_means": {
+    "teacher_heavy_val_rmse": 189.71385248796875,
+    "gt_heavy_val_rmse": 217.5273339489603,
+    "balanced_val_rmse": 196.783588322875,
+    "teacher_heavy_imit_rmse": 111.66581355888191,
+    "gt_heavy_imit_rmse": 153.87384398376344
+  },
+  "teacher_heavy_outperforms_gt_heavy": true,
+  "adding_gt_ever_improves_imitation": true,
+  "imitation_deltas_vs_pure_teacher": [
+    {
+      "name": "KD-1",
+      "alpha": 0.1,
+      "beta": 0.9,
+      "student_vs_teacher_rmse": 110.80465033730397,
+      "delta_vs_pure_teacher": -1.3040529742976474,
+      "improved_imitation": true
+    },
+    {
+      "name": "KD-2",
+      "alpha": 0.2,
+      "beta": 0.8,
+      "student_vs_teacher_rmse": 110.19787649953213,
+      "delta_vs_pure_teacher": -1.9108268120694873,
+      "improved_imitation": true
+    },
+    {
+      "name": "KD-3",
+      "alpha": 0.3,
+      "beta": 0.7,
+      "student_vs_teacher_rmse": 113.55202408708993,
+      "delta_vs_pure_teacher": 1.443320775488317,
+      "improved_imitation": false
+    },
+    {
+      "name": "KD-4",
+      "alpha": 0.5,
+      "beta": 0.5,
+      "student_vs_teacher_rmse": 125.14686965244981,
+      "delta_vs_pure_teacher": 13.038166340848193,
+      "improved_imitation": false
+    },
+    {
+      "name": "KD-5",
+      "alpha": 0.7,
+      "beta": 0.3,
+      "student_vs_teacher_rmse": 139.10023206234968,
+      "delta_vs_pure_teacher": 26.99152875074806,
+      "improved_imitation": false
+    },
+    {
+      "name": "KD-6",
+      "alpha": 0.9,
+      "beta": 0.1,
+      "student_vs_teacher_rmse": 159.53540823439846,
+      "delta_vs_pure_teacher": 47.426704922796844,
+      "improved_imitation": false
+    },
+    {
+      "name": "KD-7",
+      "alpha": 1.0,
+      "beta": 0.0,
+      "student_vs_teacher_rmse": 162.98589165454217,
+      "delta_vs_pure_teacher": 50.877188342940556,
+      "improved_imitation": false
+    }
+  ],
+  "label_denoiser_evidence": {
+    "pure_teacher_val_rmse": 189.48682682800197,
+    "pure_gt_val_rmse": 221.3150319264281,
+    "delta_rmse_teacher_minus_gt": -31.82820509842614,
+    "teacher_better_on_gt": true
+  },
+  "recommended_alpha_beta": {
+    "name": "KD-1",
+    "alpha": 0.1,
+    "beta": 0.9,
+    "reason": "lowest validation RMSE among fixed-architecture KD weight configs"
+  }
+}

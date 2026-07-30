@@ -1,14 +1,53 @@
 # AeroTwin Project Status Report
 
-**Date:** July 2026 (last repo update: 2026-07-23)  
+**Date:** July 2026 (last repo update: **2026-07-30**)  
 **Repository:** ZeroPing (AeroTwin)  
-**Dataset:** [`aerotwin/aero-data`](https://huggingface.co/datasets/aerotwin/aero-data) (EUROCONTROL PRC 2025)
+**Dataset:** [`aerotwin/aero-data`](https://huggingface.co/datasets/aerotwin/aero-data) (EUROCONTROL PRC 2025)  
+**Current phase:** **Knowledge distillation** — MLP research complete; **official held-out MLP baseline frozen**; next = transformer students
 
 ---
 
 ## Executive Summary
 
-### Official PRC2025 benchmark (canonical — completed July 2026)
+### Current phase — Knowledge distillation (July 2026)
+
+The official R3 teacher is **frozen**. Distillation Steps 1–5 are complete for the MLP track. The permanent MLP held-out baseline is established for all future student architectures.
+
+| Milestone | Status | Key result |
+|-----------|:------:|------------|
+| **Step 1** Teacher distillation dataset | ✅ done | 119,032 samples · 60 features · `distillation_dataset.parquet` |
+| **Step 2** Baseline MLP (A/B/C) | ✅ done | Teacher-only student beats GT-only; ~1.13M params |
+| **Step 3** α/β KD weight sweep | ✅ done | **Best: α=0.1, β=0.9 (KD-1)** |
+| **Step 4** Capacity scaling + latency + multi-seed | ✅ done | Best **val** student XLarge ~6.75M (228.1 kg); Large within 2 kg |
+| **Step 5** Official held-out Final evaluation | ✅ done | **Official MLP baseline = Large** · Final test RMSE **215.85 kg** · XLarge 218.59 |
+| **Combined (Rank+Final)** student eval | ✅ done | Large Combined **225.95** · XLarge **229.10** · teacher **221.33** (Large still best) |
+| Step 6+ Transformer students | ⬜ next | α=0.1 / β=0.9; ~3M; beat **Final 215.85** and **Combined 225.95** |
+
+**Recommended supervision for all future students:**  
+`L = 0.1 · MSE(gt) + 0.9 · MSE(teacher)` (KD-1).
+
+**Two evaluation protocols (both retained):**
+
+| Protocol | Definition | Use |
+|----------|------------|-----|
+| **A — Final** | Final holdout only | Architecture research / controlled comparisons |
+| **B — Combined** | RMSE(concat Rank, Final) | Official PRC-style parity vs teacher **221.33** |
+
+**Official MLP baselines (do not retrain for comparison):**
+
+| Model | Params | Rank RMSE | Final RMSE | **Combined RMSE** | CPU ms | vs teacher Combined |
+|-------|-------:|----------:|-----------:|------------------:|-------:|--------------------:|
+| **Large (official)** | **2.89M** | **240.66** | **215.85** | **225.95** | **0.26** | +4.62 kg |
+| XLarge | 6.75M | 244.40 | 218.59 | 229.10 | 0.52 | +7.77 kg |
+| R3 Teacher | ensemble | 232.53 | 213.62 | **221.33** | ~52 | reference |
+
+- Val ranking (Step 4) favored XLarge; **Final ranking reverses to Large**.
+- Generalization: both models **better** on Final than internal val (Large −6.0%; XLarge −4.2%) — **no overfitting**.
+- Hard remaining errors: **B77W / B744 / ultra-long / cruise**.
+
+Artifacts: `docs/reports/test_evaluation.md`, `docs/reports/capacity_scaling_report.md`, `results/distillation/test_evaluation/`.
+
+### Official PRC2025 benchmark (canonical — completed July 2026; teacher frozen)
 
 Under the **released official** Rank + Final protocol (train-only fits; no Rank/Final leakage or post-hoc tuning):
 
@@ -31,6 +70,7 @@ Under the **released official** Rank + Final protocol (train-only fits; no Rank/
 | **R3 (current best)** | **P1E + dynamic mass model (21 features)** | **221.33** | **−6.92** |
 
 - **Current best Combined RMSE: 221.33 kg** (Rank **232.53** · Final **213.73**; bias ≈ **+3.9 kg**). Remaining gap to winner ≈ **20 kg**.
+- **Teacher Final held-out (distillation parity, audited):** **213.62 kg** on `featured_dataset_final.parquet` via `cache/r3_teacher_distillation_bundle.pkl` — **not** the Combined 221.33 figure. Full audit: `docs/reports/teacher_evaluation_report.md`.
 - **Largest single step:** R3 dynamic mass (`physics/mass_model.py`) replaces crude `MTOW × 0.75` with 21 physics-informed mass features.
 - **Reports / artifacts:** `official_prc_benchmark_report.md`, `official_gap_closing_report.md`, `CURRENT_MODEL_SUMMARY.md`, `figures/r3_ensemble_summary.json`, `README.md` Results.
 
@@ -66,12 +106,13 @@ Under the **released official** Rank + Final protocol (train-only fits; no Rank/
   - ML ≫ raw OpenAP **replicates** (physics MAE ~140 kg vs Direct ~21–26 kg on this pilot scale).
 - **Caveats:** pilot is small (4 test flights); labels are reconstructed from `FF_*` (not ACARS FOB); absolute MAE is **not** comparable to PRC Level-1 ~84 kg; aircraft-type diversity for LOTO-style external analysis remains limited; default OpenAP type (`CRJ9`) may not match the FDR fleet.
 
-### Two active workstreams (see checklists)
+### Active workstreams (see checklists)
 
-1. **§21 Official RMSE improvement checklist** — **R1–R3 done** (Combined **228.25 → 221.33**, −6.92 kg). Remaining open: asymmetric heavy loss, ultra-long / long-interval specialists, ensemble redesign, freeze docs. Remaining gap to winner ≈ **20 kg**.
-2. **§22 Final project completion checklist** — freeze **221.33** as current best (and **228.25** as canonical), package repo, write thesis/paper, define “done.”
+1. **§23 Knowledge distillation (PRIMARY)** — Steps **1–5 complete** (MLP track + official Final held-out). Next: FT/Tab transformer students vs frozen Large baseline (**Final RMSE 215.85**), **α=0.1, β=0.9**.
+2. **§21 Official RMSE improvement checklist** — **R1–R3 done** (Combined **228.25 → 221.33**, −6.92 kg). Teacher frozen; further Tier-1 items optional / deferred.
+3. **§22 Final project completion checklist** — freeze **221.33** teacher + **215.85 Large Final** student baseline, package repo, write thesis/paper including distillation + held-out eval.
 
-**Paper / major-project submission:** Strong internal + official evaluation; gap-closing through R3 complete; external evidence still **pilot-scale**. Primary remaining work is **§22** freeze + write-up (optional further Tier-1 items if chasing more RMSE).
+**Paper / major-project submission:** Official evaluation + R1–R3 + distillation MLP track (Steps 1–5) complete. Write-up should cover hybrid teacher, KD weights, capacity, and **official Final student baseline**.
 
 ---
 
@@ -778,9 +819,11 @@ No single inductive bias dominates across unseen aircraft families.
 
 ### Immediate Next Experiment
 
-**Primary (recommended):** §22 Track 1–3 — freeze Combined **228.25** (canonical) and **221.33** (R3 best), package docs, write thesis/paper with honest residual-gap discussion (~20 kg to winner).
+**Primary:** Distillation Step 6 — FT-Transformer / TabTransformer student on the **frozen** dataset with **α=0.1, β=0.9**, targeting ~3M params (Large-tier). Must beat **official Large Final RMSE 215.85 kg**. Reuse `runner.py`.
 
-**Optional (if still chasing official RMSE):** remaining §21 items — asymmetric heavy loss, ultra-long / long-interval specialists, Flow-first ensemble redesign — under train-only protocol. Stop if gains stall (~1 kg) and freeze via §22.
+**Secondary:** §22 freeze + write-up (canonical **228.25**, teacher **221.33**, student Final baseline **215.85**, distillation Steps 1–5).
+
+**Deferred:** further teacher RMSE chase (§21 Tier-1) unless reopening the frozen teacher is justified. Further MLP width beyond Large is **not** justified by Step 5 Final results.
 
 **Scientific depth (thesis transfer chapter):** Operational distribution-shift analysis (Priority 1; §20): for each LOTO held-out type, measure operational train–test distance and correlate with Direct MAE, Flow MAE, and **ΔMAE (Flow − Direct)**. Scale DASHlink external pilot or scope it as pilot-only (§20 / F5).
 
@@ -1386,57 +1429,206 @@ All of the following:
 
 ---
 
+## 23. Knowledge Distillation Stream (PRIMARY)
+
+**Status:** Steps 1–5 **complete** (2026-07-30). Teacher frozen. **Official MLP held-out baseline frozen (Large Final RMSE 215.85 kg).** Next: transformer students with α=0.1 / β=0.9.
+
+### Frozen teacher (do not retrain)
+
+| Component | Detail |
+|-----------|--------|
+| Ensemble | XGB / LGBM / CatBoost × Direct + Fuel-Flow (6 bases) |
+| Meta | Ridge (train-OOF selected) |
+| Features | Energy+Weather base + **21 R3 dynamic mass** |
+| Calibration | P1E phase-conditional affine |
+| Official Combined RMSE | **221.33 kg** (Rank 232.53 · Final 213.73 · bias ~+3.7 kg) |
+
+### Distillation dataset (frozen)
+
+| Field | Value |
+|-------|------:|
+| Path | `distillation_dataset.parquet` |
+| Samples | 119,032 (train intervals) |
+| Features | 60 (ensemble input order) |
+| Soft labels | OOF base preds + ridge + P1E teacher |
+| Report | `docs/reports/distillation_dataset_report.md` |
+
+### Baseline MLP (Step 2)
+
+| Model | Loss | Val RMSE (kg) | Gap vs teacher |
+|-------|------|-------------:|---------------:|
+| A | GT only | 279.0 | +28.4 |
+| B | Teacher only | **258.1** | **+7.5** |
+| C | α=β=0.5 | 265.0 | +14.4 |
+
+~1.13M params; flight-level 80/20; seed 42. Report: `docs/reports/mlp_student_report.md`.
+
+### α/β sweep (Step 3) — key table
+
+| Exp | α | β | Val RMSE | Student–Teacher RMSE |
+|-----|--:|--:|---------:|---------------------:|
+| **KD-1** | **0.1** | **0.9** | **188.31** | 110.80 |
+| KD-2 | 0.2 | 0.8 | 189.48 | **110.20** |
+| KD-0 | 0.0 | 1.0 | 189.49 | 112.11 |
+| KD-4 | 0.5 | 0.5 | 196.78 | 125.15 |
+| KD-7 | 1.0 | 0.0 | 221.32 | 162.99 |
+
+- Teacher-heavy mean val RMSE **189.7** ≪ GT-heavy **217.5**.
+- Pure teacher beats pure GT by **~32 kg** on val (denoising evidence).
+- **Default for future students: α=0.1, β=0.9.**
+
+Full report: `docs/reports/distillation_alpha_beta_sweep.md`  
+Runner: `experiments/08_distillation/run_distillation_experiments.py`  
+Package: `src/aerotwin/distillation/`
+
+### Distillation directory map
+
+```text
+distillation_dataset.parquet          # frozen teacher soft labels
+src/aerotwin/distillation/            # data, mlp, trainer, metrics, runner
+experiments/08_distillation/
+  01_build_teacher_distillation_dataset.py
+  02_train_mlp_student.py
+  03_alpha_beta_sweep.py
+  run_distillation_experiments.py
+models/distillation/                  # checkpoints
+results/distillation/                 # metrics, preds, alpha_beta_sweep/
+logs/distillation/
+docs/reports/
+  distillation_dataset_report.md
+  mlp_student_report.md
+  distillation_alpha_beta_sweep.md
+```
+
+### Capacity scaling (Step 4) — seed 42, α=0.1 / β=0.9
+
+| Model | Params | Val RMSE | Gap vs teacher soft labels | Checkpoint MB | CPU batch speedup vs teacher |
+|-------|-------:|---------:|---------------------------:|--------------:|-----------------------------:|
+| Tiny | 0.24M | 270.55 | +26.4 | 0.92 | ~59× |
+| Small | 0.50M | 241.73 | −2.4 | 1.93 | ~41× |
+| Medium | 1.13M | 235.04 | −9.1 | 4.30 | ~28× |
+| Large | 2.89M | 229.70 | −14.4 | 11.0 | ~16× |
+| **XLarge** | **6.75M** | **228.14** | **−16.0** | 25.7 | ~7.5× |
+
+Teacher soft-label val RMSE on this flight split: **244.14 kg**.  
+Step improvements (kg): Tiny→Small **28.8**, Small→Medium **6.7**, Medium→Large **5.3**, Large→XLarge **1.6** (diminishing returns).
+
+**Smallest within 2 kg of best:** Large (~2.9M).  
+**Reproducibility (XLarge, 5 seeds):** mean **228.49 ± 0.92** kg; 95% CI **[227.7, 229.3]** entirely below teacher 244.1; all seeds better than teacher soft labels on this split.
+
+**Inference (highlights):** teacher single-sample CPU ~**52 ms**; students ~**0.2–0.5 ms**. Teacher checkpoint ~**17 MB** (ensemble pickle); students **0.9–26 MB**.
+
+Report: `docs/reports/capacity_scaling_report.md` · `results/distillation/capacity_scaling/`.
+
+### Official held-out Final evaluation (Step 5) — permanent MLP baseline
+
+**Script:** `experiments/08_distillation/05_test_evaluation.py` (eval-only; no training).  
+**Data:** `featured_dataset_final.parquet` (37,170 rows · 2,824 flights from `fuel_final`).
+
+| Model | Params | Val RMSE | **Final test RMSE** | Gap (test−val) | Final MAE | Bias | R² |
+|-------|-------:|---------:|--------------------:|---------------:|----------:|-----:|---:|
+| **Large (official)** | 2.89M | 229.70 | **215.85** | −13.85 (−6.0%) | 76.69 | +5.25 | 0.9220 |
+| XLarge | 6.75M | 228.14 | 218.59 | −9.55 (−4.2%) | 77.36 | +6.41 | 0.9201 |
+| R3 Teacher | ensemble | — | **213.62** | — | 74.14 | +4.87 | 0.9236 |
+| OpenAP | — | — | 1,315.65 | — | 485.40 | +465.5 | −1.90 |
+
+- Ranking **reversed** on Final (val: XLarge; test: **Large**). XLarge does **not** justify +3.9M params on held-out.
+- Large is **+2.23 kg** vs teacher Final at ~**200×** lower single-sample CPU latency (0.26 ms vs ~52 ms).
+- Dominant failures: **B77W, B744, B772, B789, A359**; ultralong ≥8 h; cruise bulk error.
+- Artifacts: `results/distillation/test_evaluation/` · report: `docs/reports/test_evaluation.md`.
+
+**Deployment / comparison baseline for all future students: Large_seed42 Final metrics above.**
+
+### Distillation checklist
+
+| ID | Item | Status |
+|----|------|:------:|
+| D1 | Export frozen teacher distillation dataset | ✅ |
+| D2 | Baseline MLP (GT / teacher / KD 0.5) | ✅ |
+| D3 | α/β weight sweep + recommended weights | ✅ |
+| D4 | Architecture-agnostic experiment runner | ✅ |
+| D5 | Capacity scaling + latency + multi-seed | ✅ |
+| D5b | Official Final held-out eval (Large / XLarge) | ✅ |
+| D6 | FT-Transformer / TabTransformer student | ⬜ next |
+| D7 | Trajectory / sequence student (optional) | ⬜ |
+| D8 | Distillation chapter in thesis/paper | ⬜ |
+
+### Open research questions (distillation)
+
+1. Do transformer students beat **Large Final RMSE 215.85** under α=0.1 / β=0.9?
+2. Does the same α/β optimum hold under LOTO (unseen aircraft types)?
+3. Can multi-teacher heads (per-base GBDT soft labels) help beyond final P1E targets?
+4. Can architecture change close residual error on heavies / ultra-long without MLP width?
+
+### Risks
+
+| Risk | Mitigation |
+|------|------------|
+| Regenerating teacher / dataset breaks student comparability | Treat parquet + R3 as immutable; cache teacher OOF |
+| Flight-split non-determinism | Sort flight IDs before split (fixed in `data.py`) |
+| Overclaiming student RMSE as official score | Always label flight-holdout val as non-official |
+| Architecture search without fixed KD weights | Lock α/β from Step 3 before capacity experiments |
+
+---
+
 ## Final Executive Summary
 
-### Official position (July 2026 — updated after R3)
+### Official position (July 2026 — teacher frozen after R3)
 
 - **Canonical Combined RMSE: 228.25 kg** (Rank 239.2 · Final 220.9) vs published winner ≈ **201 kg** (Δ ≈ **+27 kg**).
-- **Current best (R3 dynamic mass + P1E): 221.33 kg** (Rank 232.5 · Final 213.7; Δ vs winner ≈ **+20 kg**).
-- Gap-closing ladder: **228.25 → 227.44 → 226.19 → 225.25 → 221.33** (−6.92 kg total). **No superiority claim** (canonical CI [207, 249]).
-- Fuel-Flow beats Direct on official data; OpenAP alone fails (~1268 Combined RMSE).
-- **Dynamic mass** is the largest single improvement; bias reduced to ~**+3.9 kg**.
+- **Frozen teacher best (R3 dynamic mass + P1E): 221.33 kg** (Rank 232.5 · Final 213.7; Δ vs winner ≈ **+20 kg**).
+- Gap-closing ladder: **228.25 → 227.44 → 226.19 → 225.25 → 221.33** (−6.92 kg total). **No superiority claim**.
+- **Dynamic mass** is the largest single teacher improvement; bias ~**+3.7–3.9 kg**.
+
+### Distillation position (July 2026 — Steps 1–5 complete)
+
+- Frozen soft-label dataset: **119,032** intervals, **60** features.
+- **α/β default: α=0.1, β=0.9**.
+- Capacity (val): best **XLarge 6.75M** val RMSE **228.1 kg**; **Large ~2.9M** within **2 kg**.
+- **Official Final held-out baseline: Large 215.85 kg** (XLarge 218.59; teacher 213.62). Ranking reversed vs val; XLarge **not** justified on Final.
+- Generalization gap val→Final: Large **−6.0%**, XLarge **−4.2%** (test better — no overfit signal).
+- Latency: students **≫** faster than R3 ensemble (single-sample CPU ~0.26–0.52 ms vs ~52 ms).
+- Ready for FT-Transformer / TabTransformer; comparison target = **Large Final RMSE 215.85**.
 
 ### Established (science)
 
 - Energy-state and Energy+Weather features yield bootstrap-supported gains on **unseen flights** (Level 1, PRC).
-- Fuel-flow targets improve Level-1 and official error vs Direct; keep protocol-separated leaderboards (`figures/LEADERBOARD_AUDIT.md`).
-- Multiple inductive biases **rejected** with preserved negative results (including early heuristic mass under Level 1).
-- Official gap-closing **R1–R3 kept**: OpenAP heavy descriptors, descriptor fixes, dynamic mass.
+- Fuel-flow targets improve Level-1 and official error vs Direct; keep protocol-separated leaderboards.
+- Official gap-closing **R1–R3 kept** and **frozen as teacher**.
 - External DASHlink pilot: energy + Flow **qualitatively replicate** at pilot scale only.
+- KD weight structure matters more than balanced 0.5/0.5 for the baseline MLP.
+- **MLP capacity saturates by Large (~3M) on held-out Final; extra width does not transfer.**
 
 ### Suggestive
 
 - LOTO Flow macro advantage ~17 kg is **not** statistically confirmed; B77W-sensitive.
 - Physical aircraft distance is **not** a robust transfer predictor without B77W.
+- Small GT anchor (α≈0.1) may slightly help vs pure teacher — re-check on other architectures.
 
 ### Must happen next (prioritized)
 
-1. **§22 Track 1–2** — freeze **221.33 / 228.25**, figures, limitations, abstract one-liner.
-2. **F3** — accept residual ~20 kg gap **or** run remaining open items (R2b asymmetric loss, R3b ultra-long, R5 long-interval).
-3. **§22 Track 3** — thesis/paper write-up and submission package.
-4. Optional: operational-shift analysis + scaled external validation if the write-up claims broad transfer.
+1. **§23 D6** — FT-Transformer / TabTransformer with **α=0.1, β=0.9** (start near ~3M params); beat **215.85 Final**.
+2. **§22** — freeze docs/numbers; thesis chapter on teacher + distillation + capacity + **held-out eval**.
+3. Hard-subgroup focus (heavies / ultra-long) rather than more MLP width.
+4. Optional / deferred: remaining §21 teacher RMSE items (do not un-freeze without cause).
 
-**Paper / project readiness:** Official evaluation + R1–R3 gap-closing are **complete and honest**. Submission readiness depends on finishing **§22**. Do not claim winner-level performance.
+**Paper / project readiness:** Official evaluation + R1–R3 + distillation Steps 1–5 (MLP + held-out baseline) are **complete and honest**. Do not claim winner-level performance. Quote **Large Final 215.85** as the student baseline, not internal val-only RMSE.
 
 ---
 
-*Report updated 2026-07-24 (synced to repo: official PRC Rank+Final, gap-closing v1, R1/R2/R3 through Combined 221.33, RMSE + completion checklists).*
+*Report updated 2026-07-30 (R3 teacher frozen; distillation Steps 1–5 complete; official Large Final baseline 215.85 kg).*
 
-**Reproduce (core + official + gap-close):**
+**Reproduce (core + official + gap-close + distillation):**
 
 ```bash
-PYTHONPATH=. python notebooks/05_baseline_modeling.py
-PYTHONPATH=. python notebooks/09_physics_features_v3.py
-PYTHONPATH=. python notebooks/10_fuel_flow_target.py
-PYTHONPATH=. python notebooks/11_stacking.py
-PYTHONPATH=. python notebooks/15_leave_one_type_out.py
-PYTHONPATH=. python notebooks/17_loto_significance_and_transfer_distance.py
-PYTHONPATH=. python notebooks/16_dataset_audit.py
-PYTHONPATH=. python notebooks/17_official_prc_evaluation.py --skip-build
-PYTHONPATH=. python notebooks/18_official_error_analysis.py
-PYTHONPATH=. python notebooks/19_gap_closing_campaign.py
-PYTHONPATH=. python notebooks/21_rmse_r1_heavy_features.py
-PYTHONPATH=. python notebooks/24_r2_heavy_features.py
-PYTHONPATH=. python notebooks/25_r3_dynamic_mass.py
-PYTHONPATH=. python notebooks/26_r3_ensemble_mass.py
+# Official teacher path (reference; do not retrain for distillation)
+PYTHONPATH=src python experiments/07_gap_closing/26_r3_ensemble_mass.py
+
+# Distillation
+set PYTHONPATH=src
+python experiments/08_distillation/01_build_teacher_distillation_dataset.py --train-only
+python experiments/08_distillation/02_train_mlp_student.py
+python experiments/08_distillation/run_distillation_experiments.py sweep
+python experiments/08_distillation/run_distillation_experiments.py capacity
+python experiments/08_distillation/05_test_evaluation.py --final-featured featured_dataset_final.parquet
 ```

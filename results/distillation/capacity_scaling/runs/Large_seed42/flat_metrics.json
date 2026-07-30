@@ -1,0 +1,23 @@
+{
+  "name": "Large_seed42",
+  "run_name": "Large_seed42",
+  "alpha": 0.1,
+  "beta": 0.9,
+  "val_rmse": 229.69766955732914,
+  "val_mae": 81.70025634765625,
+  "val_bias": -4.2176737785339355,
+  "val_r2": 0.9306928430169216,
+  "teacher_val_rmse": 244.14115486523167,
+  "teacher_student_rmse_gap": -14.443485307902534,
+  "student_vs_teacher_rmse": 58.19310774588885,
+  "train_rmse": 239.644883509114,
+  "train_mae": 79.17483520507812,
+  "train_bias": -0.9198412895202637,
+  "train_r2": 0.9290126556694341,
+  "best_epoch": 79,
+  "epochs_ran": 80,
+  "train_seconds": 268.9962475299835,
+  "n_params": 2887425,
+  "device": "cuda",
+  "best_val_rmse": 229.69766955732914
+}

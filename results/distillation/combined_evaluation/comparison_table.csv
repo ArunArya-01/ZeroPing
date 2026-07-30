@@ -1,0 +1,4 @@
+model,rank_rmse,final_rmse,combined_rmse,mae,r2,parameters,cpu_latency_ms,notes
+R3 Teacher (frozen),232.53,213.62,221.33,,,ensemble,52.0,Rank/Combined from official R3 campaign; Final held-out audit 213.62
+Large MLP (~3M),240.66018847898383,215.85043921364056,225.948790821556,78.50782377304617,0.9146063259334717,2887425,0.2621099999487342,Combined MAE/R2 on concat Rank+Final
+XLarge MLP (~6.75M),244.4034223615959,218.5851522084573,229.10293153990548,79.17946202410266,0.9122055729130352,6748673,0.5206674999499228,Combined MAE/R2 on concat Rank+Final

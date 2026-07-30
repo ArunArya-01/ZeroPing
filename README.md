@@ -41,7 +41,9 @@ predicted_fuel_kg = f(trajectory, aircraft, route, physics_fuel_kg, engineered_f
 
 Dataset: [`aerotwin/aero-data`](https://huggingface.co/datasets/aerotwin/aero-data) on Hugging Face.
 
-**Current best Combined RMSE: 221.33 kg** (R3 ensemble with dynamic mass). Remaining gap to winner (~201 kg): ~20 kg.
+**Frozen teacher Combined RMSE: 221.33 kg** (R3 ensemble with dynamic mass; Rank 232.53 · Final 213.73). **Final held-out teacher (student parity): 213.62 kg** — do not confuse Combined with Final. Remaining Combined gap to winner (~201 kg): ~20 kg. Audit: `docs/reports/teacher_evaluation_report.md`.
+
+**Distillation (MLP track complete):** official student baseline is **Large MLP ~3M** (α=0.1, β=0.9) — **Final 215.85 kg** · **Combined (Rank+Final) 225.95 kg** vs teacher Combined **221.33**. Reports: `docs/reports/test_evaluation.md`, `docs/reports/combined_evaluation.md`.
 
 ---
 
@@ -130,6 +132,7 @@ ZeroPing/
 │   ├── 05_ensemble/                 # Stacking, ensemble verification
 │   ├── 06_loto_generalization/      # LOTO, residual matched, transfer
 │   ├── 07_gap_closing/              # Official eval, R1–R3 gap close
+│   ├── 08_distillation/             # Teacher soft labels → MLP students + Final eval
 │   ├── 09_interpretability/         # SHAP explainability
 │   └── 10_advanced/                 # Transformer residual, significance
 ├── tests/                            # Unit and integration tests
@@ -250,6 +253,45 @@ Additional studies: feature ablations (energy-state, operational, weather, mass,
 | R1 | P1E + OpenAP descriptors in heavy specialist | **226.19** | −2.06 |
 | R2 | Fixed B744/B77L/A306 descriptors + R2 features | **225.25** | −3.00 |
 | **R3** | **P1E + dynamic mass model (21 features)** | **221.33** | **−6.92** |
+
+### Knowledge distillation (neural students)
+
+Teacher is frozen (R3). Soft labels live in `distillation_dataset.parquet`.
+
+| Step | Deliverable | Status |
+|------|-------------|:------:|
+| 1 | Teacher distillation dataset | ✅ |
+| 2 | Baseline MLP (GT / teacher / KD) | ✅ |
+| 3 | α/β weight sweep → **α=0.1, β=0.9** | ✅ |
+| 4 | Capacity scaling + latency + multi-seed | ✅ |
+| 5 | Official Final held-out evaluation | ✅ |
+| 5b | Combined Rank+Final student evaluation | ✅ |
+| 6+ | FT-Transformer / TabTransformer | planned |
+
+**Two protocols (both retained):**
+
+| Protocol | Metric | Purpose |
+|----------|--------|---------|
+| **A — Final** | Final RMSE only | Research / architecture holdout |
+| **B — Combined** | RMSE(Rank ∥ Final) | Official PRC-style comparison |
+
+**Official MLP baselines:**
+
+| Model | Params | Rank | Final | **Combined** | CPU ms |
+|-------|-------:|-----:|------:|-------------:|-------:|
+| **Large (deploy)** | **2.89M** | **240.66** | **215.85** | **225.95** | **0.26** |
+| XLarge | 6.75M | 244.40 | 218.59 | 229.10 | 0.52 |
+| R3 Teacher | ensemble | 232.53 | 213.62 | **221.33** | ~52 |
+
+Large remains best under both protocols. Reports: `test_evaluation.md`, `combined_evaluation.md`.
+
+```bash
+set PYTHONPATH=src
+python experiments/08_distillation/run_distillation_experiments.py sweep
+python experiments/08_distillation/run_distillation_experiments.py capacity
+python experiments/08_distillation/05_test_evaluation.py --final-featured featured_dataset_final.parquet
+python experiments/08_distillation/07_combined_evaluation.py
+```
 
 ### Cross-Dataset Validation (DASHlink pilot)
 

@@ -1,0 +1,6 @@
+{
+  "name": "KD-1",
+  "alpha": 0.1,
+  "beta": 0.9,
+  "reason": "lowest validation RMSE among fixed-architecture KD weight configs"
+}

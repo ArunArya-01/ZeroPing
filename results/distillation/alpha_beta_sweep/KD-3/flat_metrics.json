@@ -1,0 +1,23 @@
+{
+  "name": "KD-3",
+  "run_name": "KD-3",
+  "alpha": 0.3,
+  "beta": 0.7,
+  "val_rmse": 191.5799839346469,
+  "val_mae": 76.10303497314453,
+  "val_bias": 2.5890467166900635,
+  "val_r2": 0.9487003854735617,
+  "teacher_val_rmse": 196.7724091147552,
+  "teacher_student_rmse_gap": -5.192425180108302,
+  "student_vs_teacher_rmse": 113.55202408708993,
+  "train_rmse": 248.9491692250334,
+  "train_mae": 76.5540771484375,
+  "train_bias": -0.8179787397384644,
+  "train_r2": 0.9244963947309223,
+  "best_epoch": 78,
+  "epochs_ran": 80,
+  "train_seconds": 281.32406640052795,
+  "n_params": 1132545,
+  "device": "cuda",
+  "best_val_rmse": 191.5799839346469
+}

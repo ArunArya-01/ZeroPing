@@ -1,0 +1,23 @@
+{
+  "name": "Tiny_seed42",
+  "run_name": "Tiny_seed42",
+  "alpha": 0.1,
+  "beta": 0.9,
+  "val_rmse": 270.5507225428195,
+  "val_mae": 89.6462631225586,
+  "val_bias": -16.422740936279297,
+  "val_r2": 0.9038471187687095,
+  "teacher_val_rmse": 244.14115486523167,
+  "teacher_student_rmse_gap": 26.40956767758786,
+  "student_vs_teacher_rmse": 158.221997739888,
+  "train_rmse": 302.6514319522904,
+  "train_mae": 89.78693389892578,
+  "train_bias": -15.223840713500977,
+  "train_r2": 0.8867781952551724,
+  "best_epoch": 80,
+  "epochs_ran": 80,
+  "train_seconds": 270.55329632759094,
+  "n_params": 239041,
+  "device": "cuda",
+  "best_val_rmse": 270.5507225428195
+}

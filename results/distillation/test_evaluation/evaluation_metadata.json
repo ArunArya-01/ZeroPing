@@ -1,0 +1,40 @@
+{
+  "evaluation_timestamp_utc": "2026-07-30T00:16:36.595668+00:00",
+  "git_commit": "aa6ebf16939d7e7dc94b2a8ba09e0f14f01dbe13",
+  "final_featured_path": "C:\\Users\\mukun\\major project\\ZeroPing\\featured_dataset_final.parquet",
+  "final_featured_sha256": "4509b08399eb32d3dbd7e4315dbdbcd88e9b644e3464290d3cfba8537a4171fb:full:size=7549119",
+  "fuel_final_path": "C:\\Users\\mukun\\major project\\ZeroPing\\fuel_final.parquet",
+  "checkpoints": {
+    "Large": {
+      "path": "C:\\Users\\mukun\\major project\\ZeroPing\\results\\distillation\\capacity_scaling\\runs\\Large_seed42\\best_model.pt",
+      "sha256": "5d06cbe6aec76c79dde6cd67560f8d8942c78e0380955ece0a1a4b3bfe9ba1bd:full:size=11554402",
+      "hidden_dims": [
+        1792,
+        1024
+      ],
+      "n_params": 2887425
+    },
+    "XLarge": {
+      "path": "C:\\Users\\mukun\\major project\\ZeroPing\\results\\distillation\\capacity_scaling\\runs\\XLarge_seed42\\best_model.pt",
+      "sha256": "46582658b3ea630350dc1d465685cb203485f00d5234861e8db611d4893a9ca1:full:size=26999394",
+      "hidden_dims": [
+        2560,
+        2048
+      ],
+      "n_params": 6748673
+    }
+  },
+  "distillation_dataset": "C:\\Users\\mukun\\major project\\ZeroPing\\distillation_dataset.parquet",
+  "distillation_dataset_sha256": "71c19e18798318c83aedcf228b14c798def261a88d92c219b595eafcd4736765:full:size=42818403",
+  "preprocessing": "train-fitted StandardScaler+OHE from DistillationData(seed=42,val=0.2); transform-only on Final",
+  "package_versions": {
+    "python": "3.12.0",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "numpy": "2.2.6",
+    "polars": "1.41.2",
+    "torch": "2.5.1+cu121",
+    "sklearn": "1.7.1",
+    "matplotlib": "3.10.6"
+  },
+  "wall_seconds": 7.326164245605469
+}

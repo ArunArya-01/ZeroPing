@@ -1,0 +1,82 @@
+{
+  "run_name": "Tiny_seed42",
+  "mode": "kd",
+  "alpha": 0.1,
+  "beta": 0.9,
+  "n_params": 239041,
+  "device": "cuda",
+  "best_epoch": 80,
+  "best_val_rmse": 270.5507225428195,
+  "epochs_ran": 80,
+  "train_seconds": 270.55329632759094,
+  "train": {
+    "student": {
+      "rmse": 302.6514319522904,
+      "mae": 89.78693389892578,
+      "bias": -15.223840713500977,
+      "r2": 0.8867781952551724
+    },
+    "teacher": {
+      "rmse": 251.78373587017313,
+      "mae": 81.63556671142578,
+      "bias": 0.7119617462158203,
+      "r2": 0.9216390029192993
+    },
+    "teacher_student_rmse_gap": 50.86769608211728,
+    "student_vs_teacher_rmse": 175.0343100726031
+  },
+  "val": {
+    "student": {
+      "rmse": 270.5507225428195,
+      "mae": 89.6462631225586,
+      "bias": -16.422740936279297,
+      "r2": 0.9038471187687095
+    },
+    "teacher": {
+      "rmse": 244.14115486523167,
+      "mae": 83.26862335205078,
+      "bias": -2.839256525039673,
+      "r2": 0.9217026802981712
+    },
+    "teacher_student_rmse_gap": 26.40956767758786,
+    "student_vs_teacher_rmse": 158.221997739888
+  },
+  "config": {
+    "mode": "kd",
+    "alpha": 0.1,
+    "beta": 0.9,
+    "lr": 0.001,
+    "weight_decay": 0.0001,
+    "batch_size": 2048,
+    "max_epochs": 80,
+    "patience": 12,
+    "min_delta": 0.05,
+    "scheduler_factor": 0.5,
+    "scheduler_patience": 4,
+    "grad_clip": 1.0,
+    "seed": 42,
+    "device": "auto",
+    "num_workers": 0,
+    "hidden_dims": [
+      320,
+      160
+    ],
+    "dropout": 0.1,
+    "run_name": "Tiny_seed42",
+    "extras": {
+      "tier": "Tiny",
+      "target_params": "~250K",
+      "alpha": 0.1,
+      "beta": 0.9,
+      "stage": "step4_capacity",
+      "kd_name": "Tiny_seed42",
+      "n_params": 239041,
+      "in_dim": 582
+    }
+  },
+  "paths": {
+    "checkpoint": "C:\\Users\\mukun\\major project\\ZeroPing\\results\\distillation\\capacity_scaling\\runs\\Tiny_seed42\\best_model.pt",
+    "training_curve": "C:\\Users\\mukun\\major project\\ZeroPing\\results\\distillation\\capacity_scaling\\runs\\Tiny_seed42\\training_curve.csv",
+    "predictions": "C:\\Users\\mukun\\major project\\ZeroPing\\results\\distillation\\capacity_scaling\\runs\\Tiny_seed42\\predictions.parquet"
+  }
+}

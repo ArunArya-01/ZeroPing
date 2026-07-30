@@ -1,0 +1,23 @@
+{
+  "name": "KD-0",
+  "run_name": "KD-0",
+  "alpha": 0.0,
+  "beta": 1.0,
+  "val_rmse": 189.48682682800197,
+  "val_mae": 77.92049407958984,
+  "val_bias": 5.330819129943848,
+  "val_r2": 0.949815236372984,
+  "teacher_val_rmse": 196.7724091147552,
+  "teacher_student_rmse_gap": -7.285582286753225,
+  "student_vs_teacher_rmse": 112.10870331160162,
+  "train_rmse": 269.17997522575985,
+  "train_mae": 83.87438201904297,
+  "train_bias": 2.189436197280884,
+  "train_r2": 0.9117261995772239,
+  "best_epoch": 80,
+  "epochs_ran": 80,
+  "train_seconds": 268.941659450531,
+  "n_params": 1132545,
+  "device": "cuda",
+  "best_val_rmse": 189.48682682800197
+}

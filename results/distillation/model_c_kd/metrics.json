@@ -1,0 +1,76 @@
+{
+  "run_name": "model_c_kd",
+  "mode": "kd",
+  "alpha": 0.5,
+  "beta": 0.5,
+  "n_params": 1130497,
+  "device": "cuda",
+  "best_epoch": 78,
+  "best_val_rmse": 264.97080020272,
+  "epochs_ran": 80,
+  "train_seconds": 717.4724388122559,
+  "train": {
+    "student": {
+      "rmse": 229.5847234793292,
+      "mae": 72.00962829589844,
+      "bias": 1.9677774906158447,
+      "r2": 0.9342411401225645
+    },
+    "teacher": {
+      "rmse": 250.18714684987174,
+      "mae": 81.40157318115234,
+      "bias": 0.869011402130127,
+      "r2": 0.9219094844491676
+    },
+    "teacher_student_rmse_gap": -20.60242337054254,
+    "student_vs_teacher_rmse": 111.12968260677566
+  },
+  "val": {
+    "student": {
+      "rmse": 264.97080020272,
+      "mae": 82.93534088134766,
+      "bias": -1.4576696157455444,
+      "r2": 0.9112331583674183
+    },
+    "teacher": {
+      "rmse": 250.60648389863343,
+      "mae": 84.23700714111328,
+      "bias": -3.5201854705810547,
+      "r2": 0.9205965560120314
+    },
+    "teacher_student_rmse_gap": 14.364316304086572,
+    "student_vs_teacher_rmse": 99.50773603402511
+  },
+  "config": {
+    "mode": "kd",
+    "alpha": 0.5,
+    "beta": 0.5,
+    "lr": 0.001,
+    "weight_decay": 0.0001,
+    "batch_size": 2048,
+    "max_epochs": 80,
+    "patience": 12,
+    "min_delta": 0.05,
+    "scheduler_factor": 0.5,
+    "scheduler_patience": 4,
+    "grad_clip": 1.0,
+    "seed": 42,
+    "device": "auto",
+    "num_workers": 0,
+    "hidden_dims": [
+      1024,
+      512
+    ],
+    "dropout": 0.1,
+    "run_name": "model_c_kd",
+    "extras": {
+      "experiment": "C",
+      "label": "Model C \u2014 Knowledge Distillation"
+    }
+  },
+  "paths": {
+    "checkpoint": "C:\\Users\\mukun\\major project\\ZeroPing\\results\\distillation\\model_c_kd\\best_model.pt",
+    "training_curve": "C:\\Users\\mukun\\major project\\ZeroPing\\results\\distillation\\model_c_kd\\training_curve.csv",
+    "predictions": "C:\\Users\\mukun\\major project\\ZeroPing\\results\\distillation\\model_c_kd\\predictions.parquet"
+  }
+}

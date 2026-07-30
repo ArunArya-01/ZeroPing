@@ -1,0 +1,7 @@
+{
+  "name": "XLarge",
+  "n_params": 6748673,
+  "val_rmse": 228.13989462613395,
+  "student_vs_teacher_rmse": 51.29922596251255,
+  "teacher_student_rmse_gap": -16.001260239097718
+}

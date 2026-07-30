@@ -1,0 +1,473 @@
+{
+  "n_test": 37170,
+  "n_flights": 2824,
+  "alpha": 0.1,
+  "beta": 0.9,
+  "models": {
+    "Large": {
+      "checkpoint": "C:\\Users\\mukun\\major project\\ZeroPing\\results\\distillation\\capacity_scaling\\runs\\Large_seed42\\best_model.pt",
+      "n_params": 2887425,
+      "test": {
+        "rmse": 215.85043921364056,
+        "mae": 76.6889542993193,
+        "bias": 5.253184659896769,
+        "r2": 0.9220401093634516,
+        "mape_pct": 39.427099800909396,
+        "mean_residual": 5.253184659896769,
+        "median_residual": 7.237678051757811,
+        "std_residual": 215.78650597210788,
+        "p95_abs_error": 280.6932044726556,
+        "p99_abs_error": 737.5916197246048,
+        "max_abs_error": 6154.16748046875,
+        "mean_prediction": 419.4818897840507,
+        "mean_ground_truth": 414.22870512415386,
+        "var_prediction": 561077.8468021319,
+        "var_ground_truth": 597633.1127237245,
+        "pct_overpredict": 60.42776432606941,
+        "pct_underpredict": 39.57223567393059
+      },
+      "validation": {
+        "val_rmse": 229.69766955732914,
+        "val_mae": 81.70025634765625,
+        "val_bias": -4.2176737785339355,
+        "val_r2": 0.9306928430169216,
+        "n_params": 2887425
+      },
+      "generalization": {
+        "val_rmse": 229.69766955732914,
+        "test_rmse": 215.85043921364056,
+        "gap_test_minus_val": -13.84723034368858,
+        "pct_change": -6.02845922223539
+      },
+      "cpu_latency_ms": 0.2621099999487342,
+      "model_size_mb": 11.019136428833008
+    },
+    "XLarge": {
+      "checkpoint": "C:\\Users\\mukun\\major project\\ZeroPing\\results\\distillation\\capacity_scaling\\runs\\XLarge_seed42\\best_model.pt",
+      "n_params": 6748673,
+      "test": {
+        "rmse": 218.5851522084573,
+        "mae": 77.36223174109236,
+        "bias": 6.414265542505065,
+        "r2": 0.9200521728987897,
+        "mape_pct": 38.71360310034913,
+        "mean_residual": 6.414265542505065,
+        "median_residual": 5.920831769653319,
+        "std_residual": 218.49102032702555,
+        "p95_abs_error": 279.4492199333977,
+        "p99_abs_error": 745.2552424036653,
+        "max_abs_error": 6465.58251953125,
+        "mean_prediction": 420.6429706666589,
+        "mean_ground_truth": 414.22870512415386,
+        "var_prediction": 575541.7559268535,
+        "var_ground_truth": 597633.1127237245,
+        "pct_overpredict": 58.98305084745763,
+        "pct_underpredict": 41.01694915254237
+      },
+      "validation": {
+        "val_rmse": 228.13989462613395,
+        "val_mae": 81.28582000732422,
+        "val_bias": -0.17457929253578186,
+        "val_r2": 0.9316297166987774,
+        "n_params": 6748673
+      },
+      "generalization": {
+        "val_rmse": 228.13989462613395,
+        "test_rmse": 218.5851522084573,
+        "gap_test_minus_val": -9.554742417676664,
+        "pct_change": -4.188106790061674
+      },
+      "cpu_latency_ms": 0.5206674999499228,
+      "model_size_mb": 25.748628616333008
+    }
+  },
+  "comparison": [
+    {
+      "model": "Large MLP (~3M)",
+      "parameters": 2887425,
+      "rmse": 215.85043921364056,
+      "mae": 76.6889542993193,
+      "bias": 5.253184659896769,
+      "r2": 0.9220401093634516,
+      "cpu_latency_ms_per_sample": 0.2621099999487342,
+      "model_size_mb": 11.019136428833008,
+      "status": "evaluated"
+    },
+    {
+      "model": "XLarge MLP (~6.75M)",
+      "parameters": 6748673,
+      "rmse": 218.5851522084573,
+      "mae": 77.36223174109236,
+      "bias": 6.414265542505065,
+      "r2": 0.9200521728987897,
+      "cpu_latency_ms_per_sample": 0.5206674999499228,
+      "model_size_mb": 25.748628616333008,
+      "status": "evaluated"
+    },
+    {
+      "model": "R3 Teacher (frozen ensemble)",
+      "parameters": "ensemble",
+      "rmse": 213.6217985429934,
+      "mae": 74.13906475990117,
+      "bias": 4.868035288403997,
+      "r2": 0.923641659337174,
+      "cpu_latency_ms_per_sample": "see Step4 bench (~52ms single)",
+      "model_size_mb": 16.770998001098633,
+      "status": "evaluated"
+    },
+    {
+      "model": "OpenAP baseline",
+      "parameters": "\u2014",
+      "rmse": 1315.6530375840325,
+      "mae": 485.4040358048513,
+      "bias": 465.5100687410091,
+      "r2": -1.896330337881189,
+      "cpu_latency_ms_per_sample": "n/a",
+      "model_size_mb": "n/a",
+      "status": "evaluated"
+    },
+    {
+      "model": "Best LightGBM (standalone)",
+      "parameters": "n/a",
+      "rmse": null,
+      "mae": null,
+      "bias": null,
+      "r2": null,
+      "cpu_latency_ms_per_sample": null,
+      "model_size_mb": null,
+      "status": "unavailable (no frozen single-LGBM Final checkpoint in distillation path)"
+    }
+  ],
+  "pairwise_large_vs_xlarge": {
+    "mean_abs_err_delta_xlarge_minus_large": 0.6732774417730572,
+    "median_abs_err_delta": 0.16259288787841797,
+    "frac_xlarge_better_gt1kg": 0.4076674737691687,
+    "frac_large_better_gt1kg": 0.43083131557707827,
+    "frac_both_abs_err_gt500": 0.018159806295399514,
+    "max_xlarge_improvement": 813.19482421875,
+    "max_xlarge_regression": 940.04443359375,
+    "test_rmse_delta_xlarge_minus_large": 2.734712994816732
+  },
+  "easiest_aircraft_xlarge": [
+    {
+      "group": "A21N",
+      "n": 792,
+      "rmse": 54.694325089170974,
+      "mae": 35.55991520478675,
+      "bias": 2.3210869716300597,
+      "r2": 0.9339061494963429
+    },
+    {
+      "group": "A319",
+      "n": 221,
+      "rmse": 55.5011425928644,
+      "mae": 33.27152234046168,
+      "bias": -5.656558118524594,
+      "r2": 0.9614573867824213
+    },
+    {
+      "group": "A320",
+      "n": 7948,
+      "rmse": 68.263447716794,
+      "mae": 39.02561568668107,
+      "bias": -4.853109392141434,
+      "r2": 0.9567273904157503
+    },
+    {
+      "group": "A20N",
+      "n": 17056,
+      "rmse": 71.34001606453097,
+      "mae": 37.40789653764118,
+      "bias": -1.4376232464173586,
+      "r2": 0.8549953788296771
+    },
+    {
+      "group": "B738",
+      "n": 1266,
+      "rmse": 85.21529669456751,
+      "mae": 48.51400406768389,
+      "bias": 3.712109380810154,
+      "r2": 0.9184041417877357
+    }
+  ],
+  "hardest_aircraft_xlarge": [
+    {
+      "group": "B77W",
+      "n": 713,
+      "rmse": 861.39565909003,
+      "mae": 486.1191662467259,
+      "bias": 87.67477243573246,
+      "r2": 0.8083199873201269
+    },
+    {
+      "group": "B744",
+      "n": 334,
+      "rmse": 712.0513519513104,
+      "mae": 465.6385847218039,
+      "bias": 379.2209176587133,
+      "r2": 0.8160156840166772
+    },
+    {
+      "group": "B772",
+      "n": 122,
+      "rmse": 400.1407667538791,
+      "mae": 227.95977433001403,
+      "bias": 87.85498547163171,
+      "r2": 0.8328989643591955
+    },
+    {
+      "group": "B789",
+      "n": 805,
+      "rmse": 354.543211179034,
+      "mae": 165.48343180078126,
+      "bias": 50.1885129895817,
+      "r2": 0.9187642664041357
+    },
+    {
+      "group": "A359",
+      "n": 5545,
+      "rmse": 338.06986401898575,
+      "mae": 143.38612626445746,
+      "bias": -2.6930640507470933,
+      "r2": 0.9146780818924445
+    }
+  ],
+  "ranking_validation": "XLarge",
+  "ranking_test": "Large",
+  "ranking_consistent": false,
+  "deployment_recommendation": "Large",
+  "case_summaries": {
+    "Large": {
+      "top5_worst": [
+        {
+          "flight_id": "prc814603364",
+          "interval_idx": 1329,
+          "aircraft_type": "B77W",
+          "phase": "descent",
+          "duration_bin": "ultralong_>=8h",
+          "true_kg": 10803.0,
+          "pred_kg": 4648.83251953125,
+          "error_kg": -6154.16748046875,
+          "abs_error_kg": 6154.16748046875
+        },
+        {
+          "flight_id": "prc817236741",
+          "interval_idx": 13035,
+          "aircraft_type": "B77W",
+          "phase": "cruise",
+          "duration_bin": "ultralong_>=8h",
+          "true_kg": 13228.0,
+          "pred_kg": 7192.52294921875,
+          "error_kg": -6035.47705078125,
+          "abs_error_kg": 6035.47705078125
+        },
+        {
+          "flight_id": "prc819152370",
+          "interval_idx": 22034,
+          "aircraft_type": "A359",
+          "phase": "cruise",
+          "duration_bin": "ultralong_>=8h",
+          "true_kg": 11700.0,
+          "pred_kg": 5860.119140625,
+          "error_kg": -5839.880859375,
+          "abs_error_kg": 5839.880859375
+        },
+        {
+          "flight_id": "prc817141461",
+          "interval_idx": 12548,
+          "aircraft_type": "A359",
+          "phase": "cruise",
+          "duration_bin": "ultralong_>=8h",
+          "true_kg": 11506.0,
+          "pred_kg": 5705.865234375,
+          "error_kg": -5800.134765625,
+          "abs_error_kg": 5800.134765625
+        },
+        {
+          "flight_id": "prc821504606",
+          "interval_idx": 35639,
+          "aircraft_type": "A359",
+          "phase": "cruise",
+          "duration_bin": "ultralong_>=8h",
+          "true_kg": 9199.999999999996,
+          "pred_kg": 3516.13232421875,
+          "error_kg": -5683.867675781246,
+          "abs_error_kg": 5683.867675781246
+        }
+      ],
+      "top5_best": [
+        {
+          "flight_id": "prc814861468",
+          "interval_idx": 2343,
+          "aircraft_type": "A320",
+          "phase": "cruise",
+          "duration_bin": "medium_2-5h",
+          "true_kg": 200.0,
+          "pred_kg": 200.00030517578125,
+          "error_kg": 0.00030517578125,
+          "abs_error_kg": 0.00030517578125
+        },
+        {
+          "flight_id": "prc815161125",
+          "interval_idx": 4047,
+          "aircraft_type": "A20N",
+          "phase": "cruise",
+          "duration_bin": "medium_2-5h",
+          "true_kg": 90.7184,
+          "pred_kg": 90.71891784667969,
+          "error_kg": 0.0005178466796849079,
+          "abs_error_kg": 0.0005178466796849079
+        },
+        {
+          "flight_id": "prc814653043",
+          "interval_idx": 1645,
+          "aircraft_type": "A20N",
+          "phase": "cruise",
+          "duration_bin": "medium_2-5h",
+          "true_kg": 90.7184,
+          "pred_kg": 90.7205810546875,
+          "error_kg": 0.002181054687497408,
+          "abs_error_kg": 0.002181054687497408
+        },
+        {
+          "flight_id": "prc816119526",
+          "interval_idx": 8746,
+          "aircraft_type": "A20N",
+          "phase": "cruise",
+          "duration_bin": "medium_2-5h",
+          "true_kg": 90.7184,
+          "pred_kg": 90.72177124023438,
+          "error_kg": 0.003371240234372408,
+          "abs_error_kg": 0.003371240234372408
+        },
+        {
+          "flight_id": "prc817899940",
+          "interval_idx": 16059,
+          "aircraft_type": "B789",
+          "phase": "cruise",
+          "duration_bin": "ultralong_>=8h",
+          "true_kg": 400.068144,
+          "pred_kg": 400.0715637207031,
+          "error_kg": 0.003419720703107032,
+          "abs_error_kg": 0.003419720703107032
+        }
+      ]
+    },
+    "XLarge": {
+      "top5_worst": [
+        {
+          "flight_id": "prc814603364",
+          "interval_idx": 1329,
+          "aircraft_type": "B77W",
+          "phase": "descent",
+          "duration_bin": "ultralong_>=8h",
+          "true_kg": 10803.0,
+          "pred_kg": 4337.41748046875,
+          "error_kg": -6465.58251953125,
+          "abs_error_kg": 6465.58251953125
+        },
+        {
+          "flight_id": "prc817141461",
+          "interval_idx": 12548,
+          "aircraft_type": "A359",
+          "phase": "cruise",
+          "duration_bin": "ultralong_>=8h",
+          "true_kg": 11506.0,
+          "pred_kg": 5671.0068359375,
+          "error_kg": -5834.9931640625,
+          "abs_error_kg": 5834.9931640625
+        },
+        {
+          "flight_id": "prc819152370",
+          "interval_idx": 22034,
+          "aircraft_type": "A359",
+          "phase": "cruise",
+          "duration_bin": "ultralong_>=8h",
+          "true_kg": 11700.0,
+          "pred_kg": 5877.958984375,
+          "error_kg": -5822.041015625,
+          "abs_error_kg": 5822.041015625
+        },
+        {
+          "flight_id": "prc821504606",
+          "interval_idx": 35639,
+          "aircraft_type": "A359",
+          "phase": "cruise",
+          "duration_bin": "ultralong_>=8h",
+          "true_kg": 9199.999999999996,
+          "pred_kg": 3572.86669921875,
+          "error_kg": -5627.133300781246,
+          "abs_error_kg": 5627.133300781246
+        },
+        {
+          "flight_id": "prc821550778",
+          "interval_idx": 35901,
+          "aircraft_type": "A359",
+          "phase": "cruise",
+          "duration_bin": "ultralong_>=8h",
+          "true_kg": 10932.0,
+          "pred_kg": 5334.49609375,
+          "error_kg": -5597.50390625,
+          "abs_error_kg": 5597.50390625
+        }
+      ],
+      "top5_best": [
+        {
+          "flight_id": "prc818779907",
+          "interval_idx": 20075,
+          "aircraft_type": "A20N",
+          "phase": "cruise",
+          "duration_bin": "medium_2-5h",
+          "true_kg": 90.7184,
+          "pred_kg": 90.71826171875,
+          "error_kg": -0.00013828125000259206,
+          "abs_error_kg": 0.00013828125000259206
+        },
+        {
+          "flight_id": "prc817932343",
+          "interval_idx": 16112,
+          "aircraft_type": "A320",
+          "phase": "cruise",
+          "duration_bin": "medium_2-5h",
+          "true_kg": 2286.0,
+          "pred_kg": 2285.99951171875,
+          "error_kg": -0.00048828125,
+          "abs_error_kg": 0.00048828125
+        },
+        {
+          "flight_id": "prc818022059",
+          "interval_idx": 16388,
+          "aircraft_type": "B77W",
+          "phase": "descent",
+          "duration_bin": "long_5-8h",
+          "true_kg": 99.99999999999964,
+          "pred_kg": 99.9981689453125,
+          "error_kg": -0.0018310546871447286,
+          "abs_error_kg": 0.0018310546871447286
+        },
+        {
+          "flight_id": "prc821348556",
+          "interval_idx": 34696,
+          "aircraft_type": "A320",
+          "phase": "cruise",
+          "duration_bin": "medium_2-5h",
+          "true_kg": 200.0,
+          "pred_kg": 200.00244140625,
+          "error_kg": 0.00244140625,
+          "abs_error_kg": 0.00244140625
+        },
+        {
+          "flight_id": "prc814905051",
+          "interval_idx": 2722,
+          "aircraft_type": "A320",
+          "phase": "cruise",
+          "duration_bin": "medium_2-5h",
+          "true_kg": 200.0,
+          "pred_kg": 200.00331115722656,
+          "error_kg": 0.0033111572265625,
+          "abs_error_kg": 0.0033111572265625
+        }
+      ]
+    }
+  }
+}
