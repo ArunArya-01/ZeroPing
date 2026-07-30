@@ -1,0 +1,23 @@
+{
+  "name": "ft_transformer_kd1",
+  "run_name": "ft_transformer_kd1",
+  "alpha": 0.1,
+  "beta": 0.9,
+  "val_rmse": 236.07738705788384,
+  "val_mae": 83.31207275390625,
+  "val_bias": -9.643709182739258,
+  "val_r2": 0.9267894472956727,
+  "teacher_val_rmse": 244.14115486523167,
+  "teacher_student_rmse_gap": -8.06376780734783,
+  "student_vs_teacher_rmse": 77.28525186767624,
+  "train_rmse": 251.88221591134885,
+  "train_mae": 81.6478042602539,
+  "train_bias": -5.874845504760742,
+  "train_r2": 0.9215776923396912,
+  "best_epoch": 74,
+  "epochs_ran": 80,
+  "train_seconds": 7508.0987200737,
+  "n_params": 1458625,
+  "device": "cuda",
+  "best_val_rmse": 236.07738705788384
+}

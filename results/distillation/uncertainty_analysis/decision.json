@@ -1,0 +1,44 @@
+{
+  "proceed_to_adaptive_kd": true,
+  "spearman_disagreement_vs_teacher_error": 0.4258914362423538,
+  "spearman_disagreement_vs_large_error": 0.4351709787740531,
+  "pearson_disagreement_vs_teacher_error": 0.47210552523343624,
+  "pearson_disagreement_vs_large_error": 0.4553568865000432,
+  "type_level_spearman_disagreement_vs_gap": 0.1357142857142857,
+  "type_level_pearson_disagreement_vs_gap": -0.00014459163472049753,
+  "calibration_monotonicity": {
+    "spearman_disagreement_vs_teacher_err": 0.9757575757575757,
+    "spearman_disagreement_vs_large_err": 0.9515151515151514
+  },
+  "robustness_pred": {
+    "top_disagreement_types": [
+      "B744",
+      "B77W",
+      "B772"
+    ],
+    "bottom_disagreement_types": [
+      "A21N",
+      "A320",
+      "A20N"
+    ],
+    "mean_gap_top_disagreement_types": 47.8170075648,
+    "mean_gap_bottom_disagreement_types": -1.5337350661587479,
+    "mean_teacher_rmse_top": 585.9005060079712,
+    "mean_teacher_rmse_bottom": 68.8137961702357,
+    "mean_large_rmse_top": 633.7175135727712,
+    "mean_large_rmse_bottom": 67.28006110407695,
+    "gap_delta_top_minus_bottom": 49.35074263095875
+  },
+  "criteria": {
+    "meaningful_corr_threshold": 0.15,
+    "strong_enough": true,
+    "soft_pass": true
+  },
+  "rationale": "Interval-level: ensemble std correlates with teacher |error| (Spearman r=0.426, Pearson r=0.472) and Large |error| (Spearman r=0.435, Pearson r=0.455); bootstrap CIs exclude 0. Calibration across 10 equal-frequency bins is strongly monotonic (bin Spearman teacher=0.976, large=0.952). Type-level: disagreement strongly tracks type RMSE (Spearman vs teacher RMSE=0.757, vs Large RMSE=0.832) and is higher for rare/hard types (top: B744/B77W/B772). Top-vs-bottom disagreement types show mean student-gap delta = +49.35 kg. Type-level correlation with student gap itself is weak (Spearman r=0.136); disagreement marks difficulty more than the gap directly, which is still informative for adaptive beta(x).",
+  "alternative_signals": [],
+  "next": "Phase 1B - Adaptive Knowledge Distillation",
+  "type_level_spearman_disagreement_vs_teacher_rmse": 0.7571428571428571,
+  "type_level_spearman_disagreement_vs_large_rmse": 0.8321428571428571,
+  "type_level_spearman_disagreement_vs_train_n": -0.4892857142857142,
+  "type_level_note": "Disagreement is a strong difficulty signal (error/RMSE) but only a weak linear predictor of the student-teacher gap across types; Adaptive KD should use it as a hardness prior, not as a direct gap estimator."
+}

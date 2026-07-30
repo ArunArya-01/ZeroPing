@@ -196,3 +196,66 @@ python experiments/08_distillation/07_combined_evaluation.py
 | R3 Teacher | 232.53 | 213.62 | **221.33** |
 
 Report: `docs/reports/combined_evaluation.md`
+
+---
+
+## Phase 2 — FT-Transformer student
+
+Pluggable architecture via `build_student`. MLP code is untouched.
+
+```bash
+set PYTHONPATH=src
+python experiments/08_distillation/08_train_ft_transformer.py --config configs/distillation/ft_transformer.yaml
+python experiments/08_distillation/09_eval_ft_transformer.py
+# or:
+python experiments/08_distillation/run_distillation_experiments.py ft-transformer
+```
+
+| Component | Path |
+|-----------|------|
+| Factory | `src/aerotwin/distillation/models/factory.py` |
+| FT-Transformer | `src/aerotwin/distillation/models/ft_transformer.py` |
+| Config | `configs/distillation/ft_transformer.yaml` |
+| Train | `experiments/08_distillation/08_train_ft_transformer.py` |
+| Eval | `experiments/08_distillation/09_eval_ft_transformer.py` |
+
+Same KD pipeline: α=0.1, β=0.9, frozen teacher/dataset/split. Architecture is the only variable.
+
+---
+
+## Phase 0 — Distribution shift diagnosis
+
+Frozen models only (no retrain). Flight vs type-macro vs body-macro robustness.
+
+```bash
+set PYTHONPATH=src
+python experiments/08_distillation/10_distribution_shift_diagnosis.py
+```
+
+**Gate outcome:** Adaptive KD **unblocked** (Large type-macro teacher gap +13.82 vs flight +2.23).  
+Report: `docs/reports/distribution_shift_diagnosis.md`
+
+---
+
+## Phase 1A — Teacher uncertainty validation
+
+```bash
+set PYTHONPATH=src
+python experiments/08_distillation/11_teacher_uncertainty_analysis.py
+```
+
+Ensemble std correlates with error (Spearman ~0.43); calibration monotonic; **1B Adaptive KD unblocked**.  
+Report: `docs/reports/teacher_uncertainty_analysis.md`
+
+---
+
+## Phase 1B — Variance-Guided KD (VGKD)
+
+```bash
+set PYTHONPATH=src
+python experiments/08_distillation/12_train_vgkd.py
+python experiments/08_distillation/13_eval_vgkd.py
+```
+
+**Result:** Adaptive λ>0 does **not** improve type-macro; preferred = λ=0 (fixed KD).  
+Report: `docs/reports/vgkd_results.md`

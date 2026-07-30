@@ -1,0 +1,106 @@
+{
+  "run_name": "ft_transformer_kd1",
+  "mode": "kd",
+  "alpha": 0.1,
+  "beta": 0.9,
+  "n_params": 1458625,
+  "device": "cuda",
+  "best_epoch": 74,
+  "best_val_rmse": 236.07738705788384,
+  "epochs_ran": 80,
+  "train_seconds": 7508.0987200737,
+  "train": {
+    "student": {
+      "rmse": 251.88221591134885,
+      "mae": 81.6478042602539,
+      "bias": -5.874845504760742,
+      "r2": 0.9215776923396912
+    },
+    "teacher": {
+      "rmse": 251.78373587017313,
+      "mae": 81.63556671142578,
+      "bias": 0.7119617462158203,
+      "r2": 0.9216390029192993
+    },
+    "teacher_student_rmse_gap": 0.09848004117571918,
+    "student_vs_teacher_rmse": 80.7958644163303
+  },
+  "val": {
+    "student": {
+      "rmse": 236.07738705788384,
+      "mae": 83.31207275390625,
+      "bias": -9.643709182739258,
+      "r2": 0.9267894472956727
+    },
+    "teacher": {
+      "rmse": 244.14115486523167,
+      "mae": 83.26862335205078,
+      "bias": -2.839256525039673,
+      "r2": 0.9217026802981712
+    },
+    "teacher_student_rmse_gap": -8.06376780734783,
+    "student_vs_teacher_rmse": 77.28525186767624
+  },
+  "config": {
+    "mode": "kd",
+    "alpha": 0.1,
+    "beta": 0.9,
+    "lr": 0.001,
+    "weight_decay": 0.0001,
+    "batch_size": 1024,
+    "max_epochs": 80,
+    "patience": 12,
+    "min_delta": 0.05,
+    "scheduler_factor": 0.5,
+    "scheduler_patience": 4,
+    "grad_clip": 1.0,
+    "seed": 42,
+    "device": "auto",
+    "num_workers": 0,
+    "hidden_dims": [
+      1024,
+      512
+    ],
+    "dropout": 0.1,
+    "run_name": "ft_transformer_kd1",
+    "extras": {
+      "architecture": "ft_transformer",
+      "student_config": {
+        "architecture": "ft_transformer",
+        "in_dim": 582,
+        "hidden_dims": [
+          1792,
+          1024
+        ],
+        "dropout": 0.1,
+        "d_token": 192,
+        "n_blocks": 3,
+        "n_heads": 8,
+        "attention_dropout": 0.2,
+        "ffn_dropout": 0.1,
+        "residual_dropout": 0.0,
+        "ffn_d_hidden": null,
+        "n_num_features": 56,
+        "cat_cardinalities": [
+          26,
+          9,
+          249,
+          242
+        ],
+        "extras": {}
+      },
+      "stage": "phase2_ft_transformer",
+      "config_path": "configs\\distillation\\ft_transformer.yaml",
+      "kd_name": "ft_transformer_kd1",
+      "alpha": 0.1,
+      "beta": 0.9,
+      "n_params": 1458625,
+      "in_dim": 582
+    }
+  },
+  "paths": {
+    "checkpoint": "C:\\Users\\mukun\\major project\\ZeroPing\\results\\distillation\\ft_transformer\\ft_transformer_kd1\\best_model.pt",
+    "training_curve": "C:\\Users\\mukun\\major project\\ZeroPing\\results\\distillation\\ft_transformer\\ft_transformer_kd1\\training_curve.csv",
+    "predictions": "C:\\Users\\mukun\\major project\\ZeroPing\\results\\distillation\\ft_transformer\\ft_transformer_kd1\\predictions.parquet"
+  }
+}

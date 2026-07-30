@@ -49,8 +49,15 @@ def main(argv: list[str] | None = None) -> None:
         "command",
         nargs="?",
         default="sweep",
-        choices=("sweep", "baseline", "alpha-beta", "capacity"),
-        help="sweep: α/β grid; baseline: A/B/C; capacity: Step-4 scaling",
+        choices=(
+            "sweep",
+            "baseline",
+            "alpha-beta",
+            "capacity",
+            "ft-transformer",
+            "ft_transformer",
+        ),
+        help="sweep/baseline/capacity (MLP) or ft-transformer (Phase 2 student)",
     )
     args, rest = parser.parse_known_args(argv)
 
@@ -60,6 +67,8 @@ def main(argv: list[str] | None = None) -> None:
         _load_and_run("02_train_mlp_student.py", rest)
     elif args.command == "capacity":
         _load_and_run("04_capacity_scaling.py", rest)
+    elif args.command in ("ft-transformer", "ft_transformer"):
+        _load_and_run("08_train_ft_transformer.py", rest)
     else:
         parser.error(f"Unknown command {args.command}")
 

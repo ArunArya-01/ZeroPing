@@ -1,0 +1,401 @@
+{
+  "timestamp_utc": "2026-07-30T12:40:29.044664+00:00",
+  "protocol_notes": {
+    "flight": "Final held-out overall metrics",
+    "loto_style": "Post-hoc per-type metrics on Final, unweighted macro over types with n>=50. Models are NOT re-trained leave-one-type-out; this measures entity-level heterogeneity / shift within flight-holdout, comparable across frozen models.",
+    "body_class": "Metrics on widebody_heavy / narrowbody / regional_other subsets of Final; macro = unweighted mean over body classes with n>={MIN_BODY_N}.",
+    "no_retrain": true
+  },
+  "models": [
+    "Teacher",
+    "Large",
+    "XLarge",
+    "FT"
+  ],
+  "flight": {
+    "Teacher": {
+      "overall": {
+        "rmse": 213.6217985429934,
+        "mae": 74.13906475990117,
+        "bias": 4.868035288403997,
+        "r2": 0.923641659337174,
+        "n": 37170
+      },
+      "bootstrap": {
+        "rmse": 213.6217985429934,
+        "ci_lo": 186.35489620020238,
+        "ci_hi": 241.33585129507264,
+        "n_flights": 2824,
+        "n_boot": 2000
+      }
+    },
+    "Large": {
+      "overall": {
+        "rmse": 215.8504363943995,
+        "mae": 76.68895449323566,
+        "bias": 5.253185015452828,
+        "r2": 0.9220401113999332,
+        "n": 37170
+      },
+      "bootstrap": {
+        "rmse": 215.8504363943995,
+        "ci_lo": 190.78001263312476,
+        "ci_hi": 242.24057774872685,
+        "n_flights": 2824,
+        "n_boot": 2000
+      }
+    },
+    "XLarge": {
+      "overall": {
+        "rmse": 218.58514989014984,
+        "mae": 77.36223186052615,
+        "bias": 6.414266172925609,
+        "r2": 0.9200521745946382,
+        "n": 37170
+      },
+      "bootstrap": {
+        "rmse": 218.58514989014984,
+        "ci_lo": 193.38510605829393,
+        "ci_hi": 244.93744820149084,
+        "n_flights": 2824,
+        "n_boot": 2000
+      }
+    },
+    "FT": {
+      "overall": {
+        "rmse": 224.12168280060487,
+        "mae": 74.1653230489808,
+        "bias": -12.012275426029793,
+        "r2": 0.9159508942326701,
+        "n": 37170
+      },
+      "bootstrap": {
+        "rmse": 224.12168280060487,
+        "ci_lo": 195.279072096992,
+        "ci_hi": 252.53265132884476,
+        "n_flights": 2824,
+        "n_boot": 2000
+      }
+    }
+  },
+  "loto": {
+    "Teacher": {
+      "macro": {
+        "rmse": 256.79298312659733,
+        "mae": 135.11773656864997,
+        "bias": 17.70184639475793,
+        "r2": 0.8307443546465131,
+        "n_types": 15,
+        "n_total": 37109,
+        "rmse_ci_lo": 154.83839112597437,
+        "rmse_ci_hi": 376.23376973030133
+      },
+      "n_types": 15
+    },
+    "Large": {
+      "macro": {
+        "rmse": 270.6106259922319,
+        "mae": 155.4123006894271,
+        "bias": 42.644207631170254,
+        "r2": 0.7368566390984616,
+        "n_types": 15,
+        "n_total": 37109,
+        "rmse_ci_lo": 166.01856985235378,
+        "rmse_ci_hi": 388.0803538471399
+      },
+      "n_types": 15
+    },
+    "XLarge": {
+      "macro": {
+        "rmse": 276.0139349216199,
+        "mae": 157.94377134670802,
+        "bias": 49.1744597395731,
+        "r2": 0.7317389406647553,
+        "n_types": 15,
+        "n_total": 37109,
+        "rmse_ci_lo": 168.15582075722264,
+        "rmse_ci_hi": 398.4936125019489
+      },
+      "n_types": 15
+    },
+    "FT": {
+      "macro": {
+        "rmse": 261.145761757592,
+        "mae": 139.60259452051102,
+        "bias": 5.561107434646947,
+        "r2": 0.8289361892152561,
+        "n_types": 15,
+        "n_total": 37109,
+        "rmse_ci_lo": 155.71241251265812,
+        "rmse_ci_hi": 385.41715441720436
+      },
+      "n_types": 15
+    }
+  },
+  "body": {
+    "Teacher": {
+      "macro": {
+        "rmse": 237.55200796465505,
+        "mae": 104.01320392541707,
+        "bias": 2.743604977562305,
+        "r2": 0.9041027856600785,
+        "n_classes": 2
+      },
+      "per_body": [
+        {
+          "body_class": "narrowbody",
+          "rmse": 74.38717751811225,
+          "mae": 42.12013246977882,
+          "bias": 7.141083224174974,
+          "r2": 0.9153182015344454,
+          "n": 27547
+        },
+        {
+          "body_class": "widebody_heavy",
+          "rmse": 400.71683841119784,
+          "mae": 165.90627538105534,
+          "bias": -1.6538732690503644,
+          "r2": 0.8928873697857116,
+          "n": 9614
+        }
+      ]
+    },
+    "Large": {
+      "macro": {
+        "rmse": 239.6322038982637,
+        "mae": 111.2943464596724,
+        "bias": 12.269150880607071,
+        "r2": 0.9028956304354504,
+        "n_classes": 2
+      },
+      "per_body": [
+        {
+          "body_class": "narrowbody",
+          "rmse": 74.48992203411592,
+          "mae": 39.453458911121935,
+          "bias": -2.418344449448686,
+          "r2": 0.9150841128279981,
+          "n": 27547
+        },
+        {
+          "body_class": "widebody_heavy",
+          "rmse": 404.7744857624115,
+          "mae": 183.13523400822285,
+          "bias": 26.95664621066283,
+          "r2": 0.8907071480429027,
+          "n": 9614
+        }
+      ]
+    },
+    "XLarge": {
+      "macro": {
+        "rmse": 242.08047424724552,
+        "mae": 112.97756828573301,
+        "bias": 13.932101726941232,
+        "r2": 0.9027704499746315,
+        "n_classes": 2
+      },
+      "per_body": [
+        {
+          "body_class": "narrowbody",
+          "rmse": 73.08137745628899,
+          "mae": 39.0252969806031,
+          "bias": -1.82787713965529,
+          "r2": 0.9182651329014277,
+          "n": 27547
+        },
+        {
+          "body_class": "widebody_heavy",
+          "rmse": 411.07957103820206,
+          "mae": 186.92983959086294,
+          "bias": 29.692080593537753,
+          "r2": 0.8872757670478353,
+          "n": 9614
+        }
+      ]
+    },
+    "FT": {
+      "macro": {
+        "rmse": 249.58277379541758,
+        "mae": 105.83447917854586,
+        "bias": -12.477496621949353,
+        "r2": 0.8915075319153751,
+        "n_classes": 2
+      },
+      "per_body": [
+        {
+          "body_class": "narrowbody",
+          "rmse": 80.96566721566508,
+          "mae": 40.02655970347427,
+          "bias": -11.739383787532349,
+          "r2": 0.8996781089002114,
+          "n": 27547
+        },
+        {
+          "body_class": "widebody_heavy",
+          "rmse": 418.1998803751701,
+          "mae": 171.64239865361745,
+          "bias": -13.215609456366359,
+          "r2": 0.8833369549305388,
+          "n": 9614
+        }
+      ]
+    }
+  },
+  "robustness": {
+    "Teacher": {
+      "rmse_flight": 213.6217985429934,
+      "rmse_loto_macro": 256.79298312659733,
+      "rmse_body_macro": 237.55200796465505,
+      "degradation_ratio_loto": 1.202091663294911,
+      "degradation_ratio_body": 1.1120213835145925,
+      "error_inflation_loto": 43.171184583603946,
+      "error_inflation_body": 23.930209421661658,
+      "student_gap_flight": 0.0,
+      "student_gap_loto": 0.0,
+      "student_gap_body": 0.0,
+      "gap_widens_loto": false,
+      "gap_widens_body": false
+    },
+    "Large": {
+      "rmse_flight": 215.8504363943995,
+      "rmse_loto_macro": 270.6106259922319,
+      "rmse_body_macro": 239.6322038982637,
+      "degradation_ratio_loto": 1.2536950608604525,
+      "degradation_ratio_body": 1.1101770647357432,
+      "error_inflation_loto": 54.76018959783241,
+      "error_inflation_body": 23.781767503864188,
+      "student_gap_flight": 2.22863785140612,
+      "student_gap_loto": 13.817642865634582,
+      "student_gap_body": 2.0801959336086497,
+      "gap_widens_loto": true,
+      "gap_widens_body": false
+    },
+    "XLarge": {
+      "rmse_flight": 218.58514989014984,
+      "rmse_loto_macro": 276.0139349216199,
+      "rmse_body_macro": 242.08047424724552,
+      "degradation_ratio_loto": 1.2627295818601172,
+      "degradation_ratio_body": 1.1074882002226742,
+      "error_inflation_loto": 57.428785031470085,
+      "error_inflation_body": 23.495324357095683,
+      "student_gap_flight": 4.963351347156447,
+      "student_gap_loto": 19.220951795022586,
+      "student_gap_body": 4.528466282590472,
+      "gap_widens_loto": true,
+      "gap_widens_body": false
+    },
+    "FT": {
+      "rmse_flight": 224.12168280060487,
+      "rmse_loto_macro": 261.145761757592,
+      "rmse_body_macro": 249.58277379541758,
+      "degradation_ratio_loto": 1.1651963277017088,
+      "degradation_ratio_body": 1.1136038721316615,
+      "error_inflation_loto": 37.024078956987154,
+      "error_inflation_body": 25.461090994812707,
+      "student_gap_flight": 10.499884257611484,
+      "student_gap_loto": 4.352778630994692,
+      "student_gap_body": 12.030765830762533,
+      "gap_widens_loto": false,
+      "gap_widens_body": true
+    }
+  },
+  "gap_ci": {
+    "Large": {
+      "flight_gap": 2.22863785140612,
+      "flight_gap_ci": [
+        -3.7027312417604326,
+        8.339855180707916
+      ],
+      "loto_gap": 13.817642865634582,
+      "loto_gap_ci": [
+        0.05245712799147794,
+        35.10888124467032
+      ],
+      "flight_gap_ci_excludes_zero": false,
+      "loto_gap_ci_excludes_zero": true,
+      "gap_increase_loto": 11.589005014228462
+    },
+    "XLarge": {
+      "flight_gap": 4.963351347156447,
+      "flight_gap_ci": [
+        -1.8446366174462603,
+        11.70509775599465
+      ],
+      "loto_gap": 19.220951795022586,
+      "loto_gap_ci": [
+        2.427657815076617,
+        45.194816301994436
+      ],
+      "flight_gap_ci_excludes_zero": false,
+      "loto_gap_ci_excludes_zero": true,
+      "gap_increase_loto": 14.257600447866139
+    },
+    "FT": {
+      "flight_gap": 10.499884257611484,
+      "flight_gap_ci": [
+        5.141266422930582,
+        16.510942612680463
+      ],
+      "loto_gap": 4.352778630994692,
+      "loto_gap_ci": [
+        -3.770624202533701,
+        14.253497687696559
+      ],
+      "flight_gap_ci_excludes_zero": true,
+      "loto_gap_ci_excludes_zero": false,
+      "gap_increase_loto": -6.147105626616792
+    }
+  },
+  "rankings": {
+    "flight": [
+      "Teacher",
+      "Large",
+      "XLarge",
+      "FT"
+    ],
+    "loto_macro": [
+      "Teacher",
+      "FT",
+      "Large",
+      "XLarge"
+    ],
+    "body_macro": [
+      "Teacher",
+      "Large",
+      "XLarge",
+      "FT"
+    ]
+  },
+  "heavy_rmse": {
+    "Teacher": 400.71683841119784,
+    "Large": 404.7744857624115,
+    "XLarge": 411.07957103820206,
+    "FT": 418.1998803751701
+  },
+  "heavy_student_gaps": {
+    "Large": 4.057647351213632,
+    "XLarge": 10.36273262700422,
+    "FT": 17.483041963972255
+  },
+  "decision": {
+    "question": "Does KD introduce additional robustness loss under entity-level shift vs teacher?",
+    "primary_student": "Large",
+    "flight_gap_large": 2.22863785140612,
+    "loto_gap_large": 13.817642865634582,
+    "gap_increase_loto_large": 11.589005014228462,
+    "body_gap_large": 2.0801959336086497,
+    "heavy_gap_large": 4.057647351213632,
+    "flight_gap_ci_excludes_zero": false,
+    "loto_gap_ci_excludes_zero": true,
+    "threshold_kg_for_meaningful_increase": 2.0,
+    "meaningful_gap_increase_loto": true,
+    "proceed_to_adaptive_kd": true,
+    "rationale": "Large student gap widens under type-level evaluation (flight gap +2.23 \u2192 LOTO-macro gap +13.82, \u0394=+11.59 kg). Adaptive KD is justified to investigate.",
+    "degradation_ratio_large": 1.2536950608604525,
+    "degradation_ratio_teacher": 1.202091663294911,
+    "student_degrades_more_than_teacher": true,
+    "next_phase": "Phase 1 \u2014 Adaptive / Uncertainty-Aware KD"
+  },
+  "wall_seconds": 70.27679491043091
+}

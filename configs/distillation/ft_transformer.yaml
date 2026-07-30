@@ -1,0 +1,42 @@
+# AeroTwin distillation — FT-Transformer student (Phase 2)
+# Training knobs match the Large MLP KD setup unless noted.
+# Architecture is the only intentional experimental variable.
+
+student:
+  architecture: ft_transformer
+  # Gorishniy et al. / rtdl-style baseline
+  d_token: 192
+  n_blocks: 3
+  n_heads: 8
+  attention_dropout: 0.2
+  ffn_dropout: 0.1
+  residual_dropout: 0.0
+
+kd:
+  alpha: 0.1
+  beta: 0.9
+
+train:
+  seed: 42
+  val_fraction: 0.2
+  lr: 0.001
+  weight_decay: 0.0001
+  # Native FT tokens ≈ 61 (num+cat+CLS); batch can match MLP-scale
+  batch_size: 1024
+  max_epochs: 80
+  patience: 12
+  min_delta: 0.05
+  scheduler_factor: 0.5
+  scheduler_patience: 4
+  grad_clip: 1.0
+  device: auto
+  num_workers: 0
+
+data:
+  distillation_parquet: distillation_dataset.parquet
+
+run:
+  name: ft_transformer_kd1
+  results_dir: results/distillation/ft_transformer
+  models_dir: models/distillation/ft_transformer
+  logs_dir: logs/distillation/ft_transformer

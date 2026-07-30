@@ -93,6 +93,54 @@ Both are retained. Transformers must report **both**.
 
 Report: `docs/reports/combined_evaluation.md` · `results/distillation/combined_evaluation/`
 
+### Phase 2 — FT-Transformer (same KD pipeline)
+
+| Model | Params | Val RMSE | Final | Combined | CPU ms | Beats Large? |
+|-------|-------:|---------:|------:|---------:|-------:|:------------:|
+| FT-Transformer | 1,458,625 | 236.08 | **224.12** | **233.35** | 9.59 | **No** |
+| Large MLP (deploy) | 2,887,425 | 229.70 | **215.85** | **225.95** | 0.26 | — |
+
+FT does **not** replace Large as the deployment baseline. Report: `docs/reports/ft_transformer_experiment.md`.
+
+## Phase 0 — Distribution shift diagnosis (2026-07-30)
+
+| Protocol | Teacher | Large | XLarge | FT |
+|----------|--------:|------:|-------:|---:|
+| Flight Final RMSE | 213.62 | 215.85 | 218.59 | 224.12 |
+| Type-macro RMSE | 256.79 | 270.61 | 276.01 | 261.15 |
+| Body-macro RMSE | 237.55 | 239.63 | 242.08 | 249.58 |
+| Gap vs teacher (flight) | 0 | +2.23 | +4.96 | +10.50 |
+| Gap vs teacher (type-macro) | 0 | **+13.82** | +19.22 | **+4.35** |
+
+**Gate:** Adaptive KD **UNBLOCKED** — Large type-macro gap widens by **+11.59 kg** (CI excludes 0).  
+**Deploy baseline unchanged:** Large MLP (Final/Combined).  
+Report: `docs/reports/distribution_shift_diagnosis.md`.
+
+## Phase 1A — Teacher uncertainty (2026-07-30)
+
+| Check | Result |
+|-------|--------|
+| Spearman(disagreement, teacher \|err\|) | **0.426** |
+| Spearman(disagreement, Large \|err\|) | **0.435** |
+| Bin calibration ρ (teacher / Large) | **0.976 / 0.952** |
+| Type-level Spearman(disagreement, teacher RMSE) | **0.757** |
+| Top−bottom type student-gap Δ | **+49.4 kg** |
+| **Proceed to Adaptive KD (1B)?** | **YES** |
+
+Disagreement = std of 6 base ensemble predictions. Report: `docs/reports/teacher_uncertainty_analysis.md`.
+
+## Phase 1B — VGKD (negative result)
+
+Adaptive \(\beta(x)=\beta_b\exp(-\lambda\max(u_n,0))\) on Large MLP:
+
+| Run | Final | Type-macro | Notes |
+|-----|------:|-----------:|-------|
+| Fixed KD Large | **215.85** | 270.61 | **Deploy baseline** |
+| VGKD λ=0 | 216.10 | 269.76 | Reproduces fixed KD |
+| VGKD λ>0 | worse | worse | No robustness gain |
+
+**Do not deploy VGKD.** Report: `docs/reports/vgkd_results.md`.
+
 | Finding | Evidence |
 |---------|----------|
 | Official student baseline | **Large** (α=0.1, β=0.9) |

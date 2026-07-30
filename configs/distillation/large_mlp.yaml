@@ -1,0 +1,26 @@
+# Reference config — Large MLP official baseline (α=0.1, β=0.9)
+# Do not retrain for comparison; checkpoint under capacity_scaling/Large_seed42.
+
+student:
+  architecture: large_mlp
+  hidden_dims: [1792, 1024]
+  dropout: 0.1
+
+kd:
+  alpha: 0.1
+  beta: 0.9
+
+train:
+  seed: 42
+  val_fraction: 0.2
+  lr: 0.001
+  weight_decay: 0.0001
+  batch_size: 2048
+  max_epochs: 80
+  patience: 12
+  min_delta: 0.05
+  device: auto
+
+run:
+  name: large_mlp_kd1
+  results_dir: results/distillation/capacity_scaling/runs/Large_seed42

@@ -1,53 +1,291 @@
 # AeroTwin Project Status Report
 
-**Date:** July 2026 (last repo update: **2026-07-30**)  
+**Date:** July 2026 (last update: **2026-07-30**)  
 **Repository:** ZeroPing (AeroTwin)  
 **Dataset:** [`aerotwin/aero-data`](https://huggingface.co/datasets/aerotwin/aero-data) (EUROCONTROL PRC 2025)  
-**Current phase:** **Knowledge distillation** — MLP research complete; **official held-out MLP baseline frozen**; next = transformer students
+**Current phase:** **Phase 2 — Understanding Transformer Robustness (ACTIVE)**
+
+This document is the **single source of truth** for progress, completed milestones, research direction, and remaining work. Keep it synchronized after every completed experiment.
 
 ---
 
-## Executive Summary
+## Overall project state
 
-### Current phase — Knowledge distillation (July 2026)
+| Area | Status |
+|------|--------|
+| Core modeling pipeline | ✅ Complete |
+| Distillation framework | ✅ Complete |
+| Official deployment model | ✅ **Finalized & frozen** (Large MLP) |
+| Novel method VGKD | ✅ Evaluated — **negative result** (retained) |
+| Research posture | **Pivoted from method engineering → scientific investigation** |
 
-The official R3 teacher is **frozen**. Distillation Steps 1–5 are complete for the MLP track. The permanent MLP held-out baseline is established for all future student architectures.
+**Research phase:** Phase 2 — Understanding Transformer Robustness.
 
-| Milestone | Status | Key result |
-|-----------|:------:|------------|
-| **Step 1** Teacher distillation dataset | ✅ done | 119,032 samples · 60 features · `distillation_dataset.parquet` |
-| **Step 2** Baseline MLP (A/B/C) | ✅ done | Teacher-only student beats GT-only; ~1.13M params |
-| **Step 3** α/β KD weight sweep | ✅ done | **Best: α=0.1, β=0.9 (KD-1)** |
-| **Step 4** Capacity scaling + latency + multi-seed | ✅ done | Best **val** student XLarge ~6.75M (228.1 kg); Large within 2 kg |
-| **Step 5** Official held-out Final evaluation | ✅ done | **Official MLP baseline = Large** · Final test RMSE **215.85 kg** · XLarge 218.59 |
-| **Combined (Rank+Final)** student eval | ✅ done | Large Combined **225.95** · XLarge **229.10** · teacher **221.33** (Large still best) |
-| Step 6+ Transformer students | ⬜ next | α=0.1 / β=0.9; ~3M; beat **Final 215.85** and **Combined 225.95** |
+---
 
-**Recommended supervision for all future students:**  
-`L = 0.1 · MSE(gt) + 0.9 · MSE(teacher)` (KD-1).
+## Official deployment model
 
-**Two evaluation protocols (both retained):**
+| Field | Value |
+|-------|------|
+| **Model** | **Large MLP** (~2.89M params) |
+| **KD weights** | α=0.1, β=0.9 (fixed) |
+| **Final RMSE** | **215.85 kg** |
+| **Combined RMSE** | **225.95 kg** |
+| **CPU latency** | ~0.26 ms / sample |
+| **Checkpoint** | `results/distillation/capacity_scaling/runs/Large_seed42/best_model.pt` |
+| **Status** | **Frozen** |
+
+**Why Large MLP:** Best overall IID / production metrics among students; excellent latency; stable across Flight and Combined; VGKD does not outperform the fixed-KD baseline.
+
+**Do not modify** the deployment checkpoint unless a future method clearly surpasses it on agreed criteria (including type-macro if robustness is claimed).
+
+---
+
+## Completed milestones
+
+### Data & infrastructure
+
+- [x] Dataset preparation
+- [x] Physics feature generation
+- [x] OpenAP baseline
+- [x] Weather feature integration
+- [x] Reproducible training pipeline
+- [x] Evaluation framework
+- [x] Bootstrap significance testing
+- [x] Modular student factory (`build_student`)
+
+### Baselines
+
+- [x] Physics baseline
+- [x] Direct prediction baseline
+- [x] Residual learning baseline (rejected under Level-1)
+- [x] Teacher ensemble (R3 + P1E + dynamic mass)
+
+### Knowledge distillation
+
+- [x] KD implementation
+- [x] Teacher audit
+- [x] α/β optimization → **α=0.1, β=0.9**
+- [x] Large MLP student
+- [x] XLarge MLP student
+- [x] Capacity scaling + multi-seed
+
+### Architecture study
+
+- [x] FT-Transformer implementation
+- [x] Architecture comparison (MLP vs FT)
+- [x] Capacity scaling study
+- [x] Latency benchmarking
+
+**Key finding:** Large MLP remains the **best deployment model under IID evaluation** despite FT-Transformer having fewer parameters (~1.46M vs ~2.89M).
+
+### Evaluation protocols
+
+- [x] Flight holdout (Final)
+- [x] Combined PRC (Rank + Final)
+- [x] Type-macro evaluation
+- [x] Body-macro evaluation
+- [x] Distribution shift diagnosis (Phase 0)
+
+**Key findings:**
+
+- Distillation shows a **robustness gap** under aircraft-type (entity-level) distribution shift.
+- **FT-Transformer becomes the best student under type-macro** (ranking reversal vs IID).
+- Body-class evaluation does **not** show the same ranking reversal.
+
+| Model | Flight RMSE | Type-macro RMSE | Student gap (flight → type-macro) |
+|-------|------------:|----------------:|-----------------------------------:|
+| R3 Teacher | 213.62 | 256.79 | — |
+| Large MLP | **215.85** | 270.61 | +2.23 → **+13.82** |
+| XLarge MLP | 218.59 | 276.01 | +4.96 → +19.22 |
+| FT-Transformer | 224.12 | **261.15** | +10.50 → **+4.35** |
+
+Reports: `distribution_shift_diagnosis.md`, `test_evaluation.md`, `combined_evaluation.md`, `ft_transformer_experiment.md`.
+
+### Teacher uncertainty analysis (Phase 1A)
+
+- [x] Ensemble disagreement computation
+- [x] Correlation analysis
+- [x] Calibration analysis
+- [x] Aircraft-level analysis
+- [x] Publication-quality figures
+
+**Key findings:**
+
+- Teacher disagreement **strongly predicts prediction difficulty** (Spearman ~0.43 vs |error|; type-level vs RMSE ~0.76–0.83).
+- Identifies difficult aircraft (e.g. B744 / B77W / B772).
+- Useful **uncertainty / hardness prior**.
+
+Report: `teacher_uncertainty_analysis.md`.
+
+### Variance-Guided Knowledge Distillation — VGKD (Phase 1B)
+
+| Field | Value |
+|-------|------|
+| **Status** | **Completed** |
+| **Outcome** | **Negative result** (scientific finding, not discarded) |
+
+Experiments completed:
+
+- [x] Exponential adaptive weighting β(x)=β_base·exp(−λ·max(u_n,0))
+- [x] λ sweep {0, 0.25, 0.5, 1.0, 2.0}
+- [x] Static β baselines {0.7, 0.8, 0.9}
+- [x] Random uncertainty baseline
+- [x] Linear vs exponential weighting
+- [x] Oracle weighting (analysis only)
+- [x] Statistical evaluation (Flight / Combined / type-macro / body-macro)
+
+**Scientific conclusion:** Ensemble disagreement is a reliable indicator of difficulty, but **using it as per-sample KD weighting does not improve robustness**. Higher λ consistently degraded both IID Final and type-macro performance. Preferred adaptive run collapses to **λ=0** (fixed β=0.9).
+
+| Model | Final | Type-macro | Gap type |
+|-------|------:|-----------:|---------:|
+| Fixed Large (deploy) | **215.85** | 270.61 | +13.82 |
+| VGKD λ=0 | 216.10 | 269.76 | +12.97 |
+| VGKD λ≥0.25 | worse | **much worse** | **much worse** |
+
+Report: `docs/reports/vgkd_results.md`. **Discuss in the paper; do not present as a successful method.**
+
+---
+
+## Evaluation protocols (retained)
 
 | Protocol | Definition | Use |
 |----------|------------|-----|
-| **A — Final** | Final holdout only | Architecture research / controlled comparisons |
-| **B — Combined** | RMSE(concat Rank, Final) | Official PRC-style parity vs teacher **221.33** |
+| **A — Flight / Final** | Final holdout only | IID / deploy comparisons |
+| **B — Combined** | RMSE(concat Rank, Final) | Official PRC-style parity |
+| **C — Type-macro** | Unweighted mean per-type RMSE (n≥50) | Entity-level robustness |
+| **D — Body-macro** | Macro over body classes | Family-level robustness |
 
-**Official MLP baselines (do not retrain for comparison):**
+**Fixed KD supervision (baseline for all students):**  
+`L = 0.1 · MSE(gt) + 0.9 · MSE(teacher)`.
 
-| Model | Params | Rank RMSE | Final RMSE | **Combined RMSE** | CPU ms | vs teacher Combined |
-|-------|-------:|----------:|-----------:|------------------:|-------:|--------------------:|
-| **Large (official)** | **2.89M** | **240.66** | **215.85** | **225.95** | **0.26** | +4.62 kg |
-| XLarge | 6.75M | 244.40 | 218.59 | 229.10 | 0.52 | +7.77 kg |
-| R3 Teacher | ensemble | 232.53 | 213.62 | **221.33** | ~52 | reference |
+---
 
-- Val ranking (Step 4) favored XLarge; **Final ranking reverses to Large**.
-- Generalization: both models **better** on Final than internal val (Large −6.0%; XLarge −4.2%) — **no overfitting**.
-- Hard remaining errors: **B77W / B744 / ultra-long / cruise**.
+## Student leaderboard (frozen checkpoints)
 
-Artifacts: `docs/reports/test_evaluation.md`, `docs/reports/capacity_scaling_report.md`, `results/distillation/test_evaluation/`.
+| Model | Params | Rank | Final | Combined | Type-macro | CPU ms |
+|-------|-------:|-----:|------:|---------:|-----------:|-------:|
+| **Large MLP (deploy)** | **2.89M** | **240.66** | **215.85** | **225.95** | 270.61 | **0.26** |
+| XLarge MLP | 6.75M | 244.40 | 218.59 | 229.10 | 276.01 | 0.52 |
+| FT-Transformer | 1.46M | 246.88 | 224.12 | 233.35 | **261.15** | 9.59 |
+| R3 Teacher | ensemble | 232.53 | 213.62 | **221.33** | 256.79 | ~52 |
 
-### Official PRC2025 benchmark (canonical — completed July 2026; teacher frozen)
+---
+
+## Current research phase
+
+### Phase 2 — Understanding Transformer Robustness — **ACTIVE**
+
+**Research question:**
+
+> Why does FT-Transformer lose IID accuracy yet become the most robust student under aircraft-type distribution shift?
+
+This is now the **central scientific question** of the project.
+
+**Rules for Phase 2:**
+
+- **Do not train new models** in this phase.
+- Objective is **scientific understanding**, not score chasing.
+- Use frozen Large MLP and FT-Transformer checkpoints + existing Final predictions / features.
+
+#### Phase 2 TODO
+
+**Representation analysis**
+
+- [ ] Extract latent embeddings (Large MLP hidden; FT CLS / tokens)
+- [ ] PCA visualization
+- [ ] UMAP visualization
+- [ ] Representation clustering
+
+**Aircraft analysis**
+
+- [ ] Per-aircraft error analysis
+- [ ] Rare vs common aircraft
+- [ ] Error concentration analysis
+- [ ] Aircraft similarity study
+
+**Feature analysis**
+
+- [ ] Feature attribution comparison
+- [ ] MLP vs FT feature importance
+- [ ] Sensitivity analysis
+
+**Transformer analysis**
+
+- [ ] Attention visualization
+- [ ] Attention similarity across aircraft
+- [ ] Robustness mechanism investigation
+
+**Error analysis**
+
+- [ ] Flight phase breakdown
+- [ ] Weather breakdown
+- [ ] Altitude analysis
+- [ ] Duration analysis
+
+**Scientific outcome**
+
+- [ ] Identify mechanism(s) for the IID vs type-macro **architecture ranking reversal**
+- [ ] Write Phase 2 report (e.g. `docs/reports/transformer_robustness_analysis.md`)
+
+---
+
+## Future phases
+
+### Phase 3 (conditional)
+
+Only after Phase 2 identifies a **convincing** robustness mechanism.
+
+Possible directions (not committed):
+
+- Representation distillation
+- Feature-level distillation
+- Contrastive representation learning
+- Architecture-inspired student improvements
+
+**Do not** start Phase 3 method work before Phase 2 concludes.
+
+### Paper / write-up
+
+- [ ] Synchronize narrative with evidence (below)
+- [ ] Final figures and tables
+- [ ] Limitations (including VGKD negative result)
+- [ ] Internal review / submission package
+
+---
+
+## Paper direction
+
+The paper has evolved from an engineering benchmark into a **scientific study**.
+
+**Narrative arc:**
+
+1. Physics-informed teacher and knowledge distillation establish a strong baseline.
+2. Distillation performs well under standard IID (Flight / Combined) evaluation.
+3. Entity-level distribution shift reveals a robustness gap for MLP students.
+4. Transformer architectures show a **robustness–accuracy trade-off** (worse Final, better type-macro).
+5. Teacher uncertainty predicts difficulty but does **not** yield an effective adaptive distillation signal (VGKD negative result).
+6. Next objective: explain the **mechanism** behind transformer robustness under structured entity-level shift.
+
+---
+
+## Key reports & artifacts
+
+| Topic | Report / path |
+|-------|----------------|
+| Project status | `docs/reports/PROJECT_STATUS_REPORT.md` (this file) |
+| Model summary | `docs/reports/CURRENT_MODEL_SUMMARY.md` |
+| Final eval | `docs/reports/test_evaluation.md` |
+| Combined eval | `docs/reports/combined_evaluation.md` |
+| FT-Transformer | `docs/reports/ft_transformer_experiment.md` |
+| Shift diagnosis | `docs/reports/distribution_shift_diagnosis.md` |
+| Uncertainty | `docs/reports/teacher_uncertainty_analysis.md` |
+| VGKD | `docs/reports/vgkd_results.md` |
+| Teacher audit | `docs/reports/teacher_evaluation_report.md` |
+
+---
+
+## Historical reference — Official PRC2025 benchmark (canonical; teacher frozen)
 
 Under the **released official** Rank + Final protocol (train-only fits; no Rank/Final leakage or post-hoc tuning):
 
@@ -106,13 +344,13 @@ Under the **released official** Rank + Final protocol (train-only fits; no Rank/
   - ML ≫ raw OpenAP **replicates** (physics MAE ~140 kg vs Direct ~21–26 kg on this pilot scale).
 - **Caveats:** pilot is small (4 test flights); labels are reconstructed from `FF_*` (not ACARS FOB); absolute MAE is **not** comparable to PRC Level-1 ~84 kg; aircraft-type diversity for LOTO-style external analysis remains limited; default OpenAP type (`CRJ9`) may not match the FDR fleet.
 
-### Active workstreams (see checklists)
+### Active workstreams (see top of this document)
 
-1. **§23 Knowledge distillation (PRIMARY)** — Steps **1–5 complete** (MLP track + official Final held-out). Next: FT/Tab transformer students vs frozen Large baseline (**Final RMSE 215.85**), **α=0.1, β=0.9**.
-2. **§21 Official RMSE improvement checklist** — **R1–R3 done** (Combined **228.25 → 221.33**, −6.92 kg). Teacher frozen; further Tier-1 items optional / deferred.
-3. **§22 Final project completion checklist** — freeze **221.33** teacher + **215.85 Large Final** student baseline, package repo, write thesis/paper including distillation + held-out eval.
+1. **Phase 2 — Understanding Transformer Robustness (PRIMARY, ACTIVE)** — no new training; explain FT type-macro ranking reversal vs Large MLP IID superiority.
+2. **§21 Official RMSE improvement checklist** — **R1–R3 done** (Combined **228.25 → 221.33**, −6.92 kg). Teacher frozen; further Tier-1 items deferred.
+3. **§22 Final project completion checklist** — freeze **221.33** teacher + **215.85 Large Final** deploy student; paper narrative includes shift diagnosis, uncertainty, **VGKD negative result**, and Phase 2 analysis.
 
-**Paper / major-project submission:** Official evaluation + R1–R3 + distillation MLP track (Steps 1–5) complete. Write-up should cover hybrid teacher, KD weights, capacity, and **official Final student baseline**.
+**Paper / major-project submission:** Engineering baseline complete; scientific story is **IID strength + entity-level robustness + negative adaptive KD + transformer mechanism**.
 
 ---
 

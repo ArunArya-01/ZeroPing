@@ -1,0 +1,10 @@
+{
+  "beta_base": 0.9,
+  "lam": 2.0,
+  "weight_fn": "exp",
+  "uncertainty_source": "ensemble_std",
+  "u_mean": 23.398575950804013,
+  "u_std": 57.33933257882727,
+  "static_beta": null,
+  "seed": 42
+}

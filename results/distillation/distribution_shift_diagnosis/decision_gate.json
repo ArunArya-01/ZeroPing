@@ -1,0 +1,19 @@
+{
+  "question": "Does KD introduce additional robustness loss under entity-level shift vs teacher?",
+  "primary_student": "Large",
+  "flight_gap_large": 2.22863785140612,
+  "loto_gap_large": 13.817642865634582,
+  "gap_increase_loto_large": 11.589005014228462,
+  "body_gap_large": 2.0801959336086497,
+  "heavy_gap_large": 4.057647351213632,
+  "flight_gap_ci_excludes_zero": false,
+  "loto_gap_ci_excludes_zero": true,
+  "threshold_kg_for_meaningful_increase": 2.0,
+  "meaningful_gap_increase_loto": true,
+  "proceed_to_adaptive_kd": true,
+  "rationale": "Large student gap widens under type-level evaluation (flight gap +2.23 \u2192 LOTO-macro gap +13.82, \u0394=+11.59 kg). Adaptive KD is justified to investigate.",
+  "degradation_ratio_large": 1.2536950608604525,
+  "degradation_ratio_teacher": 1.202091663294911,
+  "student_degrades_more_than_teacher": true,
+  "next_phase": "Phase 1 \u2014 Adaptive / Uncertainty-Aware KD"
+}

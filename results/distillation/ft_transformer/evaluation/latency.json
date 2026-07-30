@@ -1,0 +1,16 @@
+{
+  "n_params": 1458625,
+  "cpu_ms_per_sample": 9.592470999996294,
+  "gpu_ms_per_sample": 8.111019999996643,
+  "model_size_mb": 5.585359573364258,
+  "d_token": 192,
+  "n_blocks": 3,
+  "n_heads": 8,
+  "n_num": 56,
+  "cat_cards": [
+    26,
+    9,
+    249,
+    242
+  ]
+}

@@ -1,0 +1,521 @@
+{
+  "timestamp_utc": "2026-07-30T13:06:59.365902+00:00",
+  "n_samples": 37170,
+  "n_flights": 2824,
+  "teacher_bundle": "C:\\Users\\mukun\\major project\\ZeroPing\\cache\\r3_teacher_distillation_bundle.pkl",
+  "disagreement_definition": "std of 6 base ensemble kg predictions (pre-meta)",
+  "correlations": {
+    "flight_all": {
+      "disagreement_vs_teacher_error": {
+        "pearson": {
+          "r": 0.47210552523343624,
+          "p": 0.0,
+          "ci_lo": 0.4262415023069323,
+          "ci_hi": 0.5274129684626199,
+          "n": 37170
+        },
+        "spearman": {
+          "r": 0.4258914362423538,
+          "p": 0.0,
+          "ci_lo": 0.4162746219425661,
+          "ci_hi": 0.4348475547245236,
+          "n": 37170
+        },
+        "kendall": {
+          "r": 0.29454369089405685,
+          "p": 0.0,
+          "ci_lo": 0.2875979326782469,
+          "ci_hi": 0.301188645488552,
+          "n": 37170
+        }
+      },
+      "disagreement_vs_large_error": {
+        "pearson": {
+          "r": 0.4553568865000432,
+          "p": 0.0,
+          "ci_lo": 0.39311343385009484,
+          "ci_hi": 0.5337827938880655,
+          "n": 37170
+        },
+        "spearman": {
+          "r": 0.4351709787740531,
+          "p": 0.0,
+          "ci_lo": 0.42593930933414986,
+          "ci_hi": 0.44402454754532655,
+          "n": 37170
+        },
+        "kendall": {
+          "r": 0.29934757190606465,
+          "p": 0.0,
+          "ci_lo": 0.29251246393687036,
+          "ci_hi": 0.30595427876664244,
+          "n": 37170
+        }
+      },
+      "n": 37170
+    },
+    "narrowbody": {
+      "disagreement_vs_teacher_error": {
+        "pearson": {
+          "r": 0.48447657807935873,
+          "p": 0.0,
+          "ci_lo": 0.4651646271832096,
+          "ci_hi": 0.5037254221998082,
+          "n": 27547
+        },
+        "spearman": {
+          "r": 0.2363688144164087,
+          "p": 0.0,
+          "ci_lo": 0.2241106477021812,
+          "ci_hi": 0.24869244566634358,
+          "n": 27547
+        },
+        "kendall": {
+          "r": 0.1603395349500427,
+          "p": 0.0,
+          "ci_lo": 0.1517925788342271,
+          "ci_hi": 0.16903659266320314,
+          "n": 27547
+        }
+      },
+      "disagreement_vs_large_error": {
+        "pearson": {
+          "r": 0.4637937567772458,
+          "p": 0.0,
+          "ci_lo": 0.44195769049381123,
+          "ci_hi": 0.4873870684998658,
+          "n": 27547
+        },
+        "spearman": {
+          "r": 0.18582929472607917,
+          "p": 1.6278066587298957e-212,
+          "ci_lo": 0.17461222099723556,
+          "ci_hi": 0.1984227065887423,
+          "n": 27547
+        },
+        "kendall": {
+          "r": 0.12496367188393519,
+          "p": 1.8258174126563653e-212,
+          "ci_lo": 0.11720762309687233,
+          "ci_hi": 0.1336120879696052,
+          "n": 27547
+        }
+      },
+      "n": 27547
+    },
+    "widebody_heavy": {
+      "disagreement_vs_teacher_error": {
+        "pearson": {
+          "r": 0.4253845072407321,
+          "p": 0.0,
+          "ci_lo": 0.38030449256279647,
+          "ci_hi": 0.4812370829569189,
+          "n": 9614
+        },
+        "spearman": {
+          "r": 0.41278466251860846,
+          "p": 0.0,
+          "ci_lo": 0.3938678500218487,
+          "ci_hi": 0.42997083496091815,
+          "n": 9614
+        },
+        "kendall": {
+          "r": 0.2853887293901186,
+          "p": 0.0,
+          "ci_lo": 0.27218115189070596,
+          "ci_hi": 0.2977816478061674,
+          "n": 9614
+        }
+      },
+      "disagreement_vs_large_error": {
+        "pearson": {
+          "r": 0.39914621020995206,
+          "p": 0.0,
+          "ci_lo": 0.3298477936734234,
+          "ci_hi": 0.47868397086553066,
+          "n": 9614
+        },
+        "spearman": {
+          "r": 0.47224446904493067,
+          "p": 0.0,
+          "ci_lo": 0.4550977333784865,
+          "ci_hi": 0.48959220003669174,
+          "n": 9614
+        },
+        "kendall": {
+          "r": 0.3275825878989603,
+          "p": 0.0,
+          "ci_lo": 0.3151106176085223,
+          "ci_hi": 0.3401903709253039,
+          "n": 9614
+        }
+      },
+      "n": 9614
+    },
+    "type_level": {
+      "disagreement_vs_teacher_rmse": {
+        "pearson": {
+          "r": 0.8633830340381228,
+          "p": 3.378496283957111e-05,
+          "n": 15
+        },
+        "spearman": {
+          "r": 0.7571428571428571,
+          "p": 0.0010811081941858342,
+          "n": 15
+        }
+      },
+      "disagreement_vs_student_gap": {
+        "pearson": {
+          "r": -0.00014459163472049753,
+          "p": 0.9995919520025309,
+          "n": 15
+        },
+        "spearman": {
+          "r": 0.1357142857142857,
+          "p": 0.6296204418728145,
+          "n": 15
+        }
+      },
+      "disagreement_vs_large_rmse": {
+        "pearson": {
+          "r": 0.8662491292002925,
+          "p": 2.9648671900291933e-05,
+          "n": 15
+        },
+        "spearman": {
+          "r": 0.8321428571428571,
+          "p": 0.00011902824493849783,
+          "n": 15
+        }
+      },
+      "disagreement_vs_train_n": {
+        "pearson": {
+          "r": -0.36539715694585617,
+          "p": 0.18048051190911132,
+          "n": 15
+        },
+        "spearman": {
+          "r": -0.4892857142857142,
+          "p": 0.06416038631454045,
+          "n": 15
+        }
+      },
+      "train_n_vs_student_gap": {
+        "pearson": {
+          "r": -0.2504151942161237,
+          "p": 0.36802519034822234,
+          "n": 15
+        },
+        "spearman": {
+          "r": -0.4071428571428571,
+          "p": 0.13201266377985368,
+          "n": 15
+        }
+      },
+      "n_types": 15
+    }
+  },
+  "calibration_bins": [
+    {
+      "bin": 0,
+      "n": 3717,
+      "mean_disagreement": 3.9952925321234014,
+      "mean_teacher_abs_error": 26.375231730065,
+      "mean_large_abs_error": 26.692431933773133,
+      "teacher_rmse": 41.16879133066139,
+      "large_rmse": 41.29534997742524,
+      "mean_student_gap_abs": 0.3172002037081309
+    },
+    {
+      "bin": 1,
+      "n": 3717,
+      "mean_disagreement": 6.542860238447521,
+      "mean_teacher_abs_error": 30.29623098866679,
+      "mean_large_abs_error": 30.34417920480942,
+      "teacher_rmse": 47.684847505720064,
+      "large_rmse": 48.262511955338745,
+      "mean_student_gap_abs": 0.047948216142632186
+    },
+    {
+      "bin": 2,
+      "n": 3717,
+      "mean_disagreement": 8.180358798881393,
+      "mean_teacher_abs_error": 34.91966553800251,
+      "mean_large_abs_error": 33.0462509139875,
+      "teacher_rmse": 55.05524463263416,
+      "large_rmse": 54.70519318838447,
+      "mean_student_gap_abs": -1.8734146240150154
+    },
+    {
+      "bin": 3,
+      "n": 3717,
+      "mean_disagreement": 9.870823994903201,
+      "mean_teacher_abs_error": 37.58367720423168,
+      "mean_large_abs_error": 34.822451481217804,
+      "teacher_rmse": 54.57423847406212,
+      "large_rmse": 54.07036725270908,
+      "mean_student_gap_abs": -2.7612257230138715
+    },
+    {
+      "bin": 4,
+      "n": 3717,
+      "mean_disagreement": 12.074101562434489,
+      "mean_teacher_abs_error": 36.96388224506319,
+      "mean_large_abs_error": 32.78651971849617,
+      "teacher_rmse": 57.79631643788528,
+      "large_rmse": 56.50011020910979,
+      "mean_student_gap_abs": -4.177362526567011
+    },
+    {
+      "bin": 5,
+      "n": 3717,
+      "mean_disagreement": 15.495427288285374,
+      "mean_teacher_abs_error": 44.01568352130722,
+      "mean_large_abs_error": 41.1473829757475,
+      "teacher_rmse": 71.80702484120755,
+      "large_rmse": 70.50043848920454,
+      "mean_student_gap_abs": -2.8683005455597135
+    },
+    {
+      "bin": 6,
+      "n": 3717,
+      "mean_disagreement": 19.321936641938326,
+      "mean_teacher_abs_error": 42.48088302221771,
+      "mean_large_abs_error": 40.96934021107807,
+      "teacher_rmse": 70.20060284282123,
+      "large_rmse": 69.4307398555707,
+      "mean_student_gap_abs": -1.5115428111396592
+    },
+    {
+      "bin": 7,
+      "n": 3717,
+      "mean_disagreement": 25.337427497758107,
+      "mean_teacher_abs_error": 72.23496900999208,
+      "mean_large_abs_error": 72.14462874772526,
+      "teacher_rmse": 129.29466150588837,
+      "large_rmse": 129.3311472478077,
+      "mean_student_gap_abs": -0.0903402622668352
+    },
+    {
+      "bin": 8,
+      "n": 3717,
+      "mean_disagreement": 42.12287356981795,
+      "mean_teacher_abs_error": 128.68150595766457,
+      "mean_large_abs_error": 138.1303041288291,
+      "teacher_rmse": 220.5649285061217,
+      "large_rmse": 227.06066202139172,
+      "mean_student_gap_abs": 9.448798171164526
+    },
+    {
+      "bin": 9,
+      "n": 3717,
+      "mean_disagreement": 143.77369055427533,
+      "mean_teacher_abs_error": 287.8389183818011,
+      "mean_large_abs_error": 316.8060536775292,
+      "teacher_rmse": 606.2786502664561,
+      "large_rmse": 612.1249794910075,
+      "mean_student_gap_abs": 28.967135295728166
+    }
+  ],
+  "calibration_monotonicity": {
+    "spearman_disagreement_vs_teacher_err": 0.9757575757575757,
+    "spearman_disagreement_vs_large_err": 0.9515151515151514
+  },
+  "localization": {
+    "high_disagreement_top5pct": {
+      "n": 1859,
+      "mean_disagreement": 216.16406143085405,
+      "mean_teacher_abs_err": 384.73517676239027,
+      "mean_large_abs_err": 425.0304824114412,
+      "teacher_rmse": 778.480452896438,
+      "large_rmse": 781.4772267062344,
+      "mean_duration_s": 1475.1579505110274,
+      "mean_fuel_kg": 2186.24438036794,
+      "body_counts": {
+        "narrowbody": 392,
+        "regional_other": 1,
+        "widebody_heavy": 1466
+      },
+      "phase_counts": {
+        "climb": 138,
+        "cruise": 1549,
+        "descent": 172
+      },
+      "top_types": [
+        [
+          "A359",
+          405
+        ],
+        [
+          "B77W",
+          403
+        ],
+        [
+          "B744",
+          280
+        ],
+        [
+          "A332",
+          194
+        ],
+        [
+          "A20N",
+          189
+        ],
+        [
+          "B789",
+          84
+        ],
+        [
+          "A320",
+          79
+        ],
+        [
+          "B738",
+          71
+        ],
+        [
+          "A333",
+          36
+        ],
+        [
+          "B772",
+          32
+        ]
+      ]
+    },
+    "low_disagreement_bottom5pct": {
+      "n": 1859,
+      "mean_disagreement": 3.020736395344561,
+      "mean_teacher_abs_err": 25.524402173405328,
+      "mean_large_abs_err": 25.88007211506675,
+      "teacher_rmse": 39.11372987082207,
+      "large_rmse": 39.28343826702329,
+      "mean_duration_s": 271.61642657342657,
+      "mean_fuel_kg": 120.96245991178051,
+      "body_counts": {
+        "narrowbody": 1846,
+        "widebody_heavy": 13
+      },
+      "phase_counts": {
+        "climb": 15,
+        "cruise": 1573,
+        "descent": 271
+      },
+      "top_types": [
+        [
+          "A20N",
+          1231
+        ],
+        [
+          "A320",
+          566
+        ],
+        [
+          "B738",
+          25
+        ],
+        [
+          "A21N",
+          20
+        ],
+        [
+          "A359",
+          6
+        ],
+        [
+          "B788",
+          5
+        ],
+        [
+          "A319",
+          2
+        ],
+        [
+          "A321",
+          2
+        ],
+        [
+          "A332",
+          2
+        ]
+      ]
+    },
+    "thresholds": {
+      "p95": 90.85967366292603,
+      "p05": 4.2679067612281605
+    }
+  },
+  "robustness_prediction": {
+    "top_disagreement_types": [
+      "B744",
+      "B77W",
+      "B772"
+    ],
+    "bottom_disagreement_types": [
+      "A21N",
+      "A320",
+      "A20N"
+    ],
+    "mean_gap_top_disagreement_types": 47.8170075648,
+    "mean_gap_bottom_disagreement_types": -1.5337350661587479,
+    "mean_teacher_rmse_top": 585.9005060079712,
+    "mean_teacher_rmse_bottom": 68.8137961702357,
+    "mean_large_rmse_top": 633.7175135727712,
+    "mean_large_rmse_bottom": 67.28006110407695,
+    "gap_delta_top_minus_bottom": 49.35074263095875
+  },
+  "decision": {
+    "proceed_to_adaptive_kd": true,
+    "spearman_disagreement_vs_teacher_error": 0.4258914362423538,
+    "spearman_disagreement_vs_large_error": 0.4351709787740531,
+    "pearson_disagreement_vs_teacher_error": 0.47210552523343624,
+    "pearson_disagreement_vs_large_error": 0.4553568865000432,
+    "type_level_spearman_disagreement_vs_gap": 0.1357142857142857,
+    "type_level_pearson_disagreement_vs_gap": -0.00014459163472049753,
+    "calibration_monotonicity": {
+      "spearman_disagreement_vs_teacher_err": 0.9757575757575757,
+      "spearman_disagreement_vs_large_err": 0.9515151515151514
+    },
+    "robustness_pred": {
+      "top_disagreement_types": [
+        "B744",
+        "B77W",
+        "B772"
+      ],
+      "bottom_disagreement_types": [
+        "A21N",
+        "A320",
+        "A20N"
+      ],
+      "mean_gap_top_disagreement_types": 47.8170075648,
+      "mean_gap_bottom_disagreement_types": -1.5337350661587479,
+      "mean_teacher_rmse_top": 585.9005060079712,
+      "mean_teacher_rmse_bottom": 68.8137961702357,
+      "mean_large_rmse_top": 633.7175135727712,
+      "mean_large_rmse_bottom": 67.28006110407695,
+      "gap_delta_top_minus_bottom": 49.35074263095875
+    },
+    "criteria": {
+      "meaningful_corr_threshold": 0.15,
+      "strong_enough": true,
+      "soft_pass": true
+    },
+    "rationale": "Interval-level: ensemble std correlates with teacher |error| (Spearman r=0.426, Pearson r=0.472) and Large |error| (Spearman r=0.435, Pearson r=0.455); bootstrap CIs exclude 0. Calibration across 10 equal-frequency bins is strongly monotonic (bin Spearman teacher=0.976, large=0.952). Type-level: disagreement strongly tracks type RMSE (Spearman vs teacher RMSE=0.757, vs Large RMSE=0.832) and is higher for rare/hard types (top: B744/B77W/B772). Top-vs-bottom disagreement types show mean student-gap delta = +49.35 kg. Type-level correlation with student gap itself is weak (Spearman r=0.136); disagreement marks difficulty more than the gap directly, which is still informative for adaptive beta(x).",
+    "alternative_signals": [],
+    "next": "Phase 1B - Adaptive Knowledge Distillation",
+    "type_level_spearman_disagreement_vs_teacher_rmse": 0.7571428571428571,
+    "type_level_spearman_disagreement_vs_large_rmse": 0.8321428571428571,
+    "type_level_spearman_disagreement_vs_train_n": -0.4892857142857142,
+    "type_level_note": "Disagreement is a strong difficulty signal (error/RMSE) but only a weak linear predictor of the student-teacher gap across types; Adaptive KD should use it as a hardness prior, not as a direct gap estimator."
+  },
+  "wall_seconds": 64.79825830459595,
+  "descriptives": {
+    "teacher_std_mean": 28.67147926788651,
+    "teacher_std_p50": 13.498412816373623,
+    "teacher_std_p95": 90.85967366292603,
+    "teacher_rmse": 213.6217985429934,
+    "large_rmse": 215.85043921364056
+  }
+}

@@ -1,0 +1,66 @@
+{
+  "run_name": "vgkd_exp_lam0.5",
+  "vgkd": {
+    "beta_base": 0.9,
+    "lam": 0.5,
+    "weight_fn": "exp",
+    "uncertainty_source": "ensemble_std",
+    "u_mean": 23.398575950804013,
+    "u_std": 57.33933257882727,
+    "static_beta": null,
+    "seed": 42
+  },
+  "n_params": 2887425,
+  "best_epoch": 72,
+  "best_val_rmse": 240.55175564724468,
+  "train_seconds": 978.824551820755,
+  "train": {
+    "student": {
+      "rmse": 220.22765727719923,
+      "mae": 71.28227233886719,
+      "bias": -2.852844476699829,
+      "r2": 0.9400501190615402
+    },
+    "teacher": {
+      "rmse": 251.78373587017313,
+      "mae": 81.63556671142578,
+      "bias": 0.7119617462158203,
+      "r2": 0.9216390029192993
+    },
+    "teacher_student_rmse_gap": -31.556078592973904,
+    "student_vs_teacher_rmse": 117.90912610424334
+  },
+  "val": {
+    "student": {
+      "rmse": 240.55175564724468,
+      "mae": 80.67977142333984,
+      "bias": -6.236018657684326,
+      "r2": 0.9239880335401495
+    },
+    "teacher": {
+      "rmse": 244.14115486523167,
+      "mae": 83.26862335205078,
+      "bias": -2.839256525039673,
+      "r2": 0.9217026802981712
+    },
+    "teacher_student_rmse_gap": -3.589399217986994,
+    "student_vs_teacher_rmse": 89.11773786028508
+  },
+  "beta_train_stats": {
+    "mean": 0.846902074736881,
+    "std": 0.1384723519717319,
+    "min": 8.978669829234119e-18,
+    "max": 0.9,
+    "p05": 0.5461614956050247,
+    "p50": 0.9,
+    "p95": 0.9
+  },
+  "uncertainty_meta": {
+    "source": "ensemble_std",
+    "u_mean_train": 23.398575950804013,
+    "u_std_train": 57.33933257882727,
+    "u_train_mean": 23.398575950804013,
+    "u_train_p95": 80.67828158698829
+  },
+  "group": "lambda_sweep"
+}

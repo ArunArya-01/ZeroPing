@@ -246,6 +246,10 @@ def train_student(
                     "n_params": n_params,
                     "in_dim": getattr(model, "in_dim", None),
                     "hidden_dims": getattr(model, "hidden_dims", None),
+                    "architecture": getattr(model, "architecture", None),
+                    "model_config": getattr(model, "config_dict", lambda: None)()
+                    if callable(getattr(model, "config_dict", None))
+                    else None,
                 },
                 ckpt_path,
             )

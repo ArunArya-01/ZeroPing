@@ -1,0 +1,65 @@
+{
+  "architecture": "ft_transformer",
+  "checkpoint": "C:\\Users\\mukun\\major project\\ZeroPing\\results\\distillation\\ft_transformer\\ft_transformer_kd1\\best_model.pt",
+  "n_params": 1458625,
+  "alpha": 0.1,
+  "beta": 0.9,
+  "val_rmse": 236.07738705788384,
+  "final": {
+    "rmse": 224.12168280060487,
+    "mae": 74.1653230489808,
+    "bias": -12.012275426029793,
+    "r2": 0.9159508942326701,
+    "mean_residual": -12.012275426029793,
+    "p95_abs_error": 256.7127811950679,
+    "n": 37170
+  },
+  "rank": {
+    "rmse": 246.8844755066949,
+    "mae": 80.69508335388475,
+    "bias": -10.918717663871497,
+    "r2": 0.8981019152102172,
+    "mean_residual": -10.918717663871497,
+    "p95_abs_error": 310.34297282373,
+    "n": 24158
+  },
+  "combined": {
+    "rmse": 233.35349100269644,
+    "mae": 76.7374915437282,
+    "bias": -11.5815069610836,
+    "r2": 0.9089176428755679,
+    "mean_residual": -11.5815069610836,
+    "p95_abs_error": 275.0688533726562,
+    "n": 61328
+  },
+  "comparison": [
+    {
+      "model": "R3 Teacher",
+      "rank_rmse": 232.53,
+      "final_rmse": 213.62,
+      "combined_rmse": 221.33,
+      "parameters": "ensemble"
+    },
+    {
+      "model": "Large MLP (baseline)",
+      "rank_rmse": 240.66,
+      "final_rmse": 215.85,
+      "combined_rmse": 225.95,
+      "parameters": 2887425
+    },
+    {
+      "model": "FT-Transformer",
+      "rank_rmse": 246.8844755066949,
+      "final_rmse": 224.12168280060487,
+      "combined_rmse": 233.35349100269644,
+      "parameters": 1458625
+    }
+  ],
+  "vs_large_final": 8.271682800604879,
+  "vs_teacher_final": 10.501682800604868,
+  "vs_large_combined": 7.403491002696455,
+  "vs_teacher_combined": 12.023491002696431,
+  "beats_large_final": false,
+  "beats_large_combined": false,
+  "timestamp_utc": "2026-07-30T09:34:48.920531+00:00"
+}

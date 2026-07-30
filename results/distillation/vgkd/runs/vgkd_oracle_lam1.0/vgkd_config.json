@@ -1,0 +1,10 @@
+{
+  "beta_base": 0.9,
+  "lam": 1.0,
+  "weight_fn": "exp",
+  "uncertainty_source": "oracle_abs_error",
+  "u_mean": 81.63555881345319,
+  "u_std": 238.18204213529796,
+  "static_beta": null,
+  "seed": 42
+}

@@ -266,7 +266,8 @@ Teacher is frozen (R3). Soft labels live in `distillation_dataset.parquet`.
 | 4 | Capacity scaling + latency + multi-seed | ✅ |
 | 5 | Official Final held-out evaluation | ✅ |
 | 5b | Combined Rank+Final student evaluation | ✅ |
-| 6+ | FT-Transformer / TabTransformer | planned |
+| 6 | FT-Transformer student (Phase 2) | ✅ |
+| 7+ | TabTransformer / other tabular students | planned |
 
 **Two protocols (both retained):**
 
@@ -275,15 +276,24 @@ Teacher is frozen (R3). Soft labels live in `distillation_dataset.parquet`.
 | **A — Final** | Final RMSE only | Research / architecture holdout |
 | **B — Combined** | RMSE(Rank ∥ Final) | Official PRC-style comparison |
 
-**Official MLP baselines:**
+**Supported student architectures** (via `build_student` / YAML `student.architecture`):
+
+| Name | Description |
+|------|-------------|
+| `large_mlp` | Official deploy baseline (~2.89M) |
+| `xlarge_mlp` | Capacity upper tier (~6.75M) |
+| `ft_transformer` | FT-Transformer (Gorishniy et al. 2021) |
+
+**Official baselines (students + teacher):**
 
 | Model | Params | Rank | Final | **Combined** | CPU ms |
 |-------|-------:|-----:|------:|-------------:|-------:|
-| **Large (deploy)** | **2.89M** | **240.66** | **215.85** | **225.95** | **0.26** |
-| XLarge | 6.75M | 244.40 | 218.59 | 229.10 | 0.52 |
+| **Large MLP (deploy)** | **2.89M** | **240.66** | **215.85** | **225.95** | **0.26** |
+| XLarge MLP | 6.75M | 244.40 | 218.59 | 229.10 | 0.52 |
+| FT-Transformer | 1.46M | 246.88 | 224.12 | 233.35 | 9.59 |
 | R3 Teacher | ensemble | 232.53 | 213.62 | **221.33** | ~52 |
 
-Large remains best under both protocols. Reports: `test_evaluation.md`, `combined_evaluation.md`.
+Large remains the deployment / comparison baseline (FT does not beat Final or Combined). Report: `docs/reports/ft_transformer_experiment.md`.
 
 ```bash
 set PYTHONPATH=src
@@ -291,6 +301,9 @@ python experiments/08_distillation/run_distillation_experiments.py sweep
 python experiments/08_distillation/run_distillation_experiments.py capacity
 python experiments/08_distillation/05_test_evaluation.py --final-featured featured_dataset_final.parquet
 python experiments/08_distillation/07_combined_evaluation.py
+# Phase 2 FT-Transformer
+python experiments/08_distillation/08_train_ft_transformer.py --config configs/distillation/ft_transformer.yaml
+python experiments/08_distillation/09_eval_ft_transformer.py
 ```
 
 ### Cross-Dataset Validation (DASHlink pilot)
