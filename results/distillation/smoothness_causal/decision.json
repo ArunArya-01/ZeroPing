@@ -1,0 +1,30 @@
+{
+  "primary_outcome": "C",
+  "secondary_reading": "B_spirit_reject_smoothness_causal",
+  "selected_lambda": 0.1,
+  "selected_by": "best_validation_rmse",
+  "smoothness_increased_selected": false,
+  "type_macro_delta_selected_kg": -2.59,
+  "smoothness_causal_supported": false,
+  "pursue_smoothness_method": false,
+  "pursue_representation_distillation": false,
+  "mechanism_resolved": false,
+  "key_numbers": {
+    "large_final": 215.85,
+    "large_type_macro": 270.61,
+    "ft_type_macro": 261.15,
+    "selected_final": 216.50,
+    "selected_type_macro": 268.02,
+    "lam001_type_macro": 262.39,
+    "lam1_type_macro": 262.36,
+    "large_rel_move_continuous": 0.0170,
+    "ft_rel_move_continuous": 0.0135,
+    "selected_rel_move": 0.0162,
+    "lam1_rel_move": 0.0143,
+    "phase3_allfeature_large_rel_move": 0.056,
+    "phase3_allfeature_ft_rel_move": 0.014
+  },
+  "interpretation": "Pre-registered selected model (λ=0.1): smoothness not meaningfully increased; type-macro Δ=-2.6 kg (Outcome C). Full sweep: λ=0.01 improves type-macro (~-8 kg) without smoothness increase, so type-macro gains are not explained by smoothness. Continuous-only noise revises Phase 3 '4× smoother' claim to ~1.25×. Reject smoothness as primary causal mechanism. Do not pursue smoothness methods or representation distillation. Write empirical paper.",
+  "phase4_recommendation": "No Phase 4 method. Write empirical paper documenting ranking reversal and ruled-out mechanisms.",
+  "next_step": "Paper write-up only; mechanism investigation closed"
+}

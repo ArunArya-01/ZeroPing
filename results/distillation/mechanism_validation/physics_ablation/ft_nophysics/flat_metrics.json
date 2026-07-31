@@ -1,0 +1,23 @@
+{
+  "name": "kd1",
+  "run_name": "kd1",
+  "alpha": 0.1,
+  "beta": 0.9,
+  "val_rmse": 238.97314193913365,
+  "val_mae": 85.68050384521484,
+  "val_bias": -22.598417282104492,
+  "val_r2": 0.9249824125246421,
+  "teacher_val_rmse": 244.14115486523167,
+  "teacher_student_rmse_gap": -5.168012926098015,
+  "student_vs_teacher_rmse": 86.56778473825952,
+  "train_rmse": 257.0935953215845,
+  "train_mae": 84.75856018066406,
+  "train_bias": -19.75994873046875,
+  "train_r2": 0.9182990469790757,
+  "best_epoch": 78,
+  "epochs_ran": 80,
+  "train_seconds": 2245.78244304657,
+  "n_params": 1445953,
+  "device": "cuda",
+  "best_val_rmse": 238.97314193913365
+}

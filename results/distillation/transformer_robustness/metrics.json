@@ -1,0 +1,588 @@
+{
+  "timestamp_utc": "2026-07-31T01:34:50.795633+00:00",
+  "no_training": true,
+  "n_final": 37170,
+  "overall": {
+    "large": {
+      "rmse": 215.8504363943995,
+      "mae": 76.68895449323566,
+      "bias": 5.253185015452828,
+      "r2": 0.9220401113999332
+    },
+    "ft": {
+      "rmse": 224.12168280060487,
+      "mae": 74.1653230489808,
+      "bias": -12.012275426029793,
+      "r2": 0.9159508942326701
+    },
+    "type_macro_large": {
+      "rmse": 270.6106259922319,
+      "n_types": 15
+    },
+    "type_macro_ft": {
+      "rmse": 261.145761757592,
+      "n_types": 15
+    },
+    "body_macro_large": {
+      "rmse": 239.6322038982637,
+      "n_classes": 2
+    },
+    "body_macro_ft": {
+      "rmse": 249.58277379541758,
+      "n_classes": 2
+    }
+  },
+  "geometry": {
+    "large": {
+      "silhouette": 0.03750711034734488,
+      "davies_bouldin": 4.830900754430248,
+      "mean_intra_type_dist": 35.18822581916299,
+      "mean_inter_type_dist": 44.6179409093285,
+      "inter_intra_ratio": 1.2679792706408697,
+      "local_type_consistency": 0.9406887328652626,
+      "n_for_metrics": 5982,
+      "n_types_used": 14,
+      "pca_var_explained": [
+        0.6377311746142104,
+        0.1279358537151526
+      ],
+      "mean_dist_to_common_centroid": 21.795247586839224
+    },
+    "ft": {
+      "silhouette": -0.014067183979819941,
+      "davies_bouldin": 5.190159177155745,
+      "mean_intra_type_dist": 14.030346507766334,
+      "mean_inter_type_dist": 18.36035853324271,
+      "inter_intra_ratio": 1.308617611338362,
+      "local_type_consistency": 0.9368104312938816,
+      "n_for_metrics": 5982,
+      "n_types_used": 14,
+      "pca_var_explained": [
+        0.7030922452317864,
+        0.2422722218219421
+      ],
+      "mean_dist_to_common_centroid": 7.018001104258458
+    }
+  },
+  "error_localization_summary": {
+    "by_type": [
+      {
+        "group": "B772",
+        "n": 122,
+        "large_rmse": 363.6885097046617,
+        "ft_rmse": 221.11691754299372,
+        "large_mae": 217.71589835745377,
+        "ft_mae": 150.57186839619627,
+        "delta_rmse_ft_minus_large": -142.571592161668,
+        "frac_ft_better": 0.5573770491803278,
+        "train_n": 813
+      },
+      {
+        "group": "B38M",
+        "n": 79,
+        "large_rmse": 107.44854871321216,
+        "ft_rmse": 69.22380036778915,
+        "large_mae": 87.02842983036861,
+        "ft_mae": 48.89796802887351,
+        "delta_rmse_ft_minus_large": -38.22474834542301,
+        "frac_ft_better": 0.9620253164556962,
+        "train_n": 173
+      },
+      {
+        "group": "A333",
+        "n": 336,
+        "large_rmse": 245.3987165133455,
+        "ft_rmse": 210.8191613074381,
+        "large_mae": 161.70720577283586,
+        "ft_mae": 143.04220708885555,
+        "delta_rmse_ft_minus_large": -34.57955520590741,
+        "frac_ft_better": 0.5952380952380952,
+        "train_n": 1345
+      },
+      {
+        "group": "B789",
+        "n": 805,
+        "large_rmse": 347.87334430385954,
+        "ft_rmse": 332.5093235932069,
+        "large_mae": 156.47188272619735,
+        "ft_mae": 133.59974491848791,
+        "delta_rmse_ft_minus_large": -15.364020710652653,
+        "frac_ft_better": 0.577639751552795,
+        "train_n": 2905
+      },
+      {
+        "group": "B788",
+        "n": 350,
+        "large_rmse": 303.2114696597698,
+        "ft_rmse": 288.9194650344778,
+        "large_mae": 170.23206655203683,
+        "ft_mae": 167.3421944642857,
+        "delta_rmse_ft_minus_large": -14.292004625292009,
+        "frac_ft_better": 0.6057142857142858,
+        "train_n": 7406
+      },
+      {
+        "group": "A321",
+        "n": 146,
+        "large_rmse": 217.95460736688386,
+        "ft_rmse": 204.15581084525928,
+        "large_mae": 121.3902551515971,
+        "ft_mae": 108.77477924576016,
+        "delta_rmse_ft_minus_large": -13.798796521624581,
+        "frac_ft_better": 0.7054794520547946,
+        "train_n": 2406
+      },
+      {
+        "group": "A21N",
+        "n": 792,
+        "large_rmse": 59.742257182027494,
+        "ft_rmse": 60.73646468249201,
+        "large_mae": 43.567193368979865,
+        "ft_mae": 37.35854391761102,
+        "delta_rmse_ft_minus_large": 0.994207500464519,
+        "frac_ft_better": 0.5984848484848485,
+        "train_n": 2870
+      },
+      {
+        "group": "B738",
+        "n": 1266,
+        "large_rmse": 90.97463208520034,
+        "ft_rmse": 92.11493887180602,
+        "large_mae": 49.98979653866061,
+        "ft_mae": 50.000796468229126,
+        "delta_rmse_ft_minus_large": 1.1403067866056773,
+        "frac_ft_better": 0.5402843601895735,
+        "train_n": 7076
+      },
+      {
+        "group": "B744",
+        "n": 334,
+        "large_rmse": 680.2383816893663,
+        "ft_rmse": 684.8812886292628,
+        "large_mae": 439.06017480731896,
+        "ft_mae": 455.1168999495637,
+        "delta_rmse_ft_minus_large": 4.642906939896534,
+        "frac_ft_better": 0.3562874251497006,
+        "train_n": 509
+      },
+      {
+        "group": "A332",
+        "n": 1396,
+        "large_rmse": 254.36212762662075,
+        "ft_rmse": 259.2474447283404,
+        "large_mae": 153.45070315629667,
+        "ft_mae": 138.36390447166812,
+        "delta_rmse_ft_minus_large": 4.885317101719636,
+        "frac_ft_better": 0.5773638968481375,
+        "train_n": 5064
+      },
+      {
+        "group": "A20N",
+        "n": 17056,
+        "large_rmse": 72.09915454349503,
+        "ft_rmse": 78.78833553958256,
+        "large_mae": 37.23220438159184,
+        "ft_mae": 36.795762720631714,
+        "delta_rmse_ft_minus_large": 6.689180996087529,
+        "frac_ft_better": 0.5664868667917449,
+        "train_n": 35662
+      },
+      {
+        "group": "A320",
+        "n": 7948,
+        "large_rmse": 69.99876581370621,
+        "ft_rmse": 80.3199554521604,
+        "large_mae": 39.61498915910955,
+        "ft_mae": 43.73163877864217,
+        "delta_rmse_ft_minus_large": 10.321189638454186,
+        "frac_ft_better": 0.3905385002516356,
+        "train_n": 28188
+      },
+      {
+        "group": "A359",
+        "n": 5545,
+        "large_rmse": 335.448624734567,
+        "ft_rmse": 352.26497339768054,
+        "large_mae": 141.4526202084974,
+        "ft_mae": 140.74572608732097,
+        "delta_rmse_ft_minus_large": 16.81634866311356,
+        "frac_ft_better": 0.45680793507664563,
+        "train_n": 22273
+      },
+      {
+        "group": "A319",
+        "n": 221,
+        "large_rmse": 53.494598912650794,
+        "ft_rmse": 75.22069846082437,
+        "large_mae": 33.621310333321,
+        "ft_mae": 43.31001211830933,
+        "delta_rmse_ft_minus_large": 21.726099548173572,
+        "frac_ft_better": 0.4253393665158371,
+        "train_n": 233
+      },
+      {
+        "group": "B77W",
+        "n": 713,
+        "large_rmse": 857.225651034112,
+        "ft_rmse": 906.867847910566,
+        "large_mae": 478.6497799971415,
+        "ft_mae": 396.38687115322995,
+        "delta_rmse_ft_minus_large": 49.64219687645391,
+        "frac_ft_better": 0.6746143057503506,
+        "train_n": 1584
+      }
+    ],
+    "by_body": [
+      {
+        "group": "narrowbody",
+        "n": 27547,
+        "large_rmse": 74.48992203411592,
+        "ft_rmse": 80.96566721566508,
+        "large_mae": 39.453458911121935,
+        "ft_mae": 40.02655970347427,
+        "delta_rmse_ft_minus_large": 6.475745181549158,
+        "frac_ft_better": 0.5160997567793226
+      },
+      {
+        "group": "widebody_heavy",
+        "n": 9614,
+        "large_rmse": 404.7744857624115,
+        "ft_rmse": 418.1998803751701,
+        "large_mae": 183.13523400822285,
+        "ft_mae": 171.64239865361745,
+        "delta_rmse_ft_minus_large": 13.425394612758623,
+        "frac_ft_better": 0.508633243187019
+      }
+    ],
+    "by_phase": [
+      {
+        "group": "climb",
+        "n": 4216,
+        "large_rmse": 166.7891051702852,
+        "ft_rmse": 161.63206359334959,
+        "large_mae": 62.585910774475174,
+        "ft_mae": 61.16572563802098,
+        "delta_rmse_ft_minus_large": -5.157041576935626,
+        "frac_ft_better": 0.5419829222011385
+      },
+      {
+        "group": "descent",
+        "n": 5658,
+        "large_rmse": 115.8735528342963,
+        "ft_rmse": 120.08601535500202,
+        "large_mae": 38.231425704166035,
+        "ft_mae": 38.8491183648795,
+        "delta_rmse_ft_minus_large": 4.212462520705714,
+        "frac_ft_better": 0.46942382467302934
+      },
+      {
+        "group": "cruise",
+        "n": 27296,
+        "large_rmse": 237.41409139041858,
+        "ft_rmse": 247.74289037387442,
+        "large_mae": 86.83883470304112,
+        "ft_mae": 83.49362715167905,
+        "delta_rmse_ft_minus_large": 10.32879898345584,
+        "frac_ft_better": 0.5190870457209847
+      }
+    ],
+    "by_duration_bin": [
+      {
+        "group": "short_<2h",
+        "n": 37170,
+        "large_rmse": 215.8504363943995,
+        "ft_rmse": 224.12168280060487,
+        "large_mae": 76.68895449323566,
+        "ft_mae": 74.1653230489808,
+        "delta_rmse_ft_minus_large": 8.271246406205364,
+        "frac_ft_better": 0.5141242937853108
+      }
+    ],
+    "by_fuel_bin": [
+      {
+        "group": "fuel_500-1000",
+        "n": 2973,
+        "large_rmse": 217.46685313163806,
+        "ft_rmse": 206.71958998403574,
+        "large_mae": 136.0780655746967,
+        "ft_mae": 126.917243325171,
+        "delta_rmse_ft_minus_large": -10.747263147602325,
+        "frac_ft_better": 0.5519677093844602
+      },
+      {
+        "group": "fuel_200-500",
+        "n": 9651,
+        "large_rmse": 99.5919934567249,
+        "ft_rmse": 93.83390432521158,
+        "large_mae": 58.12223105926265,
+        "ft_mae": 58.78297951934888,
+        "delta_rmse_ft_minus_large": -5.758089131513316,
+        "frac_ft_better": 0.3574759092322039
+      },
+      {
+        "group": "fuel_<200",
+        "n": 20523,
+        "large_rmse": 51.34395780705435,
+        "ft_rmse": 45.73154465882676,
+        "large_mae": 30.645895209159217,
+        "ft_mae": 27.595223183009615,
+        "delta_rmse_ft_minus_large": -5.6124131482275885,
+        "frac_ft_better": 0.5946986308044633
+      },
+      {
+        "group": "fuel_1000-2000",
+        "n": 2685,
+        "large_rmse": 311.86795346669896,
+        "ft_rmse": 318.06442550795987,
+        "large_mae": 214.24327376479903,
+        "ft_mae": 215.76214133788918,
+        "delta_rmse_ft_minus_large": 6.196472041260904,
+        "frac_ft_better": 0.4324022346368715
+      },
+      {
+        "group": "fuel_>=2000",
+        "n": 1338,
+        "large_rmse": 939.1938425384258,
+        "ft_rmse": 1000.9334938127656,
+        "large_mae": 508.85037381987456,
+        "ft_mae": 498.0773117387951,
+        "delta_rmse_ft_minus_large": 61.73965127433985,
+        "frac_ft_better": 0.4880418535127055
+      }
+    ],
+    "by_altitude_bin": [
+      {
+        "group": "alt_<3km",
+        "n": 938,
+        "large_rmse": 220.24396261997936,
+        "ft_rmse": 187.11195387400406,
+        "large_mae": 45.774201827965385,
+        "ft_mae": 42.79939524860048,
+        "delta_rmse_ft_minus_large": -33.1320087459753,
+        "frac_ft_better": 0.47121535181236673
+      },
+      {
+        "group": "alt_8-11km",
+        "n": 713,
+        "large_rmse": 100.21414551269268,
+        "ft_rmse": 84.13864731247564,
+        "large_mae": 41.17316787752975,
+        "ft_mae": 39.997341392791114,
+        "delta_rmse_ft_minus_large": -16.07549820021704,
+        "frac_ft_better": 0.46563814866760167
+      },
+      {
+        "group": "alt_3-8km",
+        "n": 1684,
+        "large_rmse": 103.5772548661637,
+        "ft_rmse": 100.4927445329582,
+        "large_mae": 37.93978778639124,
+        "ft_mae": 37.06078455482942,
+        "delta_rmse_ft_minus_large": -3.0845103332055004,
+        "frac_ft_better": 0.505938242280285
+      },
+      {
+        "group": "alt_>=11km",
+        "n": 33777,
+        "large_rmse": 218.48852445593218,
+        "ft_rmse": 229.95091237711426,
+        "large_mae": 79.19175564346324,
+        "ft_mae": 77.06582476404667,
+        "delta_rmse_ft_minus_large": 11.462387921182085,
+        "frac_ft_better": 0.5163276785978624
+      }
+    ],
+    "by_rare": [
+      {
+        "group": "rare",
+        "n": 140,
+        "large_rmse": 419.1219568530718,
+        "ft_rmse": 421.30007824485085,
+        "large_mae": 176.8502752111718,
+        "ft_mae": 160.3028602513951,
+        "delta_rmse_ft_minus_large": 2.1781213917790296,
+        "frac_ft_better": 0.75
+      },
+      {
+        "group": "common",
+        "n": 37030,
+        "large_rmse": 214.717085384954,
+        "ft_rmse": 223.04569550797186,
+        "large_mae": 76.31027275139091,
+        "ft_mae": 73.83966128262006,
+        "delta_rmse_ft_minus_large": 8.328610123017853,
+        "frac_ft_better": 0.5132325141776938
+      }
+    ]
+  },
+  "ft_gain": {
+    "frac_ft_lower_abs_err": 0.5141242937853108,
+    "mean_abs_err_delta_ft_minus_large": -2.523631444254864,
+    "mean_abs_err_delta_on_rare": -16.547414959776745,
+    "mean_abs_err_delta_on_common": -2.4706114687708487,
+    "mean_abs_err_delta_heavy": -11.492835354605392,
+    "mean_abs_err_delta_narrow": 0.5731007923523284,
+    "types_where_ft_type_rmse_better": [
+      "B772",
+      "B38M",
+      "A333",
+      "B789",
+      "B788",
+      "A321"
+    ],
+    "types_where_large_type_rmse_better": [
+      "A21N",
+      "B738",
+      "B744",
+      "A332",
+      "A20N",
+      "A320",
+      "A359",
+      "A319",
+      "B77W"
+    ]
+  },
+  "feature_attribution_top": [
+    {
+      "feature": "duration_s",
+      "large_attr": 0.1461900029757097,
+      "ft_attr": 0.405539889281291,
+      "abs_diff": 0.2593498863055813
+    },
+    {
+      "feature": "r3_tow_kg",
+      "large_attr": 0.008986481377477356,
+      "ft_attr": 0.06269358201442668,
+      "abs_diff": 0.05370710063694932
+    },
+    {
+      "feature": "r3_mass_consumed_kg",
+      "large_attr": 0.07652930010330271,
+      "ft_attr": 0.030821474809410096,
+      "abs_diff": 0.04570782529389261
+    },
+    {
+      "feature": "r3_mass_rate_kgps",
+      "large_attr": 0.04941007887825866,
+      "ft_attr": 0.0053508432245134565,
+      "abs_diff": 0.044059235653745206
+    },
+    {
+      "feature": "physics_fuel_kg",
+      "large_attr": 0.04794521655818292,
+      "ft_attr": 0.005135658663814399,
+      "abs_diff": 0.04280955789436852
+    },
+    {
+      "feature": "r3_fuel_fraction",
+      "large_attr": 0.07562369814814585,
+      "ft_attr": 0.03376213673316784,
+      "abs_diff": 0.04186156141497801
+    },
+    {
+      "feature": "end_fraction_of_flight",
+      "large_attr": 0.007272809567512018,
+      "ft_attr": 0.04775632068740634,
+      "abs_diff": 0.040483511119894316
+    },
+    {
+      "feature": "ref_mass_kg",
+      "large_attr": 0.0291892568597202,
+      "ft_attr": 0.003309568903111775,
+      "abs_diff": 0.025879687956608426
+    },
+    {
+      "feature": "r3_tow_mtow_ratio",
+      "large_attr": 0.0314104423710664,
+      "ft_attr": 0.005930178575390394,
+      "abs_diff": 0.025480263795676004
+    },
+    {
+      "feature": "median_altitude",
+      "large_attr": 0.012375847644943224,
+      "ft_attr": 0.03731152913043241,
+      "abs_diff": 0.024935681485489185
+    },
+    {
+      "feature": "r3_mass_std_kg",
+      "large_attr": 0.07686688211369443,
+      "ft_attr": 0.05708226664322137,
+      "abs_diff": 0.019784615470473055
+    },
+    {
+      "feature": "r3_cruise_mass_fuel_ratio",
+      "large_attr": 0.01959040115544444,
+      "ft_attr": 0.0008681826954550934,
+      "abs_diff": 0.018722218459989344
+    },
+    {
+      "feature": "r3_mean_pe_j",
+      "large_attr": 0.01823446116153617,
+      "ft_attr": 0.004192331665615856,
+      "abs_diff": 0.014042129495920314
+    },
+    {
+      "feature": "r3_wing_loading_cur",
+      "large_attr": 0.016105312222992413,
+      "ft_attr": 0.002283403257969043,
+      "abs_diff": 0.01382190896502337
+    },
+    {
+      "feature": "mean_kinetic_energy_j",
+      "large_attr": 0.01210159240720591,
+      "ft_attr": 0.0001440030281800493,
+      "abs_diff": 0.01195758937902586
+    }
+  ],
+  "attribution_stability": {
+    "large_half_spearman": 0.9894053315105947,
+    "ft_half_spearman": 0.9906356801093644,
+    "cross_model_spearman": 0.5539986329460014
+  },
+  "physics_share": {
+    "large_physics_share": 0.642478309626997,
+    "ft_physics_share": 0.3804341509217613,
+    "n_physics_like_features": 31
+  },
+  "hypotheses": [
+    {
+      "id": "H1_type_clustered_ft",
+      "claim": "FT embeddings are more type-separated than Large.",
+      "support": "silhouette FT=-0.014 vs Large=0.038",
+      "status": "not_supported"
+    },
+    {
+      "id": "H2_smoother_geometry",
+      "claim": "FT has higher inter/intra type distance ratio (more separable types).",
+      "support": "inter/intra FT=1.309 Large=1.268",
+      "status": "supported"
+    },
+    {
+      "id": "H3_ft_helps_rare_or_heavy",
+      "claim": "FT reduces error more on rare and/or heavy types than on common/narrow.",
+      "support": "\u0394|err| FT-Large rare=-16.55 common=-2.47 heavy=-11.49 narrow=+0.57",
+      "status": "supported"
+    },
+    {
+      "id": "H4_type_macro_from_hard_types",
+      "claim": "FT type-macro gain comes from improving a subset of hard aircraft types.",
+      "support": "types FT better type-RMSE: [np.str_('B772'), np.str_('B38M'), np.str_('A333'), np.str_('B789'), np.str_('B788'), np.str_('A321')]",
+      "status": "supported"
+    },
+    {
+      "id": "H5_feature_use_differs",
+      "claim": "MLP and FT emphasize different numeric features (attribution rank correlation < 0.7).",
+      "support": "Spearman attr Large vs FT=0.554; physics share L=0.642 FT=0.380",
+      "status": "supported"
+    }
+  ],
+  "wall_seconds": 291.9610664844513,
+  "common_types_for_centroid": [
+    "A20N",
+    "A320",
+    "A359",
+    "B788",
+    "B738"
+  ],
+  "rare_train_n_threshold": 213.40000000000003
+}

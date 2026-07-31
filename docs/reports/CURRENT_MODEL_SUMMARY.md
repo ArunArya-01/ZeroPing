@@ -1,6 +1,6 @@
 # Current Model Summary
 
-**Last synced:** 2026-07-30 (R3 teacher frozen; distillation MLP track complete including **Combined Rank+Final**)
+**Last synced:** 2026-07-31 (All experiments complete; phase = Paper Writing. See `PROJECT_STATUS_REPORT.md` + `PAPER_WRITING_GUIDE.md`.)
 
 ## Teacher (frozen — do not retrain)
 
@@ -140,6 +140,21 @@ Adaptive \(\beta(x)=\beta_b\exp(-\lambda\max(u_n,0))\) on Large MLP:
 | VGKD λ>0 | worse | worse | No robustness gain |
 
 **Do not deploy VGKD.** Report: `docs/reports/vgkd_results.md`.
+
+## Phase 2 — Transformer robustness (analysis only)
+
+Why FT wins type-macro but loses Final (frozen models, no retrain):
+
+| Evidence | Large | FT |
+|----------|------:|---:|
+| Final RMSE | **215.85** | 224.12 |
+| Type-macro | 270.61 | **261.15** |
+| Type silhouette | **0.038** | −0.014 |
+| Rare→common centroid dist | 21.8 | **7.0** |
+| Δ\|err\| on rare (FT−Large) | — | **−16.5 kg** |
+| Physics-like attr share | **0.64** | 0.38 |
+
+Report: `docs/reports/transformer_robustness_analysis.md`.
 
 | Finding | Evidence |
 |---------|----------|

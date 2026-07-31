@@ -41,6 +41,10 @@ class TrainConfig:
     hidden_dims: tuple[int, ...] = (1024, 512)
     dropout: float = 0.1
     run_name: str = "student"
+    # Phase 3.5 — prediction consistency regularization (0 = disabled)
+    consistency_lambda: float = 0.0
+    consistency_noise_scale: float = 0.015  # σ on standardized continuous features (~1.5% of 1 std)
+    n_num_features: int | None = None  # only first n_num columns are continuous; rest are OHE cats
     extras: dict[str, Any] = field(default_factory=dict)
 
     def resolved_device(self) -> torch.device:
@@ -138,14 +142,20 @@ def train_student(
     model = model.to(device)
 
     n_params = int(sum(p.numel() for p in model.parameters() if p.requires_grad))
+    cons_lam = float(config.consistency_lambda or 0.0)
+    cons_eps = float(config.consistency_noise_scale or 0.015)
+    n_num = config.n_num_features
     LOGGER.info(
-        "Training %s on %s | mode=%s alpha=%.3f beta=%.3f | params=%s",
+        "Training %s on %s | mode=%s alpha=%.3f beta=%.3f | params=%s | cons_λ=%.4f eps=%.4f n_num=%s",
         config.run_name,
         device,
         config.mode,
         config.alpha,
         config.beta,
         f"{n_params:,}",
+        cons_lam,
+        cons_eps,
+        n_num,
     )
 
     optimizer = torch.optim.AdamW(
@@ -187,6 +197,20 @@ def train_student(
                 beta=config.beta,
                 criterion=criterion,
             )
+            # Local smoothness intervention: L += λ ||f(x) − f(x+ε)||² on continuous features only.
+            if cons_lam > 0:
+                x_pert = x.detach().clone()
+                if n_num is None or n_num <= 0:
+                    # Fallback: perturb all columns (discouraged; prefer n_num_features)
+                    noise = torch.randn_like(x_pert) * cons_eps
+                    x_pert = x_pert + noise
+                else:
+                    n_c = min(int(n_num), x_pert.shape[1])
+                    noise = torch.randn(x_pert.shape[0], n_c, device=device, dtype=x_pert.dtype) * cons_eps
+                    x_pert[:, :n_c] = x_pert[:, :n_c] + noise
+                pred_pert = model(x_pert)
+                cons = ((pred - pred_pert) ** 2).mean()
+                loss = loss + cons_lam * cons
             loss.backward()
             if config.grad_clip and config.grad_clip > 0:
                 torch.nn.utils.clip_grad_norm_(model.parameters(), config.grad_clip)

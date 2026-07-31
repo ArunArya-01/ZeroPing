@@ -82,6 +82,7 @@ def make_train_config(
     exp: ExperimentConfig,
 ) -> TrainConfig:
     """Always use KD mode: loss = α·MSE(gt) + β·MSE(teacher)."""
+    extras = dict(exp.extras)
     return TrainConfig(
         mode="kd",
         alpha=float(alpha),
@@ -101,7 +102,10 @@ def make_train_config(
         hidden_dims=exp.hidden_dims,
         dropout=exp.dropout,
         run_name=run_name,
-        extras=dict(exp.extras),
+        consistency_lambda=float(extras.get("consistency_lambda", 0.0) or 0.0),
+        consistency_noise_scale=float(extras.get("consistency_noise_scale", 0.015) or 0.015),
+        n_num_features=extras.get("n_num_features"),
+        extras=extras,
     )
 
 

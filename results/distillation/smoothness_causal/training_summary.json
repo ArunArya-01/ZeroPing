@@ -1,0 +1,26 @@
+[
+  {
+    "run": "large_cons_lam0.01",
+    "lambda": 0.01,
+    "best_val_rmse": 230.00909926389392,
+    "best_epoch": 79,
+    "n_params": 2887425,
+    "wall_seconds": 317.6553521156311
+  },
+  {
+    "run": "large_cons_lam0.1",
+    "lambda": 0.1,
+    "best_val_rmse": 229.85177473989216,
+    "best_epoch": 78,
+    "n_params": 2887425,
+    "wall_seconds": 295.2651913166046
+  },
+  {
+    "run": "large_cons_lam1.0",
+    "lambda": 1.0,
+    "best_val_rmse": 230.1826984248758,
+    "best_epoch": 78,
+    "n_params": 2887425,
+    "wall_seconds": 275.2956359386444
+  }
+]

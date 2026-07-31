@@ -1,0 +1,16 @@
+[
+  {
+    "run": "large_nophysics",
+    "architecture": "large_mlp",
+    "best_val_rmse": 230.97835506127663,
+    "n_params": 2828289,
+    "wall_seconds": 316.7153215408325
+  },
+  {
+    "run": "ft_nophysics",
+    "architecture": "ft_transformer",
+    "best_val_rmse": 238.97314193913365,
+    "n_params": 1445953,
+    "wall_seconds": 2254.037948846817
+  }
+]

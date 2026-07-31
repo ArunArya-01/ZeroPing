@@ -1,0 +1,356 @@
+{
+  "timestamp_utc": "2026-07-31T02:33:44.262871+00:00",
+  "full_metrics": {
+    "large": {
+      "final": {
+        "rmse": 215.8504363943995,
+        "mae": 76.68895449323566,
+        "bias": 5.253185015452828,
+        "r2": 0.9220401113999332
+      },
+      "type_macro": 270.6106259922319,
+      "body_macro": 239.6322038982637
+    },
+    "ft": {
+      "final": {
+        "rmse": 224.12168280060487,
+        "mae": 74.1653230489808,
+        "bias": -12.012275426029793,
+        "r2": 0.9159508942326701
+      },
+      "type_macro": 261.145761757592,
+      "body_macro": 249.58277379541758
+    }
+  },
+  "A_physics_ablation": {
+    "large": {
+      "full_final": 215.8504363943995,
+      "nophys_final": 219.49235461190142,
+      "delta_final": 3.6419182175019102,
+      "full_type_macro": 270.6106259922319,
+      "nophys_type_macro": 269.6660383521832,
+      "delta_type_macro": -0.9445876400487236
+    },
+    "ft": {
+      "full_final": 224.12168280060487,
+      "nophys_final": 225.1734117338146,
+      "delta_final": 1.0517289332097164,
+      "full_type_macro": 261.145761757592,
+      "nophys_type_macro": 263.6997244341918,
+      "delta_type_macro": 2.553962676599781
+    },
+    "relative": {
+      "large_delta_type": -0.9445876400487236,
+      "ft_delta_type": 2.553962676599781,
+      "large_more_sensitive_to_physics_removal": false
+    }
+  },
+  "A_ablation_raw": {
+    "available": {
+      "large_nophysics": true,
+      "ft_nophysics": true
+    },
+    "metrics": {
+      "large_nophysics": {
+        "final": {
+          "rmse": 219.49235461190142,
+          "mae": 73.1388664833543,
+          "bias": -4.591773379659397,
+          "r2": 0.9193871746605379
+        },
+        "type_macro": 269.6660383521832,
+        "body_macro": 243.2101048522582,
+        "n_params": 2828289
+      },
+      "ft_nophysics": {
+        "final": {
+          "rmse": 225.1734117338146,
+          "mae": 73.70843721818673,
+          "bias": -24.85404688472409,
+          "r2": 0.9151602140638329
+        },
+        "type_macro": 263.6997244341918,
+        "body_macro": 250.79986744558704,
+        "n_params": 1445953
+      }
+    }
+  },
+  "A3_physics_reliability": {
+    "physics_error_vs_ft_advantage": {
+      "pearson": -0.24593249009867793,
+      "pearson_p": 0.3769431443266412,
+      "spearman": -0.09999999999999999,
+      "spearman_p": 0.7228973252791182,
+      "n": 15
+    },
+    "physics_error_vs_large_rmse": {
+      "pearson": 0.931954315759063,
+      "pearson_p": 4.316409759713839e-07,
+      "spearman": 0.8499999999999999,
+      "spearman_p": 5.9958885253110174e-05,
+      "n": 15
+    },
+    "physics_error_vs_ft_rmse": {
+      "pearson": 0.9416771428885109,
+      "pearson_p": 1.6225328670814897e-07,
+      "spearman": 0.907142857142857,
+      "spearman_p": 3.06331053549387e-06,
+      "n": 15
+    },
+    "physics_error_vs_log_train_n": {
+      "pearson": -0.12985850388219503,
+      "pearson_p": 0.6446053729698236,
+      "spearman": -0.10714285714285714,
+      "spearman_p": 0.7039010016261618,
+      "n": 15
+    },
+    "ft_advantage_vs_log_train_n": {
+      "pearson": -0.28882204179214205,
+      "pearson_p": 0.2964751504288365,
+      "spearman": -0.3214285714285714,
+      "spearman_p": 0.24271904680166828,
+      "n": 15
+    },
+    "n_types": 15
+  },
+  "A4_attribution_shift": {
+    "all": {
+      "n": 37170,
+      "large_bucket_share": {
+        "physics": 0.6762701272964478,
+        "weather": 0.03895881026983261,
+        "trajectory": 0.22782552242279053,
+        "operational": 0.056945543736219406
+      },
+      "ft_bucket_share": {
+        "physics": 0.4045698344707489,
+        "weather": 0.021565167233347893,
+        "trajectory": 0.49810174107551575,
+        "operational": 0.07576325535774231
+      },
+      "large_physics_share": 0.6762701272964478,
+      "ft_physics_share": 0.4045698344707489,
+      "large_trajectory_share": 0.22782552242279053,
+      "ft_trajectory_share": 0.49810174107551575
+    },
+    "common": {
+      "n": 37030,
+      "large_bucket_share": {
+        "physics": 0.6767870187759399,
+        "weather": 0.038802191615104675,
+        "trajectory": 0.22757676243782043,
+        "operational": 0.05683400109410286
+      },
+      "ft_bucket_share": {
+        "physics": 0.4041232764720917,
+        "weather": 0.02146013081073761,
+        "trajectory": 0.49729135632514954,
+        "operational": 0.07712515443563461
+      },
+      "large_physics_share": 0.6767870187759399,
+      "ft_physics_share": 0.4041232764720917,
+      "large_trajectory_share": 0.22757676243782043,
+      "ft_trajectory_share": 0.49729135632514954
+    },
+    "heavy": {
+      "n": 9614,
+      "large_bucket_share": {
+        "physics": 0.731964111328125,
+        "weather": 0.03439491614699364,
+        "trajectory": 0.19103538990020752,
+        "operational": 0.042605556547641754
+      },
+      "ft_bucket_share": {
+        "physics": 0.46630004048347473,
+        "weather": 0.021769728511571884,
+        "trajectory": 0.4565434455871582,
+        "operational": 0.05538678914308548
+      },
+      "large_physics_share": 0.731964111328125,
+      "ft_physics_share": 0.46630004048347473,
+      "large_trajectory_share": 0.19103538990020752,
+      "ft_trajectory_share": 0.4565434455871582
+    },
+    "narrow": {
+      "n": 27547,
+      "large_bucket_share": {
+        "physics": 0.5562295317649841,
+        "weather": 0.04974694922566414,
+        "trajectory": 0.2986312508583069,
+        "operational": 0.09539221227169037
+      },
+      "ft_bucket_share": {
+        "physics": 0.24457110464572906,
+        "weather": 0.02136150747537613,
+        "trajectory": 0.610614001750946,
+        "operational": 0.12345343828201294
+      },
+      "large_physics_share": 0.5562295317649841,
+      "ft_physics_share": 0.24457110464572906,
+      "large_trajectory_share": 0.2986312508583069,
+      "ft_trajectory_share": 0.610614001750946
+    }
+  },
+  "B1_geometry": {
+    "large": {
+      "mean_within_type_var_proxy": 23.684720873832703,
+      "mean_inter_type_centroid_dist": 32.00795207023621,
+      "rare_to_common_centroid_dist": 21.79524803161621,
+      "common_to_common_centroid_dist": 24.728560495376588,
+      "n_types_with_centroid": 16,
+      "rare_to_common_norm": 0.6809322878199177,
+      "common_to_common_norm": 0.7725755287659083
+    },
+    "ft": {
+      "mean_within_type_var_proxy": 9.181769609451294,
+      "mean_inter_type_centroid_dist": 13.405358053247134,
+      "rare_to_common_centroid_dist": 7.018001079559326,
+      "common_to_common_centroid_dist": 11.140616631507873,
+      "n_types_with_centroid": 16,
+      "rare_to_common_norm": 0.5235220910686067,
+      "common_to_common_norm": 0.8310569987952928
+    }
+  },
+  "B2_nn_transfer": {
+    "large": {
+      "mean_nn_dist": 7.690651829923902,
+      "median_nn_dist": 6.027409553527832,
+      "mean_neighbor_same_body_frac": 0.887142857142857,
+      "n_rare": 140,
+      "n_common": 37030
+    },
+    "ft": {
+      "mean_nn_dist": 1.9396803918055125,
+      "median_nn_dist": 1.6702479124069214,
+      "mean_neighbor_same_body_frac": 0.6942857142857142,
+      "n_rare": 140,
+      "n_common": 37030
+    }
+  },
+  "B3_neighborhood": {
+    "large": {
+      "k": 10,
+      "mean_type_purity": 0.9287875,
+      "mean_nn_dist": 2.861063382000383,
+      "n": 8000
+    },
+    "ft": {
+      "k": 10,
+      "mean_type_purity": 0.923375,
+      "mean_nn_dist": 0.6876494974028173,
+      "n": 8000
+    }
+  },
+  "B4_stability": {
+    "large": {
+      "mean_abs_move": 3.8159146308898926,
+      "mean_rel_move": 0.05616602674126625,
+      "median_rel_move": 0.049153655767440796,
+      "eps": 0.05,
+      "n": 1500
+    },
+    "ft": {
+      "mean_abs_move": 0.6556718945503235,
+      "mean_rel_move": 0.013914821669459343,
+      "median_rel_move": 0.01087304949760437,
+      "eps": 0.05,
+      "n": 1500
+    }
+  },
+  "B5_geometry_vs_robustness": {
+    "ft_centroid_dist_vs_ft_rmse": {
+      "pearson": 0.6726013997558141,
+      "pearson_p": 0.006006197559002692,
+      "spearman": 0.6,
+      "spearman_p": 0.018050087941499978,
+      "n": 15
+    },
+    "ft_centroid_dist_vs_ft_advantage": {
+      "pearson": 0.33971413899682706,
+      "pearson_p": 0.21541243223753992,
+      "spearman": 0.0857142857142857,
+      "spearman_p": 0.7613341261907666,
+      "n": 15
+    },
+    "train_n_vs_ft_advantage": {
+      "pearson": -0.28882204179214205,
+      "pearson_p": 0.2964751504288365,
+      "spearman": -0.3214285714285714,
+      "spearman_p": 0.24271904680166828,
+      "n": 15
+    },
+    "physics_rmse_vs_ft_advantage": {
+      "pearson": -0.24593249009867793,
+      "pearson_p": 0.3769431443266412,
+      "spearman": -0.09999999999999999,
+      "spearman_p": 0.7228973252791182,
+      "n": 15
+    }
+  },
+  "C1_variance_decomposition": {
+    "n_types": 15,
+    "full_r2": 0.6543787975119291,
+    "coefficients_standardized": {
+      "physics_rmse": -46.95971640484038,
+      "log_train_n": -6.052840005733081,
+      "is_heavy": 26.236554145485098,
+      "centroid_dist": 26.831423827682382
+    },
+    "intercept": 9.464864234639894,
+    "unique_r2_drop": {
+      "physics_rmse": 0.5110709857432342,
+      "log_train_n": 0.016719008002588964,
+      "is_heavy": 0.1798528957741028,
+      "centroid_dist": 0.19468365937969834
+    },
+    "predictor_order": [
+      "physics_rmse",
+      "log_train_n",
+      "is_heavy",
+      "centroid_dist"
+    ]
+  },
+  "evidence_table": [
+    {
+      "mechanism": "Representation (Hypothesis A)",
+      "supporting_evidence": [
+        "Rare samples closer to common NN in FT space (1.940 vs 7.691)",
+        "FT more stable under input noise (rel move 0.0139 vs 0.0562)"
+      ],
+      "contradicting_evidence": [
+        "FT rare\u2192common normalized distance not substantially smaller",
+        "Weak centroid-distance vs FT-advantage link (Spearman=0.09)"
+      ],
+      "score": 1.0,
+      "confidence": "low"
+    },
+    {
+      "mechanism": "Physics-feature reliance (Hypothesis B)",
+      "supporting_evidence": [],
+      "contradicting_evidence": [
+        "Large type-macro change after physics removal is small (-0.9 kg)",
+        "FT not clearly less sensitive to physics removal than Large",
+        "Weak/non-sig Spearman(physics_rmse, FT advantage)=-0.10 (p=0.723)"
+      ],
+      "score": -1.5,
+      "confidence": "medium"
+    }
+  ],
+  "conclusion": {
+    "most_likely_mechanism": "mostly_representation",
+    "confidence": "low",
+    "representation_score": 1.0,
+    "physics_score": -1.5,
+    "variance_decomp_full_r2": 0.6543787975119291,
+    "variance_decomp_top_unique": "physics_rmse",
+    "variance_decomp_unique_r2": {
+      "physics_rmse": 0.5110709857432342,
+      "log_train_n": 0.016719008002588964,
+      "is_heavy": 0.1798528957741028,
+      "centroid_dist": 0.19468365937969834
+    },
+    "phase4_recommendation": "Representation distillation / align student latents to FT-like geometry",
+    "summary": "Mechanism label=mostly_representation (rep_score=1.0, phys_score=-1.5). Type-level regression R\u00b2=0.654; top unique R\u00b2 drop predictor=physics_rmse. Phase 4: Representation distillation / align student latents to FT-like geometry."
+  },
+  "wall_seconds": 34.99388551712036
+}

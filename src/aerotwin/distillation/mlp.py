@@ -48,6 +48,10 @@ class StudentMLP(nn.Module):
         h = self.backbone(x)
         return self.head(h).squeeze(-1)
 
+    def encode(self, x: torch.Tensor) -> torch.Tensor:
+        """Penultimate representation (post-backbone, pre-head)."""
+        return self.backbone(x)
+
     def count_parameters(self, trainable_only: bool = True) -> int:
         params = self.parameters() if not trainable_only else (p for p in self.parameters() if p.requires_grad)
         return int(sum(p.numel() for p in params))

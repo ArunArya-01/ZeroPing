@@ -1,0 +1,34 @@
+{
+  "most_likely_mechanism": "mostly_representation",
+  "confidence": "low_to_medium",
+  "physics_hypothesis": "rejected",
+  "representation_hypothesis": "partially_supported",
+  "representation_score": 1.0,
+  "physics_score": -1.5,
+  "key_quantitative": {
+    "large_full_final": 215.85,
+    "ft_full_final": 224.12,
+    "large_full_type_macro": 270.61,
+    "ft_full_type_macro": 261.15,
+    "large_nophys_type_macro": 269.67,
+    "ft_nophys_type_macro": 263.70,
+    "large_delta_type_macro": -0.94,
+    "ft_delta_type_macro": 2.55,
+    "physics_vs_ft_advantage_spearman": -0.10,
+    "physics_vs_ft_advantage_p": 0.723,
+    "rare_to_common_norm_large": 0.681,
+    "rare_to_common_norm_ft": 0.524,
+    "stability_rel_move_large": 0.0562,
+    "stability_rel_move_ft": 0.0139,
+    "variance_decomp_full_r2": 0.654,
+    "physics_coef_sign": "negative_opposite_of_HB"
+  },
+  "variance_decomp_unique_r2": {
+    "physics_rmse": 0.511,
+    "log_train_n": 0.017,
+    "is_heavy": 0.180,
+    "centroid_dist": 0.195
+  },
+  "phase4_recommendation": "Representation distillation / align student latents to FT-like geometry. Do not prioritize physics-reliability-aware MLP (H-B rejected by ablation).",
+  "summary": "H-B rejected: removing physics does not close Large type-macro gap (Δ=-0.9 kg); ranking preserved without physics; physics RMSE does not correlate with FT advantage (ρ=-0.10). H-A partially supported: FT smoother (4× stability), rarer points closer to common manifold (norm 0.52 vs 0.68), but geometry weakly predicts FT advantage (ρ=0.09). Phase 4: representation-focused methods."
+}

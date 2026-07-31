@@ -1,0 +1,196 @@
+{
+  "large_baseline": {
+    "final_rmse": 215.8504363943995,
+    "final_mae": 76.68895449323566,
+    "type_macro": 270.6106259922319,
+    "body_macro": 239.6322038982637,
+    "val_rmse": 229.69766955732914
+  },
+  "ft_baseline": {
+    "final_rmse": 224.12168280060487,
+    "final_mae": 74.1653230489808,
+    "type_macro": 261.145761757592,
+    "body_macro": 249.58277379541758
+  },
+  "lambda_runs": {
+    "0.01": {
+      "final_rmse": 214.46309260318816,
+      "final_mae": 75.1782287048749,
+      "type_macro": 262.38646963738825,
+      "body_macro": 238.10903370582164,
+      "val_rmse": 230.00909926389392,
+      "best_epoch": 79,
+      "lambda": 0.01,
+      "geometry": {
+        "mean_within_type": 23.59684944152832,
+        "mean_inter_type_centroid": 31.78426563938459,
+        "rare_to_common_raw": 21.07167625427246,
+        "rare_to_common_norm": 0.6629593552151187,
+        "silhouette": -0.041834067553281784,
+        "type_purity_k10": 0.9114800000000001,
+        "n_types_centroid": 16
+      },
+      "stability": {
+        "mean_abs_move": 1.1685210466384888,
+        "mean_rel_move": 0.01708422787487507,
+        "median_rel_move": 0.014622407034039497,
+        "mean_pred_abs_delta": 9.410515785217285,
+        "eps": 0.05,
+        "n": 1500,
+        "noise_on": "continuous_only"
+      }
+    },
+    "0.1": {
+      "final_rmse": 216.50289525762813,
+      "final_mae": 75.45492092970252,
+      "type_macro": 268.02186391651827,
+      "body_macro": 240.1639186015817,
+      "val_rmse": 229.85177473989216,
+      "best_epoch": 78,
+      "lambda": 0.1,
+      "geometry": {
+        "mean_within_type": 23.94758266210556,
+        "mean_inter_type_centroid": 31.587840855121613,
+        "rare_to_common_raw": 21.19068145751953,
+        "rare_to_common_norm": 0.6708493168213395,
+        "silhouette": -0.03138457238674164,
+        "type_purity_k10": 0.91328,
+        "n_types_centroid": 16
+      },
+      "stability": {
+        "mean_abs_move": 1.0725032091140747,
+        "mean_rel_move": 0.016235163435339928,
+        "median_rel_move": 0.013800553046166897,
+        "mean_pred_abs_delta": 9.542459487915039,
+        "eps": 0.05,
+        "n": 1500,
+        "noise_on": "continuous_only"
+      }
+    },
+    "1.0": {
+      "final_rmse": 215.9415350417056,
+      "final_mae": 76.20395691532255,
+      "type_macro": 262.3569829482245,
+      "body_macro": 239.52742598318878,
+      "val_rmse": 230.1826984248758,
+      "best_epoch": 78,
+      "lambda": 1.0,
+      "geometry": {
+        "mean_within_type": 22.663977950811386,
+        "mean_inter_type_centroid": 32.588062944014865,
+        "rare_to_common_raw": 20.702301025390625,
+        "rare_to_common_norm": 0.6352725248185644,
+        "silhouette": 0.03156420215964317,
+        "type_purity_k10": 0.9186200000000001,
+        "n_types_centroid": 16
+      },
+      "stability": {
+        "mean_abs_move": 0.6906464695930481,
+        "mean_rel_move": 0.014295524917542934,
+        "median_rel_move": 0.012378476560115814,
+        "mean_pred_abs_delta": 9.758112907409668,
+        "eps": 0.05,
+        "n": 1500,
+        "noise_on": "continuous_only"
+      }
+    }
+  },
+  "selected_lambda": 0.1,
+  "selected_by": "best_validation_rmse",
+  "geometry_baselines": {
+    "large": {
+      "mean_within_type": 23.684720873832703,
+      "mean_inter_type_centroid": 32.00795207023621,
+      "rare_to_common_raw": 21.79524803161621,
+      "rare_to_common_norm": 0.6809322878199177,
+      "silhouette": -0.03861531987786293,
+      "type_purity_k10": 0.91402,
+      "n_types_centroid": 16
+    },
+    "ft": {
+      "mean_within_type": 9.181769609451294,
+      "mean_inter_type_centroid": 13.405358053247134,
+      "rare_to_common_raw": 7.018001079559326,
+      "rare_to_common_norm": 0.5235220910686067,
+      "silhouette": -0.04992428049445152,
+      "type_purity_k10": 0.90696,
+      "n_types_centroid": 16
+    }
+  },
+  "stability_baselines": {
+    "large": {
+      "mean_abs_move": 1.1455967426300049,
+      "mean_rel_move": 0.01695350557565689,
+      "median_rel_move": 0.01451776921749115,
+      "mean_pred_abs_delta": 9.067444801330566,
+      "eps": 0.05,
+      "n": 1500,
+      "noise_on": "continuous_only"
+    },
+    "ft": {
+      "mean_abs_move": 0.6327328085899353,
+      "mean_rel_move": 0.013540591113269329,
+      "median_rel_move": 0.010851867496967316,
+      "mean_pred_abs_delta": 11.541996002197266,
+      "eps": 0.05,
+      "n": 1500,
+      "noise_on": "continuous_only"
+    }
+  },
+  "selected_metrics": {
+    "lambda": 0.1,
+    "val_rmse": 229.85177473989216,
+    "final_rmse": 216.50289525762813,
+    "type_macro": 268.02186391651827,
+    "body_macro": 240.1639186015817,
+    "delta_type_vs_large": -2.588762075713646,
+    "delta_final_vs_large": 0.6524588632286168,
+    "smoothness_increased": false,
+    "geometry_more_ftlike": false,
+    "rel_move": 0.016235163435339928,
+    "rare_to_common_norm": 0.6708493168213395
+  },
+  "outcome": "C",
+  "interpretation": "Consistency regularization did not meaningfully increase embedding smoothness (rel_move 0.0162 vs Large 0.0170). Causal conclusions about smoothness are not supported.",
+  "phase4_recommendation": "Do not draw causal conclusions about smoothness. Document unresolved mechanism.",
+  "decision_gate": {
+    "outcome": "C",
+    "pursue_smoothness_method": false,
+    "pursue_representation_distillation": false,
+    "mechanism_resolved": false,
+    "next_step": "Write empirical paper; mechanism remains unresolved (smoothness rejected or intervention failed)"
+  },
+  "timestamp_utc": "2026-07-31T03:15:39.926785+00:00",
+  "train_summary": [
+    {
+      "run": "large_cons_lam0.01",
+      "lambda": 0.01,
+      "best_val_rmse": 230.00909926389392,
+      "best_epoch": 79,
+      "n_params": 2887425,
+      "wall_seconds": 317.6553521156311
+    },
+    {
+      "run": "large_cons_lam0.1",
+      "lambda": 0.1,
+      "best_val_rmse": 229.85177473989216,
+      "best_epoch": 78,
+      "n_params": 2887425,
+      "wall_seconds": 295.2651913166046
+    },
+    {
+      "run": "large_cons_lam1.0",
+      "lambda": 1.0,
+      "best_val_rmse": 230.1826984248758,
+      "best_epoch": 78,
+      "n_params": 2887425,
+      "wall_seconds": 275.2956359386444
+    }
+  ],
+  "noise_scale": 0.015,
+  "lambdas": [
+    0.01,
+    0.1,
+    1.0
+  ]
+}
