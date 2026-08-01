@@ -62,39 +62,68 @@ Dataset: [`aerotwin/aero-data`](https://huggingface.co/datasets/aerotwin/aero-da
 
 ## Architecture
 
-```text
-                         ┌───────────────────────────────────┐
-  ADS-B/ACARS            │  src/aerotwin/data/loader.py      │
-  telemetry ───────────▶ │  AeroDataLoader (Hugging Face)    │
-                         └───────────────┬───────────────────┘
-                                         │ flightlist, fuel labels, traj
-                                         ▼
-                         ┌───────────────────────────────────┐
-                         │  src/aerotwin/engine/              │
-                         │  · openap_baseline (fuel-flow)     │
-                         │  · feature_engineering (energy)    │
-                         │  · weather_features (ISA/wind)     │
-                         │  · mass_model (R3 dynamic mass)    │
-                         └───────────────┬───────────────────┘
-                                         │ featured_dataset
-                                         ▼
-    ┌────────────────────────────────────────────────────────────────┐
-    │  experiments/                                                    │
-    │  · 03_baselines / 04_hybrid_models / 05_ensemble               │
-    │  · 06_loto_generalization / 07_gap_closing                     │
-    │  · 08_external_validation / 09_interpretability                 │
-    │  Models: XGBoost / LightGBM / CatBoost × Direct / Fuel-Flow    │
-    │  Specialists: heavy-aircraft R1, P1E phase affine, R3 mass     │
-    └──────────────┬─────────────────────────────────────────────────┘
-                   │
-                   ▼
-    ┌────────────────────────────────────────────────────────────────┐
-    │  src/aerotwin/validation/                                       │
-    │  · audit/ (DASHlink + OpenSky loaders)                         │
-    │  · cross_dataset_replication / external_energy_ablation        │
-    │  · external_vs_flow_eval                                       │
-    └────────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TB
+    subgraph INPUT["Input — ADS-B + ACARS Telemetry"]
+        A1["EUROCONTROL PRC 2025<br/>(fused ADS-B + ACARS)"]
+    end
+
+    subgraph DATA["Data Layer — src/aerotwin/data"]
+        B1["AeroDataLoader<br/>Hugging Face remote"]
+    end
+
+    subgraph FEATURES["Feature Engineering — src/aerotwin/engine"]
+        C1["OpenAP Baseline<br/>Fuel-flow (kg/s)"]
+        C2["Energy-State Features<br/>PE + KE + rate"]
+        C3["Operational Features<br/>phases / altitude / speed"]
+        C4["Weather Proxies<br/>ISA + wind"]
+        C5["R3 Dynamic Mass<br/>21 features"]
+        C6["OpenAP Descriptors<br/>MTOW / OEW / thrust"]
+    end
+
+    subgraph MODELING["Modeling — stacked GBDT ensemble"]
+        D1["XGBoost"]
+        D2["LightGBM"]
+        D3["CatBoost"]
+        D4["Direct (kg) / Fuel-Flow (kg/s)"]
+        D5["Ridge Meta-Learner<br/>5-fold GroupKFold OOF"]
+        D6["Heavy-Aircraft Specialist (R1)<br/>+ P1E phase calibration"]
+    end
+
+    subgraph EVAL["Evaluation — src/aerotwin/validation"]
+        E1["Flight-Level Split<br/>80/20"]
+        E2["LOTO<br/>12 aircraft types"]
+        E3["Temporal Rank / Final"]
+        E4["Flight-Clustered Bootstrap<br/>significance"]
+        E5["External Validation<br/>DASHlink + OpenSky"]
+    end
+
+    A1 --> B1
+    B1 --> C1
+    C1 --> C2
+    C2 --> C3
+    C3 --> C4
+    C4 --> C5
+    C5 --> C6
+    C6 --> D1
+    C6 --> D2
+    C6 --> D3
+    D1 & D2 & D3 --> D4
+    D4 --> D5
+    D5 --> D6
+    D6 --> E1
+    D6 --> E2
+    D6 --> E3
+    E1 & E2 & E3 --> E4
+    E4 --> E5
+
+    style DATA fill:#1f4e79,color:#fff,stroke:#0d2f4e
+    style FEATURES fill:#2e7d32,color:#fff,stroke:#1b5e20
+    style MODELING fill:#b26a00,color:#fff,stroke:#7f4f00
+    style EVAL fill:#6a1b9a,color:#fff,stroke:#4a148c
 ```
+
+**Best result — R3 ensemble (dynamic mass):** 221.33 kg Combined RMSE.
 
 ---
 
