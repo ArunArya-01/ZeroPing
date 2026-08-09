@@ -1,0 +1,22 @@
+{
+  "decision": "C_rejected",
+  "decision_note": "Weak/null association between primary attention metrics and FT type-level advantage (strongest |\u03c1|=0.23 for aircraft_cat_mass).",
+  "best_primary_metric": "aircraft_cat_mass",
+  "spearman_vs_ft_advantage": {
+    "spearman": -0.2285714285714285,
+    "pearson": -0.18131767311237637,
+    "p_spearman": 0.41256617049636035,
+    "ci_low": -0.6582576510333864,
+    "ci_high": 0.31286744797392857,
+    "n": 15
+  },
+  "spearman_vs_ft_rmse": {
+    "spearman": 0.2964285714285714,
+    "pearson": 0.11024101692732065,
+    "p_spearman": 0.28335542843426303,
+    "ci_low": -0.23083182640144662,
+    "ci_high": 0.704944809734908,
+    "n": 15
+  },
+  "body_control": "no_ranking_reversal_at_body_level"
+}

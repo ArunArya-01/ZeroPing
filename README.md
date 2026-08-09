@@ -295,8 +295,10 @@ Teacher is frozen (R3). Soft labels live in `distillation_dataset.parquet`.
 | 4 | Capacity scaling + latency + multi-seed | ✅ |
 | 5 | Official Final held-out evaluation | ✅ |
 | 5b | Combined Rank+Final student evaluation | ✅ |
-| 6 | FT-Transformer student (Phase 2) | ✅ |
-| 7+ | TabTransformer / other tabular students | planned |
+| 6 | FT-Transformer student | ✅ |
+| 7 | Distribution shift + mechanism investigation (Phases 0–3.5) | ✅ |
+| 8 | Attention routing analysis (H-Attention **rejected**) | ✅ |
+| — | Paper writing | active |
 
 **Two protocols (both retained):**
 
@@ -322,7 +324,15 @@ Teacher is frozen (R3). Soft labels live in `distillation_dataset.parquet`.
 | FT-Transformer | 1.46M | 246.88 | 224.12 | 233.35 | 9.59 |
 | R3 Teacher | ensemble | 232.53 | 213.62 | **221.33** | ~52 |
 
-Large remains the deployment / comparison baseline (FT does not beat Final or Combined). Report: `docs/reports/ft_transformer_experiment.md`.
+Large remains the deployment / comparison baseline (FT does not beat Final or Combined). Under **type-macro**, FT ranks above Large (ranking reversal). Mechanism probes (uncertainty, physics ablation, smoothness, **attention routing**) did not establish a causal explanation — see `docs/reports/PROJECT_STATUS_REPORT.md`.
+
+| Report | Path |
+|--------|------|
+| FT experiment | `docs/reports/ft_transformer_experiment.md` |
+| Shift diagnosis | `docs/reports/distribution_shift_diagnosis.md` |
+| Mechanism validation | `docs/reports/mechanism_validation.md` |
+| Attention routing | `docs/reports/attention_routing_analysis.md` |
+| Paper writing guide | `docs/reports/PAPER_WRITING_GUIDE.md` |
 
 ```bash
 set PYTHONPATH=src
@@ -330,9 +340,11 @@ python experiments/08_distillation/run_distillation_experiments.py sweep
 python experiments/08_distillation/run_distillation_experiments.py capacity
 python experiments/08_distillation/05_test_evaluation.py --final-featured featured_dataset_final.parquet
 python experiments/08_distillation/07_combined_evaluation.py
-# Phase 2 FT-Transformer
+# FT-Transformer (train once; frozen thereafter)
 python experiments/08_distillation/08_train_ft_transformer.py --config configs/distillation/ft_transformer.yaml
 python experiments/08_distillation/09_eval_ft_transformer.py
+# Attention routing (analysis-only; frozen FT)
+python experiments/08_distillation/18_attention_routing_analysis.py
 ```
 
 ### Cross-Dataset Validation (DASHlink pilot)

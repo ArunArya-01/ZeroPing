@@ -1,0 +1,8 @@
+{
+  "n": 2048,
+  "max_abs_diff": 0.0,
+  "mean_abs_diff": 0.0,
+  "rmse_diff": 0.0,
+  "normal_rmse_vs_y": 229.91606794074272,
+  "instr_rmse_vs_y": 229.91606794074272
+}

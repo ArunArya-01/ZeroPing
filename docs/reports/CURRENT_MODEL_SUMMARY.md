@@ -1,6 +1,6 @@
 # Current Model Summary
 
-**Last synced:** 2026-07-31 (All experiments complete; phase = Paper Writing. See `PROJECT_STATUS_REPORT.md` + `PAPER_WRITING_GUIDE.md`.)
+**Last synced:** 2026-08-09 (Attention routing analysis complete — H-Attention **rejected**. Phase = Paper Writing. See `PROJECT_STATUS_REPORT.md` + `PAPER_WRITING_GUIDE.md` + `attention_routing_analysis.md`.)
 
 ## Teacher (frozen — do not retrain)
 

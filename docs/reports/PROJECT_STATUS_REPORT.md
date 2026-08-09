@@ -1,6 +1,6 @@
 # AeroTwin Project Status Report
 
-**Date:** July 2026 (last update: **2026-07-31**)  
+**Date:** July–August 2026 (last update: **2026-08-09**)  
 **Repository:** ZeroPing (AeroTwin)  
 **Dataset:** [`aerotwin/aero-data`](https://huggingface.co/datasets/aerotwin/aero-data) (EUROCONTROL PRC 2025)  
 **Current phase:** **Paper Writing**
@@ -25,6 +25,7 @@ A **systematic mechanism investigation** followed:
 | 2 | Representation / attribution differences? | FT geometry and features **differ** from Large |
 | 3 | Physics-feature reliance vs representation? | Physics reliance **rejected**; representation **partial** |
 | 3.5 | Is local smoothness **causal**? | **Not established** (consistency intervention) |
+| **Attention routing** | Does FT attention explain type-macro advantage vs Large? | **Rejected** (associates with absolute difficulty, not relative advantage) |
 
 No further experiments or method development are planned under the current charter. The project has transitioned to writing an **empirical research paper** documenting the phenomenon, the evaluation lesson, and the mechanisms tested and ruled out.
 
@@ -149,6 +150,28 @@ Physics features, OpenAP baseline, weather/operational features, R3 dynamic mass
 
 ---
 
+### Phase — Attention Routing Analysis — **COMPLETE (2026-08-09)**
+
+**Objective:** Test **H-Attention** — whether FT attention-based feature routing is associated with FT’s **relative** type-level advantage over Large (analysis-only; frozen checkpoints).
+
+**Method:** CLS attention extraction (`forward_with_attention`); pre-registered metrics (entropy, top-1 mass, aircraft-cat / physics / trajectory mass, JS shift from common); type-level Spearman + bootstrap CI; body-macro negative control; prediction invariance check (max |Δ| = 0).
+
+**Outcome:**
+
+| Test | Result |
+|------|--------|
+| Strongest primary metric vs FT advantage | `aircraft_cat_mass` ρ = **−0.23** CI [−0.66, 0.31] p = 0.41 (n=15) |
+| Same / related metrics vs FT **absolute** RMSE | e.g. entropy ρ = **−0.79**, top-1 ρ = **+0.81** |
+| Body control | No body-level ranking reversal (Large still better on body-group RMSE) |
+
+**Decision:** **C — Rejected** as explanation of the architecture ranking reversal. Attention tracks type **difficulty** for FT, not **relative** FT-vs-Large advantage.
+
+**Report:** `docs/reports/attention_routing_analysis.md`  
+**Artifacts:** `results/distillation/attention_routing/`  
+**Script:** `experiments/08_distillation/18_attention_routing_analysis.py`
+
+---
+
 ## Major Scientific Findings
 
 1. **Architecture rankings reverse** under aircraft-type (entity-level) distribution shift: Large best on Flight Holdout; FT best on type-macro.
@@ -157,7 +180,8 @@ Physics features, OpenAP baseline, weather/operational features, R3 dynamic mass
 4. **Physics-feature reliance** does **not** explain the robustness gap (physics ablation).
 5. **Representation geometry differs** between FT and Large (rare–common proximity, scale-normalized metrics, stability under continuous noise) but is **not sufficient** to fully explain FT’s relative advantage.
 6. **Local smoothness** was **not established as causal** under the pre-registered consistency intervention.
-7. **Deployment recommendation remains Large MLP** under the project’s production criteria (Final / Combined + latency), with type-macro reported as a robustness diagnostic.
+7. **Attention routing** does **not** explain FT’s type-macro advantage over Large (rejected under pre-registered association tests; attention tracks absolute difficulty).
+8. **Deployment recommendation remains Large MLP** under the project’s production criteria (Final / Combined + latency), with type-macro reported as a robustness diagnostic.
 
 ### Key quantitative anchors
 
@@ -195,6 +219,7 @@ Physics features, OpenAP baseline, weather/operational features, R3 dynamic mass
 | Adaptive uncertainty-weighted KD (VGKD) recovers type-macro robustness | **Rejected** |
 | Large’s type-macro deficit is primarily due to physics-feature reliance | **Rejected** |
 | Local smoothness (as induced by prediction consistency) is the causal driver of FT’s type-macro advantage | **Not supported** |
+| Attention-based feature routing explains FT’s relative type-macro advantage over Large | **Rejected** |
 
 ### Open questions
 
@@ -239,6 +264,7 @@ Master writing plan: **`docs/reports/PAPER_WRITING_GUIDE.md`**
 | Phase 2 robustness | `docs/reports/transformer_robustness_analysis.md` |
 | Phase 3 mechanism | `docs/reports/mechanism_validation.md` |
 | Phase 3.5 smoothness | `docs/reports/smoothness_causal_intervention.md` |
+| **Attention routing** | **`docs/reports/attention_routing_analysis.md`** |
 | Teacher audit | `docs/reports/teacher_evaluation_report.md` |
 
 ### Results roots
@@ -253,6 +279,7 @@ Master writing plan: **`docs/reports/PAPER_WRITING_GUIDE.md`**
 | Phase 2 | `results/distillation/transformer_robustness/` |
 | Phase 3 | `results/distillation/mechanism_validation/` |
 | Phase 3.5 | `results/distillation/smoothness_causal/` |
+| Attention routing | `results/distillation/attention_routing/` |
 
 ---
 
@@ -264,6 +291,7 @@ Master writing plan: **`docs/reports/PAPER_WRITING_GUIDE.md`**
 | After Phase 1B | Do not deploy VGKD |
 | After Phase 3 | Physics reliance rejected; representation partial |
 | After Phase 3.5 | **No Phase 4 method**; write empirical paper |
+| After Attention routing | H-Attention **rejected**; continue paper (no attention-based method) |
 
 ---
 

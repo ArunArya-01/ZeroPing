@@ -1,0 +1,418 @@
+{
+  "timestamp_utc": "2026-08-09T05:10:04.324798+00:00",
+  "hypothesis": "H-Attention",
+  "prediction_invariance": {
+    "n": 2048,
+    "max_abs_diff": 0.0,
+    "mean_abs_diff": 0.0,
+    "rmse_diff": 0.0,
+    "normal_rmse_vs_y": 229.91606794074272,
+    "instr_rmse_vs_y": 229.91606794074272
+  },
+  "full_metrics": {
+    "ft_final_rmse": 224.12168464482065,
+    "large_final_rmse": 215.85043813725085
+  },
+  "token_meta_summary": {
+    "n_tokens": 61,
+    "aircraft_token_index": 57,
+    "families": [
+      "aircraft_cat",
+      "cls",
+      "operational",
+      "other_cat",
+      "physics",
+      "trajectory",
+      "weather"
+    ]
+  },
+  "group_table": {
+    "all": {
+      "n": 37170,
+      "mean_cls_entropy": 1.7971637032575303,
+      "top1_mass": 0.5294968022649442,
+      "aircraft_cat_mass": 0.013033810878163873,
+      "physics_mass": 0.522027419843852,
+      "trajectory_mass": 0.2210026689360852,
+      "ft_rmse": 224.12168464482065,
+      "large_rmse": 215.85043813725085,
+      "ft_advantage": -8.2712465075698
+    },
+    "common": {
+      "n": 37030,
+      "mean_cls_entropy": 1.7973786267370202,
+      "top1_mass": 0.5294197931801213,
+      "aircraft_cat_mass": 0.013029304013189276,
+      "physics_mass": 0.5219947664489174,
+      "trajectory_mass": 0.22125601205987896,
+      "ft_rmse": 223.0456973514239,
+      "large_rmse": 214.7170874353818,
+      "ft_advantage": -8.328609916042097
+    },
+    "rare": {
+      "n": 140,
+      "mean_cls_entropy": 1.7403164429324014,
+      "top1_mass": 0.5498657052006041,
+      "aircraft_cat_mass": 0.01422587666394455,
+      "physics_mass": 0.5306642428040504,
+      "trajectory_mass": 0.153993412692632,
+      "ft_rmse": 421.30008057868747,
+      "large_rmse": 419.1219173193804,
+      "ft_advantage": -2.178163259307098
+    },
+    "heavy": {
+      "n": 9614,
+      "mean_cls_entropy": 1.7043234520799682,
+      "top1_mass": 0.569492530073821,
+      "aircraft_cat_mass": 0.029915319763144623,
+      "physics_mass": 0.5793638181414851,
+      "trajectory_mass": 0.18455556050618746,
+      "ft_rmse": 418.19988410011786,
+      "large_rmse": 404.7744894206923,
+      "ft_advantage": -13.425394679425551
+    },
+    "narrow": {
+      "n": 27547,
+      "mean_cls_entropy": 1.8296105447999318,
+      "top1_mass": 0.5155253245559462,
+      "aircraft_cat_mass": 0.007141333068027415,
+      "physics_mass": 0.5020203938874791,
+      "trajectory_mass": 0.2337391582454,
+      "ft_rmse": 80.9656671522408,
+      "large_rmse": 74.48992190252716,
+      "ft_advantage": -6.47574524971364
+    },
+    "ft_wins_types": {
+      "n": 1838,
+      "mean_cls_entropy": 1.7331728813308367,
+      "top1_mass": 0.5648111806730451,
+      "aircraft_cat_mass": 0.024640226714623133,
+      "physics_mass": 0.5699014172233616,
+      "trajectory_mass": 0.1844308733559083,
+      "ft_rmse": 281.4359148360601,
+      "large_rmse": 307.517727103236,
+      "ft_advantage": 26.081812267175906
+    },
+    "large_wins_types": {
+      "n": 35271,
+      "mean_cls_entropy": 1.8007076749295745,
+      "top1_mass": 0.5275911556104824,
+      "aircraft_cat_mass": 0.012407079944815496,
+      "physics_mass": 0.5195306077185922,
+      "trajectory_mass": 0.22298245920310208,
+      "ft_rmse": 219.3482857714739,
+      "large_rmse": 208.56783225805265,
+      "ft_advantage": -10.780453513421264
+    }
+  },
+  "primary_correlations_vs_ft_advantage": {
+    "mean_cls_entropy": {
+      "spearman": -0.13928571428571426,
+      "pearson": -0.12649267701251965,
+      "p_spearman": 0.6205460876279013,
+      "ci_low": -0.7107332331666844,
+      "ci_high": 0.41523793895635014,
+      "n": 15
+    },
+    "top1_mass": {
+      "spearman": 0.06785714285714285,
+      "pearson": 0.1102400788316174,
+      "p_spearman": 0.8101088187105132,
+      "ci_low": -0.47302060827654985,
+      "ci_high": 0.641962553292591,
+      "n": 15
+    },
+    "aircraft_cat_mass": {
+      "spearman": -0.2285714285714285,
+      "pearson": -0.18131767311237637,
+      "p_spearman": 0.41256617049636035,
+      "ci_low": -0.6582576510333864,
+      "ci_high": 0.31286744797392857,
+      "n": 15
+    },
+    "physics_mass": {
+      "spearman": 0.0964285714285714,
+      "pearson": 0.1038339392379424,
+      "p_spearman": 0.7324528633867309,
+      "ci_low": -0.4938291139240507,
+      "ci_high": 0.6898300743320159,
+      "n": 15
+    },
+    "trajectory_mass": {
+      "spearman": -0.20357142857142854,
+      "pearson": -0.19202997298258512,
+      "p_spearman": 0.4667950724891123,
+      "ci_low": -0.6238867744694184,
+      "ci_high": 0.33572776117846764,
+      "n": 15
+    },
+    "js_shift_from_common": {
+      "spearman": 0.09285714285714285,
+      "pearson": 0.1052257729005274,
+      "p_spearman": 0.7420450099073671,
+      "ci_low": -0.4912458155562848,
+      "ci_high": 0.6061247537930979,
+      "n": 15
+    }
+  },
+  "primary_correlations_vs_ft_rmse": {
+    "mean_cls_entropy": {
+      "spearman": -0.7892857142857141,
+      "pearson": -0.8022758662205857,
+      "p_spearman": 0.0004673267561781762,
+      "ci_low": -0.9230804387568554,
+      "ci_high": -0.46280895025460383,
+      "n": 15
+    },
+    "top1_mass": {
+      "spearman": 0.8107142857142855,
+      "pearson": 0.6249698924600151,
+      "p_spearman": 0.00024600797797220606,
+      "ci_low": 0.5000000000000001,
+      "ci_high": 0.9137287979835108,
+      "n": 15
+    },
+    "aircraft_cat_mass": {
+      "spearman": 0.2964285714285714,
+      "pearson": 0.11024101692732065,
+      "p_spearman": 0.28335542843426303,
+      "ci_low": -0.23083182640144662,
+      "ci_high": 0.704944809734908,
+      "n": 15
+    },
+    "physics_mass": {
+      "spearman": 0.7,
+      "pearson": 0.543365114493732,
+      "p_spearman": 0.0036660678988013795,
+      "ci_low": 0.2971014492753624,
+      "ci_high": 0.8768171632990017,
+      "n": 15
+    },
+    "trajectory_mass": {
+      "spearman": -0.3178571428571428,
+      "pearson": -0.22770432258723977,
+      "p_spearman": 0.24829056581701822,
+      "ci_low": -0.8802383635026547,
+      "ci_high": 0.32243517138599087,
+      "n": 15
+    },
+    "js_shift_from_common": {
+      "spearman": 0.2964285714285714,
+      "pearson": 0.32662464734829033,
+      "p_spearman": 0.28335542843426303,
+      "ci_low": -0.33702663880908845,
+      "ci_high": 0.9051224051823491,
+      "n": 15
+    }
+  },
+  "exploratory_layer_entropy": {
+    "entropy_layer0": {
+      "vs_ft_advantage": {
+        "spearman": -0.17857142857142855,
+        "pearson": -0.190643550490855,
+        "p_spearman": 0.5242843600465524,
+        "ci_low": -0.6489993090703526,
+        "ci_high": 0.3478577075098814,
+        "n": 15
+      },
+      "vs_ft_rmse": {
+        "spearman": -0.682142857142857,
+        "pearson": -0.5110931840552599,
+        "p_spearman": 0.005086326468977252,
+        "ci_low": -0.8330384150030248,
+        "ci_high": -0.33450874020494287,
+        "n": 15
+      }
+    },
+    "entropy_layer1": {
+      "vs_ft_advantage": {
+        "spearman": 0.007142857142857141,
+        "pearson": -0.04601558760448808,
+        "p_spearman": 0.9798442277615982,
+        "ci_low": -0.5568889327283487,
+        "ci_high": 0.539368123649659,
+        "n": 15
+      },
+      "vs_ft_rmse": {
+        "spearman": -0.8107142857142855,
+        "pearson": -0.6704199373404593,
+        "p_spearman": 0.00024600797797220606,
+        "ci_low": -0.9130474093875307,
+        "ci_high": -0.5144757386500122,
+        "n": 15
+      }
+    },
+    "entropy_layer2": {
+      "vs_ft_advantage": {
+        "spearman": -0.10714285714285714,
+        "pearson": -0.10865402310355049,
+        "p_spearman": 0.7039010016261618,
+        "ci_low": -0.6612175856929955,
+        "ci_high": 0.49917634270467864,
+        "n": 15
+      },
+      "vs_ft_rmse": {
+        "spearman": -0.18214285714285713,
+        "pearson": -0.37869919840096056,
+        "p_spearman": 0.5158816817070392,
+        "ci_low": -0.6709321058688148,
+        "ci_high": 0.41352113787457306,
+        "n": 15
+      }
+    }
+  },
+  "strongest_heads_exploratory": [
+    {
+      "layer": 0,
+      "head": 4,
+      "metric": "entropy_L0H4",
+      "spearman": -0.42857142857142855,
+      "pearson": -0.44019894643445256,
+      "p_spearman": 0.11096021426087671,
+      "ci_low": -0.847826086956522,
+      "ci_high": 0.2983807331908597,
+      "n": 15
+    },
+    {
+      "layer": 1,
+      "head": 7,
+      "metric": "entropy_L1H7",
+      "spearman": -0.3178571428571428,
+      "pearson": -0.2129157265875524,
+      "p_spearman": 0.24829056581701822,
+      "ci_low": -0.8050564743045232,
+      "ci_high": 0.2824160811865725,
+      "n": 15
+    },
+    {
+      "layer": 1,
+      "head": 0,
+      "metric": "entropy_L1H0",
+      "spearman": 0.2642857142857143,
+      "pearson": 0.3105739036622627,
+      "p_spearman": 0.34117375799008204,
+      "ci_low": -0.302008228677605,
+      "ci_high": 0.7059973755051646,
+      "n": 15
+    },
+    {
+      "layer": 1,
+      "head": 2,
+      "metric": "entropy_L1H2",
+      "spearman": 0.2571428571428571,
+      "pearson": 0.28705533269033146,
+      "p_spearman": 0.3548603636506091,
+      "ci_low": -0.29296477003659327,
+      "ci_high": 0.7246410051854808,
+      "n": 15
+    },
+    {
+      "layer": 1,
+      "head": 3,
+      "metric": "entropy_L1H3",
+      "spearman": -0.2571428571428571,
+      "pearson": -0.23274020950481653,
+      "p_spearman": 0.3548603636506091,
+      "ci_low": -0.7326493506493506,
+      "ci_high": 0.39456950665179197,
+      "n": 15
+    }
+  ],
+  "body_rows": [
+    {
+      "body_class": "narrowbody",
+      "n": 27547,
+      "large_rmse": 74.48992190252716,
+      "ft_rmse": 80.9656671522408,
+      "ft_advantage": -6.47574524971364,
+      "mean_cls_entropy": 1.8296105447999318,
+      "top1_mass": 0.5155253245559462,
+      "aircraft_cat_mass": 0.007141333068027415,
+      "physics_mass": 0.5020203938874791,
+      "trajectory_mass": 0.2337391582454,
+      "js_shift_from_common": 0.0031209746624131732
+    },
+    {
+      "body_class": "widebody_heavy",
+      "n": 9614,
+      "large_rmse": 404.7744894206923,
+      "ft_rmse": 418.19988410011786,
+      "ft_advantage": -13.425394679425551,
+      "mean_cls_entropy": 1.7043234520799682,
+      "top1_mass": 0.569492530073821,
+      "aircraft_cat_mass": 0.029915319763144623,
+      "physics_mass": 0.5793638181414851,
+      "trajectory_mass": 0.18455556050618746,
+      "js_shift_from_common": 0.04263873458856439
+    }
+  ],
+  "body_correlations": {
+    "note": "n_body_classes < 3; correlations not estimated",
+    "rows": [
+      {
+        "body_class": "narrowbody",
+        "n": 27547,
+        "large_rmse": 74.48992190252716,
+        "ft_rmse": 80.9656671522408,
+        "ft_advantage": -6.47574524971364,
+        "mean_cls_entropy": 1.8296105447999318,
+        "top1_mass": 0.5155253245559462,
+        "aircraft_cat_mass": 0.007141333068027415,
+        "physics_mass": 0.5020203938874791,
+        "trajectory_mass": 0.2337391582454,
+        "js_shift_from_common": 0.0031209746624131732
+      },
+      {
+        "body_class": "widebody_heavy",
+        "n": 9614,
+        "large_rmse": 404.7744894206923,
+        "ft_rmse": 418.19988410011786,
+        "ft_advantage": -13.425394679425551,
+        "mean_cls_entropy": 1.7043234520799682,
+        "top1_mass": 0.569492530073821,
+        "aircraft_cat_mass": 0.029915319763144623,
+        "physics_mass": 0.5793638181414851,
+        "trajectory_mass": 0.18455556050618746,
+        "js_shift_from_common": 0.04263873458856439
+      }
+    ]
+  },
+  "body_control_label": "no_ranking_reversal_at_body_level",
+  "best_primary_metric": "aircraft_cat_mass",
+  "best_primary_vs_advantage": {
+    "spearman": -0.2285714285714285,
+    "pearson": -0.18131767311237637,
+    "p_spearman": 0.41256617049636035,
+    "ci_low": -0.6582576510333864,
+    "ci_high": 0.31286744797392857,
+    "n": 15
+  },
+  "best_primary_vs_absolute": {
+    "spearman": 0.2964285714285714,
+    "pearson": 0.11024101692732065,
+    "p_spearman": 0.28335542843426303,
+    "ci_low": -0.23083182640144662,
+    "ci_high": 0.704944809734908,
+    "n": 15
+  },
+  "decision": "C_rejected",
+  "decision_note": "Weak/null association between primary attention metrics and FT type-level advantage (strongest |\u03c1|=0.23 for aircraft_cat_mass).",
+  "rare_threshold_train_n": 213.40000000000003,
+  "common_reference_types": [
+    "A20N",
+    "A320",
+    "A359",
+    "B788",
+    "B738"
+  ],
+  "n_types": 15,
+  "wall_seconds": 111.63459849357605,
+  "primary_metrics_preregistered": [
+    "mean_cls_entropy",
+    "top1_mass",
+    "aircraft_cat_mass",
+    "physics_mass",
+    "trajectory_mass",
+    "js_shift_from_common"
+  ]
+}

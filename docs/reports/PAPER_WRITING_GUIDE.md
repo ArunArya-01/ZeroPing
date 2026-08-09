@@ -179,6 +179,7 @@ State only what the evidence supports.
 | **H2 Physics reliance** | Removing physics closes Large type-macro gap; physics error ↑ → FT advantage ↑ | Phase 3 A1–A3 | Ablation null; corr. with advantage null | **Rejected** |
 | **H3 Representation** | FT geometry explains type-macro advantage | Phase 2–3 B/C | Differences yes; advantage link weak | **Partially supported** |
 | **H4 Smoothness causal** | Inducing smoothness in Large improves type-macro | Phase 3.5 | Selected Outcome C; sweep not causal | **Not supported** |
+| **H5 Attention routing** | Attention behavior predicts FT type-level *advantage* over Large | Attention analysis (frozen FT) | Primary |ρ|≤0.23 vs advantage; strong vs absolute RMSE | **Rejected** |
 
 ---
 
