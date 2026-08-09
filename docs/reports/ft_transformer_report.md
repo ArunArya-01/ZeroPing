@@ -14,7 +14,7 @@ preprocessing match the Large MLP baseline.
 |------|------:|
 | Architecture | FT-Transformer (Gorishniy et al. 2021) |
 | Parameters | 1,458,625 |
-| Checkpoint | `C:\Users\mukun\major project\ZeroPing\results\distillation\ft_transformer\ft_transformer_kd1\best_model.pt` |
+| Checkpoint | `<project_root>\results\distillation\ft_transformer\ft_transformer_kd1\best_model.pt` |
 | KD weights | α=0.1, β=0.9 |
 | Val RMSE (flight holdout) | 236.08 |
 

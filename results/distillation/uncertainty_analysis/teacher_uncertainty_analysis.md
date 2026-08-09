@@ -17,7 +17,7 @@ Determine whether **teacher ensemble disagreement** (std of 6 base kg prediction
 | Disagreement | Std of 6 base ensemble predictions (pre-Ridge/P1E) |
 | Teacher error | \|P1E teacher − ground truth\| |
 | Student error | \|Large MLP − ground truth\| |
-| Bundle | `C:\Users\mukun\major project\ZeroPing\cache\r3_teacher_distillation_bundle.pkl` |
+| Bundle | `<project_root>\cache\r3_teacher_distillation_bundle.pkl` |
 
 ---
 

@@ -33,9 +33,9 @@ Used for direct comparison with the official PRC leaderboard and teacher Combine
 
 | Item | Value |
 |------|------:|
-| Rank features | `C:\Users\mukun\major project\ZeroPing\featured_dataset_rank.parquet` |
+| Rank features | `<project_root>\featured_dataset_rank.parquet` |
 | Rank rows / flights | 24,158 / 1881 |
-| Final features | `C:\Users\mukun\major project\ZeroPing\featured_dataset_final.parquet` |
+| Final features | `<project_root>\featured_dataset_final.parquet` |
 | Final rows / flights | 37,170 / 2824 |
 | Models | Large_seed42, XLarge_seed42 |
 | Final preds | Reused Step 5 when available |

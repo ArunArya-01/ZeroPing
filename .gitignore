@@ -241,3 +241,13 @@ dist-ssr
 
 #data
 data/
+
+# Generated model artifacts (regenerable, may embed absolute paths)
+*.pt
+*.pkl
+*.onnx
+results/distillation/**/runs/
+results/distillation/**/*.pt
+results/distillation/**/*.pkl
+distillation_dataset.parquet
+cache/

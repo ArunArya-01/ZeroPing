@@ -13,7 +13,7 @@ This is a **verification-only** audit. No training, no checkpoint modification, 
 |-------|------|
 | Artifact type | pickle ensemble bundle (not a single neural checkpoint) |
 | Filename | `r3_teacher_distillation_bundle.pkl` |
-| Path | `C:\Users\mukun\major project\ZeroPing\cache\r3_teacher_distillation_bundle.pkl` |
+| Path | `<project_root>\cache\r3_teacher_distillation_bundle.pkl` |
 | SHA256 | `5be4c65924c33ebb0703b7929bc4f70be3306413020b3f9a86d3d9ccec5a1b42` |
 | Size | 17,585,666 bytes |
 | Built at | 2026-07-29 19:22:58 |

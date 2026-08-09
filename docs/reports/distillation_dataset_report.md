@@ -15,7 +15,7 @@ Reference published metrics (Rank/Final): Combined RMSE **221.33 kg**, Final RMS
 | Number of samples | **119,032** |
 | Number of features (ensemble input) | **60** |
 | Dataset size (parquet) | **40.83 MB** (42,818,403 bytes) |
-| Output path | `C:/Users/mukun/major project/ZeroPing/distillation_dataset.parquet` |
+| Output path | `<project_root>/distillation_dataset.parquet` |
 | Columns with any missing (null/NaN) | 25 |
 | Total missing cells | 236,691 |
 | Meta learner | `ridge` |
