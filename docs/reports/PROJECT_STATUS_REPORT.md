@@ -253,6 +253,7 @@ Master writing plan: **`docs/reports/PAPER_WRITING_GUIDE.md`**
 | Topic | Path |
 |-------|------|
 | **This status file** | `docs/reports/PROJECT_STATUS_REPORT.md` |
+| **Experiment results catalog (all numbers)** | `docs/reports/EXPERIMENT_RESULTS_CATALOG.md` |
 | **Paper writing guide** | `docs/reports/PAPER_WRITING_GUIDE.md` |
 | Model summary | `docs/reports/CURRENT_MODEL_SUMMARY.md` |
 | Final eval | `docs/reports/test_evaluation.md` |
