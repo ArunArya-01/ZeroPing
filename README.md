@@ -2,7 +2,7 @@
 
 # ZeroPing / AeroTwin
 
-**Physics-informed aircraft fuel-burn prediction — hybrid OpenAP + machine-learning modeling, evaluation, and cross-dataset validation.**
+**Physics-informed aircraft fuel-burn prediction hybrid OpenAP + machine-learning modeling, evaluation, and cross-dataset validation.**
 
 </div>
 
