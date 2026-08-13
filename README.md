@@ -1,8 +1,8 @@
 <div align="center">
 
-# ZeroPing / AeroTwin
+# AeroFlux
 
-**Physics-informed aircraft fuel-burn prediction hybrid OpenAP + machine-learning modeling, evaluation, and cross-dataset validation.**
+**Physics Guided Aviation Fuel Prediction Framework
 
 </div>
 
