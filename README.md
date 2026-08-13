@@ -2,7 +2,7 @@
 
 # AeroFlux
 
-**Physics Guided Aviation Fuel Prediction Framework
+**Physics Guided Aviation Fuel Prediction Framework**
 
 </div>
 
