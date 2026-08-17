@@ -42,6 +42,7 @@ At a high level, the project:
 5. **Guards against leakage** — splits data by flight and uses flight-clustered bootstrap testing so reported metrics reflect genuine generalization, not accidental information leakage.
 6. **Validates externally** — an independent audit pipeline on NASA DASHlink and OpenSky data checks whether learned patterns replicate outside the training set.
 7. **Distills into efficient students** — the frozen teacher ensemble's soft labels train smaller neural students (MLP and FT-Transformer) for deployment.
+8. **Deploys as universal models** — students are exportable to open ONNX format and served by a compiled Rust binary with no Python runtime at inference.
 
 ## Key Results
 
@@ -124,6 +125,47 @@ flowchart TB
     style MODELING fill:#b26a00,color:#fff,stroke:#7f4f00
     style EVAL fill:#6a1b9a,color:#fff,stroke:#4a148c
 ```
+
+---
+
+## ONNX Deployment (Universal Models)
+
+Trained distillation students (e.g. the Large MLP) can be exported to the open
+**ONNX** format and served by a **compiled Rust binary** — no Python, PyTorch, or
+scikit-learn at inference time. The same `.onnx` artifact runs on any ONNX
+Runtime, making the models framework-agnostic and portable across Python,
+Rust, web/JavaScript, C++, and edge devices.
+
+```text
+best_model.pt (PyTorch)
+      │  export_onnx.py  (run once where torch is installed)
+      ▼
+model.onnx  +  model.preproc.json  +  model.meta.json
+      │  cargo build --release
+      ▼
+aerotwin-onnx-serving  (native binary · axum HTTP · ONNX Runtime)
+```
+
+### Why ONNX + Rust
+
+| Concern | Python/PyTorch inference | ONNX + Rust host |
+|---|---|---|
+| Runtime deps | torch, sklearn, numpy, venv | single native binary + model file |
+| Latency | interpreter + tensor copies | compiled, zero-copy array input |
+| Portability | platform-locked | cross-platform, framework-agnostic |
+| Model durability | tied to `.pt` checkpoints | open, self-describing `.onnx` |
+
+The Rust server also reproduces the exact training-time preprocessing (median
+impute → `StandardScaler` → `OneHotEncoder`) from a side-car `*.preproc.json`,
+so raw feature rows map to the same model input the student saw in training.
+
+### Relevant paths
+
+- **`experiments/11_onnx_deploy/export_onnx.py`** — PyTorch → ONNX exporter + preprocessing JSON.
+- **`rust/aerotwin-onnx-serving/`** — compiled inference server (axum + `ort`/ONNX Runtime).
+- Generated artifacts (`*.onnx`, `*.pt`, `*.pkl`, `target/`) are git-ignored.
+
+See `rust/aerotwin-onnx-serving/README.md` for full build/run details.
 
 ---
 

@@ -1,0 +1,27 @@
+[package]
+name = "aerotwin-onnx-serving"
+version = "0.1.0"
+edition = "2021"
+description = "Universal, compiled inference host for AeroTwin ONNX models"
+license = "MIT"
+
+[dependencies]
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "signal"] }
+axum = "0.7"
+tower-http = { version = "0.5", features = ["trace", "cors"] }
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+anyhow = "1"
+# ONNX Runtime bindings — loads & runs the exported .onnx without PyTorch.
+# The stable 1.x line is yanked on crates.io; the currently published line is
+# 2.0.0-rc, so we pin to the documentation-stable 2.0.0-rc.13 API.
+ort = { version = "2.0.0-rc.13", features = ["download-binaries", "ndarray"] }
+# Match ort's ndarray major (v2 API uses ndarray 0.17).
+ndarray = { version = "0.17", features = ["std"] }
+
+[profile.release]
+lto = true
+codegen-units = 1
+opt-level = 3
