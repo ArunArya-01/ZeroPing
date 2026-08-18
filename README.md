@@ -2,7 +2,7 @@
 
 # AeroFlux
 
-**Physics Guided Aviation Fuel Prediction Framework**
+**An Aviation Physics-Informed Machine Learning Framework for Fuel-Flow Prediction**
 
 </div>
 
