@@ -1,4 +1,4 @@
-// Main entry: Cesium globe + Three.js fuel gauge + ONNX/Physics fuel model.
+// AeroSim — Cesium / Three.js / ONNX fuel-burn simulator entry point.
 
 import * as Cesium from 'cesium'
 import 'cesium/Build/Cesium/Widgets/widgets.css'
@@ -7,7 +7,30 @@ import { SAMPLE_ROUTES } from './data/routes.js'
 import { FuelPredictor } from './fuel.js'
 import { FuelGauge3D } from './threeScene.js'
 
-const ROUTE = SAMPLE_ROUTES[0]
+const SPEED_STEPS = [10, 50, 100, 250, 500, 1000, 2000]
+
+const state = {
+  route: SAMPLE_ROUTES[0],
+  speedIdx: 2,
+  paused: false,
+  cameraMode: 'overview', // 'follow' | 'overview'
+  segPredictions: [],
+  segments: [],
+  totalFuelKg: 0,
+  totalDurationS: 0,
+  running: false,
+}
+
+const els = {}
+function grab() {
+  ;[
+    'hudOrigin', 'hudOriginName', 'hudDest', 'hudDestName',
+    'hudAircraft', 'hudDistance', 'hudElapsed', 'hudFuelUsed',
+    'hudFuelRemaining', 'hudFuelTotal', 'hudEngine', 'hudProgress',
+    'progressBarFill', 'fuelPct', 'routeSelect', 'btnPause',
+    'speedDown', 'speedUp', 'speedLabel',
+  ].forEach((id) => (els[id] = document.getElementById(id)))
+}
 
 function haversineM(lat1, lon1, lat2, lon2) {
   const R = 6371000
@@ -22,12 +45,13 @@ function haversineM(lat1, lon1, lat2, lon2) {
 function buildSegments(route) {
   const wp = route.waypoints
   const totalDur = route.durationMin * 60
+  const n = wp.length - 1
+  const durationS = totalDur / n
   const segs = []
-  for (let i = 0; i < wp.length - 1; i++) {
+  for (let i = 0; i < n; i++) {
     const a = wp[i]
     const b = wp[i + 1]
     const distanceM = haversineM(a.lat, a.lon, b.lat, b.lon)
-    const durationS = totalDur / (wp.length - 1)
     segs.push({
       durationS,
       distanceM,
@@ -43,162 +67,281 @@ function buildSegments(route) {
   return segs
 }
 
-async function main() {
-  const viewer = new Cesium.Viewer('cesiumContainer', {
-    timeline: true,
-    animation: true,
-    baseLayerPicker: false,
-    geocoder: false,
-    homeButton: true,
-    sceneModePicker: false,
-    navigationHelpButton: false,
-    infoBox: false,
-    selectionIndicator: false,
-  })
-  viewer.scene.globe.enableLighting = true
-  viewer.scene.globe.depthTestAgainstTerrain = true
-  viewer.camera.flyTo({
-    destination: Cesium.Cartesian3.fromDegrees(-20, 50, 1800000),
-  })
+function fmtTime(sec) {
+  const h = Math.floor(sec / 3600)
+  const m = Math.floor((sec % 3600) / 60)
+  const s = Math.floor(sec % 60)
+  const pad = (x) => String(x).padStart(2, '0')
+  return `${pad(h)}:${pad(m)}:${pad(s)}`
+}
 
-  const segments = buildSegments(ROUTE)
-  const totalDurationS = segments.reduce((acc, s) => acc + s.durationS, 0)
+function initRouteSelect(viewer) {
+  els.routeSelect.innerHTML = ''
+  SAMPLE_ROUTES.forEach((r, i) => {
+    const opt = document.createElement('option')
+    opt.value = String(i)
+    opt.textContent = `${r.origin} → ${r.destination} · ${r.aircraftType}`
+    els.routeSelect.appendChild(opt)
+  })
+  els.routeSelect.value = '0'
+  els.routeSelect.addEventListener('change', () => loadRoute(viewer, SAMPLE_ROUTES[Number(els.routeSelect.value)]))
+}
 
-  // Fuel model (ONNX in-browser or physics fallback).
+async function loadRoute(viewer, route) {
+  state.route = route
+  state.segments = buildSegments(route)
+  state.totalDurationS = state.segments.reduce((a, s) => a + s.durationS, 0)
+
   const fuel = new FuelPredictor()
   await fuel.init()
+  els.hudEngine.textContent = fuel.engineName
 
-  const segPredictions = await fuel.predictSegments(segments, ROUTE)
-  const totalFuelKg = segPredictions.reduce((acc, p) => acc + p.fuelKg, 0)
+  state.segPredictions = await fuel.predictSegments(state.segments, route)
+  state.totalFuelKg = state.segPredictions.reduce((a, p) => a + p.fuelKg, 0)
 
-  document.getElementById('hudRoute').textContent = `${ROUTE.origin} → ${ROUTE.destination}`
-  document.getElementById('hudAircraft').textContent = ROUTE.aircraftType
-  document.getElementById('hudEngine').textContent = fuel.engineName
-  document.getElementById('hudFuelUsed').textContent = '0 kg'
-  document.getElementById('hudFuelRemaining').textContent = `${totalFuelKg.toFixed(0)} kg`
-  document.getElementById('hudDistance').textContent = `${(
-    segments.reduce((a, s) => a + s.distanceM, 0) / 1000
+  // Clear prior entities.
+  viewer.entities.removeAll()
+
+  // Flight card values.
+  els.hudOrigin.textContent = route.origin
+  els.hudOriginName.textContent = route.originName
+  els.hudDest.textContent = route.destination
+  els.hudDestName.textContent = route.destinationName
+  els.hudAircraft.textContent = route.aircraftType
+  els.hudDistance.textContent = `${(
+    state.segments.reduce((a, s) => a + s.distanceM, 0) / 1000
   ).toFixed(0)} km`
+  els.hudFuelUsed.textContent = '0 kg'
+  els.hudFuelRemaining.textContent = `${state.totalFuelKg.toFixed(0)} kg`
+  els.hudFuelTotal.textContent = `${state.totalFuelKg.toFixed(0)} kg`
+  els.hudProgress.textContent = '0%'
+  els.progressBarFill.style.width = '0%'
+  els.fuelPct.innerHTML = '100<span>%</span>'
 
-  // Build Cesium positions (Cartesian3) from waypoints.
-  const positions = ROUTE.waypoints.map((w) =>
-    Cesium.Cartesian3.fromDegrees(w.lon, w.lat, w.alt),
-  )
-
-  // Polyline route.
+  // Route polyline with glow.
+  const positions = route.waypoints.map((w) => Cesium.Cartesian3.fromDegrees(w.lon, w.lat, w.alt))
   viewer.entities.add({
     polyline: {
       positions,
-      width: 4,
-      material: Cesium.Color.WHITE.withAlpha(0.7),
+      width: 3,
+      material: new Cesium.PolylineGlowMaterialProperty({
+        glowPower: 0.22,
+        color: Cesium.Color.fromCssColorString('#42a5f5').withAlpha(0.85),
+      }),
     },
   })
 
-  // Segment markers, colored by predicted fuel burn.
-  const maxFuel = Math.max(...segPredictions.map((p) => p.fuelKg), 1e-6)
-  segments.forEach((seg, i) => {
+  // Segment markers colored by burn.
+  const maxFuel = Math.max(...state.segPredictions.map((p) => p.fuelKg), 1e-6)
+  state.segments.forEach((seg, i) => {
     const midLat = (seg.lat1 + seg.lat2) / 2
     const midLon = (seg.lon1 + seg.lon2) / 2
     const midAlt = (seg.altitudeStartM + seg.altitudeEndM) / 2
-    const burnFrac = segPredictions[i].fuelKg / maxFuel
+    const burnFrac = state.segPredictions[i].fuelKg / maxFuel
     const color =
       burnFrac < 0.35
-        ? Cesium.Color.LIMEGREEN
+        ? Cesium.Color.fromCssColorString('#46d7a0')
         : burnFrac < 0.7
-          ? Cesium.Color.ORANGE
-          : Cesium.Color.RED
+          ? Cesium.Color.fromCssColorString('#ffa726')
+          : Cesium.Color.fromCssColorString('#ff5252')
     viewer.entities.add({
       point: {
         position: Cesium.Cartesian3.fromDegrees(midLon, midLat, midAlt),
-        pixelSize: 6,
+        pixelSize: 7,
         color,
         disableDepthTestDistance: Number.POSITIVE_INFINITY,
-      },
-      label: {
-        text: `${segPredictions[i].fuelKg.toFixed(0)} kg`,
-        font: '10px sans-serif',
-        fillColor: Cesium.Color.WHITE,
-        style: Cesium.LabelStyle.FILL_AND_OUTLINE,
-        outlineWidth: 2,
-        disableDepthTestDistance: Number.POSITIVE_INFINITY,
-        pixelOffset: new Cesium.Cartesian2(0, -14),
+        outlineColor: Cesium.Color.WHITE.withAlpha(0.25),
+        outlineWidth: 1,
       },
     })
   })
 
-  // Animated aircraft along the route.
-  const startPos = positions[0]
-  const plane = viewer.entities.add({
-    position: startPos,
+  // Origin / destination labels.
+  const start = route.waypoints[0]
+  const end = route.waypoints[route.waypoints.length - 1]
+  viewer.entities.add({
+    position: Cesium.Cartesian3.fromDegrees(start.lon, start.lat, start.alt + 2000),
+    point: { pixelSize: 10, color: Cesium.Color.WHITE, disableDepthTestDistance: Number.POSITIVE_INFINITY },
+    label: {
+      text: route.origin,
+      font: 'bold 13px sans-serif',
+      fillColor: Cesium.Color.WHITE,
+      style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+      outlineWidth: 3,
+      outlineColor: Cesium.Color.BLACK,
+      disableDepthTestDistance: Number.POSITIVE_INFINITY,
+      pixelOffset: new Cesium.Cartesian2(0, 18),
+    },
+  })
+  viewer.entities.add({
+    position: Cesium.Cartesian3.fromDegrees(end.lon, end.lat, end.alt + 2000),
+    point: { pixelSize: 10, color: Cesium.Color.WHITE, disableDepthTestDistance: Number.POSITIVE_INFINITY },
+    label: {
+      text: route.destination,
+      font: 'bold 13px sans-serif',
+      fillColor: Cesium.Color.WHITE,
+      style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+      outlineWidth: 3,
+      outlineColor: Cesium.Color.BLACK,
+      disableDepthTestDistance: Number.POSITIVE_INFINITY,
+      pixelOffset: new Cesium.Cartesian2(0, 18),
+    },
+  })
+
+  // Aircraft with heading arrow + trail, using a plane billboard.
+  state.plane = viewer.entities.add({
+    position: Cesium.Cartesian3.fromDegrees(start.lon, start.lat, start.alt + 1000),
     point: {
-      pixelSize: 12,
-      color: Cesium.Color.DODGERBLUE,
+      pixelSize: 14,
+      color: Cesium.Color.fromCssColorString('#42a5f5'),
       disableDepthTestDistance: Number.POSITIVE_INFINITY,
       outlineColor: Cesium.Color.WHITE,
       outlineWidth: 2,
     },
+    label: {
+      text: '✈',
+      font: '20px sans-serif',
+      fillColor: Cesium.Color.WHITE,
+      disableDepthTestDistance: Number.POSITIVE_INFINITY,
+      pixelOffset: new Cesium.Cartesian2(0, -10),
+    },
+    path: {
+      leadTime: 0,
+      trailTime: Math.min(state.totalDurationS, 3600),
+      width: 2,
+      material: new Cesium.PolylineGlowMaterialProperty({
+        glowPower: 0.15,
+        color: Cesium.Color.fromCssColorString('#46d7a0').withAlpha(0.7),
+      }),
+    },
   })
 
-  let lastTick = null
-
-  // Set up the clock to run the route.
+  // Reset clock.
   const now = Cesium.JulianDate.fromDate(new Date())
   viewer.clock.startTime = now
-  viewer.clock.stopTime = Cesium.JulianDate.addSeconds(now, totalDurationS, new Cesium.JulianDate())
+  viewer.clock.stopTime = Cesium.JulianDate.addSeconds(now, state.totalDurationS, new Cesium.JulianDate())
   viewer.clock.currentTime = Cesium.JulianDate.clone(now)
-  viewer.clock.shouldAnimate = true
-  viewer.clock.multiplier = 100 // 100x real time
+  viewer.clock.shouldAnimate = !state.paused
+  updateClock(viewer)
+  state.running = true
 
+  // Initial camera framing.
+  const pos = Cesium.Cartesian3.fromDegrees(
+    (start.lon + end.lon) / 2,
+    (start.lat + end.lat) / 2,
+    0,
+  )
+  viewer.camera.flyTo({
+    destination: Cesium.Cartesian3.fromDegrees(
+      (start.lon + end.lon) / 2,
+      (start.lat + end.lat) / 2,
+      4000000,
+    ),
+  })
+}
+
+function updateClock(viewer) {
+  viewer.clock.multiplier = SPEED_STEPS[state.speedIdx]
+  els.speedLabel.textContent = String(SPEED_STEPS[state.speedIdx])
+}
+
+function bindControls(viewer) {
+  els.btnPause.addEventListener('click', () => {
+    state.paused = !state.paused
+    viewer.clock.shouldAnimate = !state.paused
+    els.btnPause.textContent = state.paused ? '▶' : '⏸'
+    els.btnPause.classList.toggle('active', !state.paused)
+  })
+  els.speedUp.addEventListener('click', () => {
+    state.speedIdx = Math.min(SPEED_STEPS.length - 1, state.speedIdx + 1)
+    updateClock(viewer)
+  })
+  els.speedDown.addEventListener('click', () => {
+    state.speedIdx = Math.max(0, state.speedIdx - 1)
+    updateClock(viewer)
+  })
+  document.querySelectorAll('#cameraMode .cn-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      state.cameraMode = btn.dataset.cam
+      document.querySelectorAll('#cameraMode .cn-btn').forEach((b) => b.classList.toggle('active', b === btn))
+    })
+  })
+}
+
+async function main() {
+  grab()
+  const viewer = new Cesium.Viewer('cesiumContainer', {
+    timeline: false,
+    animation: false,
+    baseLayerPicker: false,
+    geocoder: false,
+    homeButton: false,
+    sceneModePicker: false,
+    navigationHelpButton: false,
+    infoBox: false,
+    selectionIndicator: false,
+    fullscreenButton: false,
+  })
+  viewer.scene.globe.enableLighting = true
+  viewer.scene.globe.atmosphereLightFactor = 1.2
+  viewer.scene.skyAtmosphere.show = true
+
+  initRouteSelect(viewer)
+  bindControls(viewer)
+  await loadRoute(viewer, state.route)
+
+  // Progress + HUD tick.
   viewer.clock.onTick.addEventListener((clock) => {
-    if (lastTick === null) lastTick = clock.currentTime
+    if (!state.running) return
     const t = Math.max(
       0,
-      Math.min(1, Cesium.JulianDate.secondsDifference(clock.currentTime, clock.startTime) / totalDurationS),
+      Math.min(1, Cesium.JulianDate.secondsDifference(clock.currentTime, clock.startTime) / state.totalDurationS),
     )
-    lastTick = clock.currentTime
-
-    // Interpolate along the route.
-    const fp = t * (segments.length - 1)
-    const segIdx = Math.min(segments.length - 1, Math.floor(fp))
+    const segs = state.segments
+    const fp = t * (segs.length - 1)
+    const segIdx = Math.min(segs.length - 1, Math.floor(fp))
     const segFrac = fp - Math.floor(fp)
-    const seg = segments[segIdx]
+    const seg = segs[segIdx]
+
     const lat = seg.lat1 + (seg.lat2 - seg.lat1) * segFrac
     const lon = seg.lon1 + (seg.lon2 - seg.lon1) * segFrac
     const alt = seg.altitudeStartM + (seg.altitudeEndM - seg.altitudeStartM) * segFrac + 500
+    state.plane.position = new Cesium.ConstantPositionProperty(Cesium.Cartesian3.fromDegrees(lon, lat, alt))
 
-    plane.position = new Cesium.ConstantPositionProperty(
-      Cesium.Cartesian3.fromDegrees(lon, lat, alt),
-    )
-
-    // HUD updates.
+    const elapsed = t * state.totalDurationS
     const fuelUsed =
-      segPredictions.slice(0, segIdx).reduce((a, p) => a + p.fuelKg, 0) +
-      segPredictions[segIdx].fuelKg * segFrac
-    document.getElementById('hudProgress').textContent = `${(t * 100).toFixed(1)}%`
-    document.getElementById('hudFuelUsed').textContent = `${fuelUsed.toFixed(0)} kg`
-    document.getElementById('hudFuelRemaining').textContent = `${(totalFuelKg - fuelUsed).toFixed(0)} kg`
+      state.segPredictions.slice(0, segIdx).reduce((a, p) => a + p.fuelKg, 0) +
+      state.segPredictions[segIdx].fuelKg * segFrac
+    const remaining = Math.max(0, state.totalFuelKg - fuelUsed)
+    const pct = (remaining / state.totalFuelKg) * 100
+
+    els.hudProgress.textContent = `${(t * 100).toFixed(1)}%`
+    els.progressBarFill.style.width = `${t * 100}%`
+    els.hudElapsed.textContent = fmtTime(elapsed)
+    els.hudFuelUsed.textContent = `${fuelUsed.toFixed(0)} kg`
+    els.hudFuelRemaining.textContent = `${remaining.toFixed(0)} kg`
+    els.fuelPct.innerHTML = `${pct.toFixed(0)}<span>%</span>`
+    els.fuelPct.style.color = pct > 40 ? '#46d7a0' : pct > 20 ? '#ffa726' : '#ff5252'
   })
 
-  // Follow the aircraft.
+  // Camera follow / overview.
   viewer.clock.onTick.addEventListener(() => {
-    const pos = plane.position.getValue(viewer.clock.currentTime)
-    if (pos) {
-      viewer.camera.lookAt(pos, new Cesium.Cartesian3(0, 0, 30000))
-    }
+    const pos = state.plane.position.getValue(viewer.clock.currentTime)
+    if (!pos || state.cameraMode !== 'follow') return
+    viewer.camera.lookAt(pos, new Cesium.Cartesian3(0, 0, 12000))
   })
 
-  // Three.js fuel gauge overlay.
-  const gaugeContainer = document.getElementById('fuelGaugeWrap')
-  const gauge = new FuelGauge3D(gaugeContainer)
+  // Three.js gauge.
+  const gauge = new FuelGauge3D(document.getElementById('fuelGaugeWrap'))
   window.addEventListener('resize', () => gauge.onResize())
-
   setInterval(() => {
-    const remaining = parseFloat(document.getElementById('hudFuelRemaining').textContent) || 0
-    gauge.updateFuel(remaining / totalFuelKg)
-  }, 250)
+    const remaining = parseFloat(els.hudFuelRemaining.textContent) || 0
+    gauge.updateFuel(remaining / state.totalFuelKg)
+  }, 200)
 }
 
 main().catch((err) => {
   console.error(err)
-  document.getElementById('hudEngine').textContent = 'Error: ' + err.message
+  const e = document.getElementById('hudEngine')
+  if (e) e.textContent = 'Error: ' + err.message
 })

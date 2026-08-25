@@ -167,6 +167,22 @@ so raw feature rows map to the same model input the student saw in training.
 
 See `rust/aerotwin-onnx-serving/README.md` for full build/run details.
 
+### AeroSim — Interactive Web Simulator
+
+**`aero_sim/`** is a browser-based 3D flight simulation built with CesiumJS,
+Three.js, and ONNX Runtime Web. It animates an aircraft flying between two
+airports along a real route while predicting **per-segment fuel burn directly
+from the trained AeroTwin model in the browser**. CesiumJS renders the globe,
+route, and an auto-following aircraft; per-segment markers are color-coded by
+predicted burn (green → red) with fuel-kg labels; and a Three.js fuel-tank
+overlay animates remaining fuel as the flight progresses. A live HUD shows
+progress, fuel used, fuel remaining, and distance. It reuses the same
+`large_mlp.onnx` + `preproc.json` artifacts as the Rust server (placed under
+`aero_sim/public/models/`); when they are absent it falls back to a physics
+approximation so the demo always runs.
+
+See `aero_sim/README.md` for full setup details.
+
 ---
 
 ## Repository Layout
@@ -182,6 +198,7 @@ The repository is organized into focused domains:
 - **`tests/`** — unit and integration tests guarding the core logic.
 - **`docs/`** — status reports, RMSE audits, benchmark-parity checks, research paper drafts, and external-validation guides.
 - **`scripts/`** — build and run utilities.
+- **`aero_sim/`** — browser-based 3D flight fuel-burn simulator (CesiumJS + Three.js + ONNX Runtime Web).
 
 ---
 
