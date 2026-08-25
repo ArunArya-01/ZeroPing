@@ -20,18 +20,6 @@ HUD) + **onnxruntime-web** (model inference) + **Vite**.
   1. **ONNX Runtime Web** — the real exported student model (`public/models/`)
   2. **Physics fallback** — used automatically when the ONNX files are absent
 
-## Setup
-
-Requires Node.js >= 18.
-
-```bash
-cd aero_sim
-npm install
-npm run dev
-```
-
-Open the printed URL (default http://localhost:5173).
-
 ## Using the real model
 
 The simulator auto-detects `public/models/large_mlp.onnx` +
@@ -56,12 +44,3 @@ aero_sim/
     └── data/
         └── routes.js          # Sample routes (EGLL→KJFK, KSFO→KORD)
 ```
-
-## Notes
-
-- `executionProviders: ['wasm']` is used for maximum portability. For higher
-  throughput in Chromium-based browsers, switch to `['webgpu']`.
-- Segment features are synthesized from route geometry; the ONNX path fills
-  unknown numeric columns with the preproc medians so the vector shape matches
-  the trained input. For full fidelity, stream real interval features from the
-  AeroTwin featured dataset (see `src/aerotwin/engine/build_featured_dataset.py`).
