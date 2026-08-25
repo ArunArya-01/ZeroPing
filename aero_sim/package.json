@@ -1,0 +1,21 @@
+{
+  "name": "aero-sim",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "3D flight fuel-burn simulation with CesiumJS + Three.js + ONNX Runtime Web",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "cesium": "^1.120.0",
+    "onnxruntime-web": "^1.19.2",
+    "three": "^0.170.0"
+  },
+  "devDependencies": {
+    "vite": "^5.4.0",
+    "vite-plugin-cesium": "^1.2.23"
+  }
+}

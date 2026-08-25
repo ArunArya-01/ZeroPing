@@ -210,7 +210,7 @@ __marimo__/
 .venv
 
 Dataset/
-models/
+/models/
 isolation_forest_model_FD001.joblib
 
 # Logs
