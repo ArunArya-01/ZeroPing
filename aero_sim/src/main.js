@@ -1,4 +1,7 @@
 // AeroSim — Cesium / Three.js / ONNX fuel-burn simulator entry point.
+//
+// The simulation only boots after the user clicks "Launch Simulation" on the
+// home page, so WebGL / ONNX assets stay idle until needed.
 
 import * as Cesium from 'cesium'
 import 'cesium/Build/Cesium/Widgets/widgets.css'
@@ -126,7 +129,7 @@ async function loadRoute(viewer, route) {
       width: 3,
       material: new Cesium.PolylineGlowMaterialProperty({
         glowPower: 0.22,
-        color: Cesium.Color.fromCssColorString('#42a5f5').withAlpha(0.85),
+        color: Cesium.Color.fromCssColorString('#dc1414').withAlpha(0.85),
       }),
     },
   })
@@ -140,10 +143,10 @@ async function loadRoute(viewer, route) {
     const burnFrac = state.segPredictions[i].fuelKg / maxFuel
     const color =
       burnFrac < 0.35
-        ? Cesium.Color.fromCssColorString('#46d7a0')
+        ? Cesium.Color.fromCssColorString('#ffffff').withAlpha(0.8)
         : burnFrac < 0.7
-          ? Cesium.Color.fromCssColorString('#ffa726')
-          : Cesium.Color.fromCssColorString('#ff5252')
+          ? Cesium.Color.fromCssColorString('#dc1414').withAlpha(0.6)
+          : Cesium.Color.fromCssColorString('#dc1414')
     viewer.entities.add({
       point: {
         position: Cesium.Cartesian3.fromDegrees(midLon, midLat, midAlt),
@@ -193,7 +196,7 @@ async function loadRoute(viewer, route) {
     position: Cesium.Cartesian3.fromDegrees(start.lon, start.lat, start.alt + 1000),
     point: {
       pixelSize: 14,
-      color: Cesium.Color.fromCssColorString('#42a5f5'),
+      color: Cesium.Color.fromCssColorString('#dc1414'),
       disableDepthTestDistance: Number.POSITIVE_INFINITY,
       outlineColor: Cesium.Color.WHITE,
       outlineWidth: 2,
@@ -211,7 +214,7 @@ async function loadRoute(viewer, route) {
       width: 2,
       material: new Cesium.PolylineGlowMaterialProperty({
         glowPower: 0.15,
-        color: Cesium.Color.fromCssColorString('#46d7a0').withAlpha(0.7),
+        color: Cesium.Color.fromCssColorString('#dc1414').withAlpha(0.7),
       }),
     },
   })
@@ -321,7 +324,7 @@ async function main() {
     els.hudFuelUsed.textContent = `${fuelUsed.toFixed(0)} kg`
     els.hudFuelRemaining.textContent = `${remaining.toFixed(0)} kg`
     els.fuelPct.innerHTML = `${pct.toFixed(0)}<span>%</span>`
-    els.fuelPct.style.color = pct > 40 ? '#46d7a0' : pct > 20 ? '#ffa726' : '#ff5252'
+    els.fuelPct.style.color = pct > 40 ? '#ffffff' : pct > 20 ? '#dc1414' : '#dc1414'
   })
 
   // Camera follow / overview.
@@ -340,8 +343,22 @@ async function main() {
   }, 200)
 }
 
-main().catch((err) => {
-  console.error(err)
-  const e = document.getElementById('hudEngine')
-  if (e) e.textContent = 'Error: ' + err.message
+// Boot the simulation: reveal the UI, then run the existing init flow.
+async function launch() {
+  const home = document.getElementById('homeOverlay')
+  const simUI = document.getElementById('simUI')
+  home.classList.add('hidden')
+  simUI.classList.add('ready')
+  // Wait one frame so the container is laid out before Cesium measures it.
+  await new Promise((r) => requestAnimationFrame(() => r()))
+  await main()
+}
+
+// Wire the launch button once the DOM is ready.
+document.getElementById('launchBtn').addEventListener('click', () => {
+  launch().catch((err) => {
+    console.error(err)
+    const e = document.getElementById('hudEngine')
+    if (e) e.textContent = 'Error: ' + err.message
+  })
 })

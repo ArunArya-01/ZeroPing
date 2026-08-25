@@ -3,32 +3,32 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>AeroSim — Flight Fuel-Burn Simulator</title>
+    <title>AeroFlux — Flight Fuel-Burn Simulator</title>
     <style>
-      /* ---------- Design tokens ---------- */
+      /* ---------- Design tokens (black / white / red) ---------- */
       :root {
-        --bg-deep: #05070d;
-        --bg-grad: radial-gradient(1200px 800px at 70% 10%, rgba(66, 165, 245, 0.12), transparent 60%),
-          radial-gradient(900px 700px at 15% 90%, rgba(70, 215, 160, 0.08), transparent 55%);
+        --bg-deep: #0a0a0a;
+        --bg-grad: radial-gradient(900px 600px at 80% 0%, rgba(220, 20, 20, 0.15), transparent 60%),
+          radial-gradient(700px 500px at 0% 100%, rgba(220, 20, 20, 0.1), transparent 55%);
 
-        --panel: rgba(16, 24, 40, 0.72);
-        --panel-solid: rgba(16, 24, 40, 0.92);
-        --panel-border: rgba(120, 160, 220, 0.16);
-        --panel-border-strong: rgba(120, 160, 220, 0.32);
+        --panel: rgba(18, 18, 18, 0.82);
+        --panel-solid: rgba(18, 18, 18, 0.94);
+        --panel-border: rgba(255, 255, 255, 0.08);
+        --panel-border-strong: rgba(220, 20, 20, 0.4);
 
-        --text: #e3ecf7;
-        --text-dim: #93a5c0;
-        --muted: #64748f;
-        --accent: #46d7a0;
-        --accent-soft: rgba(70, 215, 160, 0.16);
-        --blue: #42a5f5;
-        --warn: #ffa726;
-        --danger: #ff5252;
+        --text: #ffffff;
+        --text-dim: #b0b0b0;
+        --muted: #707070;
+        --accent: #dc1414;
+        --accent-soft: rgba(220, 20, 20, 0.15);
+        --accent-2: #ffffff;
+        --warn: #dc1414;
+        --danger: #dc1414;
 
-        --radius: 16px;
+        --radius: 14px;
         --radius-sm: 10px;
-        --shadow: 0 18px 50px rgba(0, 0, 0, 0.5);
-        --blur: blur(14px) saturate(150%);
+        --shadow: 0 18px 50px rgba(0, 0, 0, 0.6);
+        --blur: blur(14px) saturate(130%);
         --inset: 18px;
         --font: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
       }
@@ -73,6 +73,19 @@
         margin-bottom: 10px;
       }
 
+      /* ---------- Simulation UI ---------- */
+      #simUI {
+        position: fixed;
+        inset: 0;
+        opacity: 0;
+        transition: opacity 0.5s ease 0.15s;
+        pointer-events: none;
+      }
+      #simUI.ready {
+        opacity: 1;
+        pointer-events: auto;
+      }
+
       /* ---------- Cesium ---------- */
       #cesiumContainer {
         position: fixed;
@@ -102,23 +115,23 @@
         align-items: center;
         gap: 12px;
         padding: 14px 16px;
-        background: linear-gradient(135deg, rgba(70, 215, 160, 0.16), rgba(66, 165, 245, 0.12));
+        background: rgba(220, 20, 20, 0.12);
         border-bottom: 1px solid var(--panel-border);
         border-radius: var(--radius) var(--radius) 0 0;
       }
       #logo {
         width: 34px;
         height: 34px;
-        border-radius: 11px;
+        border-radius: 50%;
         display: grid;
         place-items: center;
-        background: linear-gradient(135deg, var(--accent), var(--blue));
-        color: #05140d;
+        background: var(--accent);
+        color: #fff;
         font-weight: 800;
         font-size: 13px;
         letter-spacing: 0.5px;
         flex-shrink: 0;
-        box-shadow: 0 4px 16px rgba(70, 215, 160, 0.35);
+        box-shadow: 0 4px 18px rgba(220, 20, 20, 0.5);
       }
       #flightTitle {
         font-size: 14px;
@@ -186,7 +199,7 @@
       .route-line {
         flex: 1;
         height: 2px;
-        background: linear-gradient(90deg, var(--blue), var(--accent));
+        background: linear-gradient(90deg, rgba(255, 255, 255, 0.5), var(--accent));
         position: relative;
       }
       .route-line::before,
@@ -198,17 +211,15 @@
         height: 7px;
         border-radius: 50%;
         transform: translateY(-50%);
-        background: var(--blue);
-        box-shadow: 0 0 8px rgba(66, 165, 245, 0.6);
       }
       .route-line::before {
         left: 0;
-        background: var(--blue);
+        background: rgba(255, 255, 255, 0.7);
       }
       .route-line::after {
         right: 0;
         background: var(--accent);
-        box-shadow: 0 0 8px rgba(70, 215, 160, 0.6);
+        box-shadow: 0 0 10px rgba(220, 20, 20, 0.6);
       }
 
       /* Stats grid */
@@ -272,7 +283,7 @@
         height: 168px;
         border-radius: var(--radius-sm);
         overflow: hidden;
-        background: radial-gradient(circle at 50% 38%, rgba(66, 165, 245, 0.1), transparent 72%);
+        background: radial-gradient(circle at 50% 38%, rgba(220, 20, 20, 0.12), transparent 72%);
       }
       #fuelGaugeWrap canvas {
         display: block;
@@ -325,21 +336,21 @@
       .dot {
         width: 11px;
         height: 11px;
-        border-radius: 4px;
+        border-radius: 3px;
         flex-shrink: 0;
       }
       .dot.green {
-        background: var(--accent);
-        box-shadow: 0 0 8px rgba(70, 215, 160, 0.5);
+        background: rgba(255, 255, 255, 0.85);
       }
       .dot.orange {
-        background: var(--warn);
+        background: rgba(255, 255, 255, 0.5);
       }
       .dot.red {
-        background: var(--danger);
+        background: var(--accent);
+        box-shadow: 0 0 8px rgba(220, 20, 20, 0.5);
       }
       .dot.blue {
-        background: var(--blue);
+        background: rgba(255, 255, 255, 0.85);
       }
 
       /* ================= TOP CENTER: camera ================= */
@@ -371,7 +382,7 @@
       }
       #cameraMode .cn-btn.active {
         background: var(--accent-soft);
-        border-color: rgba(70, 215, 160, 0.5);
+        border-color: rgba(220, 20, 20, 0.5);
         color: var(--accent);
       }
 
@@ -418,7 +429,7 @@
         height: 100%;
         width: 0%;
         border-radius: 6px;
-        background: linear-gradient(90deg, var(--blue), var(--accent));
+        background: linear-gradient(90deg, rgba(255, 255, 255, 0.7), var(--accent));
         position: relative;
         transition: width 0.15s linear;
       }
@@ -458,7 +469,7 @@
       }
       .ctrl-btn.active {
         background: var(--accent-soft);
-        border-color: rgba(70, 215, 160, 0.5);
+        border-color: rgba(220, 20, 20, 0.5);
         color: var(--accent);
       }
       .speed {
@@ -475,6 +486,232 @@
         min-width: 30px;
         text-align: center;
         font-weight: 700;
+      }
+
+      /* ---------- Home overlay (black / white / red) ---------- */
+      #homeOverlay {
+        position: fixed;
+        inset: 0;
+        z-index: 100;
+        background: #0a0a0a;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow-y: auto;
+        transition: opacity 0.6s ease, visibility 0.6s ease;
+      }
+      #homeOverlay::before {
+        content: '';
+        position: fixed;
+        inset: 0;
+        background:
+          radial-gradient(900px 600px at 80% 0%, rgba(220, 20, 20, 0.18), transparent 60%),
+          radial-gradient(700px 500px at 0% 100%, rgba(220, 20, 20, 0.12), transparent 55%);
+        pointer-events: none;
+      }
+      #homeOverlay.hidden {
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+      }
+      .home-scroll {
+        position: relative;
+        width: 100%;
+        max-width: 780px;
+        margin: 0 auto;
+        padding: 56px 28px 72px;
+      }
+
+      /* Hero */
+      .home-hero {
+        text-align: center;
+        margin-bottom: 48px;
+      }
+      .home-logo {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+        background: #dc1414;
+        color: #fff;
+        font-weight: 800;
+        font-size: 22px;
+        letter-spacing: 0.5px;
+        margin: 0 auto 22px;
+        box-shadow: 0 0 0 4px rgba(220, 20, 20, 0.18), 0 12px 40px rgba(220, 20, 20, 0.4);
+      }
+      .home-hero h1 {
+        font-size: 44px;
+        font-weight: 900;
+        letter-spacing: -1px;
+        margin: 0 0 8px;
+        color: #ffffff;
+      }
+      .home-tagline {
+        font-size: 18px;
+        font-weight: 700;
+        color: #dc1414;
+        margin: 0 0 14px;
+        letter-spacing: 0.4px;
+        text-transform: uppercase;
+      }
+      .home-lede {
+        font-size: 15px;
+        color: #b0b0b0;
+        max-width: 580px;
+        margin: 0 auto;
+        line-height: 1.7;
+      }
+
+      /* Sections */
+      .home-section {
+        margin-bottom: 42px;
+      }
+      .home-section h2 {
+        font-size: 11px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 2.5px;
+        color: #dc1414;
+        margin-bottom: 18px;
+        text-align: center;
+      }
+
+      /* How-it-works cards */
+      .home-cards {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0;
+      }
+      .home-card {
+        padding: 22px 20px;
+        text-align: left;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        transition: background 0.2s, border-color 0.2s;
+      }
+      .home-card:first-child {
+        border-radius: var(--radius) 0 0 var(--radius);
+      }
+      .home-card:last-child {
+        border-radius: 0 var(--radius) var(--radius) 0;
+      }
+      .home-card + .home-card {
+        border-left: none;
+      }
+      .home-card:hover {
+        background: rgba(220, 20, 20, 0.06);
+        border-color: rgba(220, 20, 20, 0.3);
+      }
+      .home-card-num {
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 1px;
+        color: #dc1414;
+        margin-bottom: 12px;
+      }
+      .home-card h3 {
+        font-size: 15px;
+        font-weight: 700;
+        margin: 0 0 8px;
+        color: #ffffff;
+      }
+      .home-card p {
+        font-size: 12px;
+        color: #909090;
+        line-height: 1.6;
+      }
+
+      /* What you'll see */
+      .home-show {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+      .home-show-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 14px 16px;
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid rgba(255, 255, 255, 0.07);
+        border-radius: var(--radius-sm);
+        font-size: 13px;
+        color: #c0c0c0;
+      }
+      .home-show-item .dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 3px;
+        flex-shrink: 0;
+        background: rgba(255, 255, 255, 0.25);
+      }
+      .home-show-item .dot.red {
+        background: #dc1414;
+        box-shadow: 0 0 10px rgba(220, 20, 20, 0.6);
+      }
+      .home-show-item .dot.white {
+        background: #ffffff;
+      }
+
+      /* CTA */
+      .home-cta {
+        text-align: center;
+        margin-top: 48px;
+      }
+      .home-launch {
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+        padding: 16px 44px;
+        font-size: 16px;
+        font-weight: 800;
+        font-family: inherit;
+        color: #ffffff;
+        background: #dc1414;
+        border: none;
+        border-radius: 12px;
+        cursor: pointer;
+        box-shadow: 0 12px 40px rgba(220, 20, 20, 0.45);
+        transition: transform 0.15s, box-shadow 0.15s, background 0.15s;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+      .home-launch:hover {
+        transform: translateY(-2px);
+        background: #e82020;
+        box-shadow: 0 18px 52px rgba(220, 20, 20, 0.55);
+      }
+      .home-launch:active {
+        transform: translateY(0);
+      }
+      .home-note {
+        margin-top: 18px;
+        font-size: 11px;
+        color: #606060;
+        letter-spacing: 0.4px;
+      }
+
+      @media (max-width: 680px) {
+        .home-cards {
+          grid-template-columns: 1fr;
+        }
+        .home-card,
+        .home-card:first-child,
+        .home-card:last-child {
+          border-radius: 0;
+        }
+        .home-card + .home-card {
+          border-left: 1px solid rgba(255, 255, 255, 0.08);
+          border-top: none;
+        }
+        .home-show {
+          grid-template-columns: 1fr;
+        }
+        .home-hero h1 {
+          font-size: 32px;
+        }
       }
 
       /* ---------- Responsive ---------- */
@@ -517,6 +754,83 @@
     </style>
   </head>
   <body>
+    <!-- ================= HOME / LANDING ================= -->
+    <div id="homeOverlay">
+      <div class="home-scroll">
+        <header class="home-hero">
+          <div class="home-logo">AS</div>
+          <h1>AeroFlux</h1>
+          <p class="home-tagline">An Aviation Physics-Informed Machine Learning Framework for Fuel-Flow Prediction</p>
+          <p class="home-lede">
+            Watch a trained model predict fuel burn for every segment of a real
+            flight &mdash; rendered live on a 3D globe. A physics baseline plus
+            machine learning, distilled into a compact neural network that runs
+            right in your browser.
+          </p>
+        </header>
+
+        <section class="home-section">
+          <h2>How it works</h2>
+          <div class="home-cards">
+            <div class="home-card">
+              <div class="home-card-num">01</div>
+              <h3>Physics Baseline</h3>
+              <p>
+                OpenAP estimates fuel flow from aircraft type, true airspeed,
+                altitude, vertical rate, and mass &mdash; an interpretable
+                first-principles model.
+              </p>
+            </div>
+            <div class="home-card">
+              <div class="home-card-num">02</div>
+              <h3>Residual Learning</h3>
+              <p>
+                Gradient-boosted models (XGBoost, LightGBM, CatBoost) learn the
+                gap between physics and reality &mdash; sparse telemetry,
+                missing air-data, unknown aircraft mass.
+              </p>
+            </div>
+            <div class="home-card">
+              <div class="home-card-num">03</div>
+              <h3>Distillation</h3>
+              <p>
+                The frozen ensemble teacher trains a compact MLP student that
+                runs in-browser via ONNX Runtime Web &mdash; no server needed.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <section class="home-section">
+          <h2>What the simulation shows</h2>
+          <div class="home-show">
+            <div class="home-show-item">
+              <span class="dot red"></span>An animated aircraft following a real great-circle route
+            </div>
+            <div class="home-show-item">
+              <span class="dot white"></span>Segments colored by predicted fuel burn
+            </div>
+            <div class="home-show-item">
+              <span class="dot"></span>A live 3D fuel gauge that depletes in real time
+            </div>
+            <div class="home-show-item">
+              <span class="dot"></span>Route picker, playback speed &amp; camera controls
+            </div>
+          </div>
+        </section>
+
+        <div class="home-cta">
+          <button class="home-launch" id="launchBtn">Launch Simulation →</button>
+          <p class="home-note">
+            Data: EUROCONTROL PRC 2025 challenge · Best ensemble RMSE 221 kg ·
+            Distilled student runs via ONNX
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= SIMULATION ================= -->
+    <div id="simUI" aria-hidden="true">
     <div id="cesiumContainer"></div>
 
     <!-- Top center: camera mode -->
@@ -613,6 +927,7 @@
         <button class="ctrl-btn" id="speedUp" title="Faster">+</button>
       </div>
     </div>
+    </div><!-- /#simUI -->
 
     <script type="module" src="/src/main.js"></script>
   </body>

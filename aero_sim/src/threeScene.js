@@ -89,16 +89,16 @@ export class FuelGauge3D {
     this.scene.add(outer)
     this.outer = outer
 
-    // --- Liquid: fixed (non-rotating) cylinder clipped inside the shell. ---
+    // Liquid: fixed (non-rotating) cylinder clipped inside the shell.
     this.liquid = new THREE.Mesh(
       new THREE.CylinderGeometry(LIQUID_RADIUS, LIQUID_RADIUS, LIQUID_HALF_HEIGHT * 2, 40, 1),
       new THREE.MeshPhongMaterial({
-        color: 0x46d7a0,
+        color: 0xdc1414,
         transparent: true,
-        opacity: 0.88,
+        opacity: 0.9,
         shininess: 110,
         side: THREE.DoubleSide,
-        emissive: 0x0a2f1f,
+        emissive: 0x3a0606,
       }),
     )
     // CylinderGeometry's axis is already along Y (up), so the cylinder is
@@ -106,7 +106,7 @@ export class FuelGauge3D {
     this.scene.add(this.liquid)
 
     // Glowing fill light that follows the liquid surface.
-    this.glow = new THREE.PointLight(0x46d7a0, 1.4, 3)
+    this.glow = new THREE.PointLight(0xdc1414, 1.4, 3)
     this.glow.position.y = -0.3
     this.scene.add(this.glow)
   }
@@ -129,12 +129,12 @@ export class FuelGauge3D {
       this._targetCylHalf = cylHalf
     }
 
-    // Color shifts red (empty) -> green (full).
-    const hue = f * 0.36
-    this.liquid.material.color.setHSL(hue, 0.85, 0.5)
-    this.liquid.material.emissive.setHSL(hue, 0.9, 0.14)
-    this.glow.color.setHSL(hue, 0.9, 0.5)
-    this.glow.intensity = 0.7 + f * 1.6
+    // Color: bright red when full, dimming toward dark as fuel depletes.
+    const lightness = 0.15 + f * 0.35
+    this.liquid.material.color.setHSL(0, 0.85, lightness)
+    this.liquid.material.emissive.setHSL(0, 0.9, lightness * 0.4)
+    this.glow.color.setHSL(0, 0.85, 0.5)
+    this.glow.intensity = 0.5 + f * 1.8
   }
 
   updateFuel(fraction) {
@@ -148,14 +148,17 @@ export class FuelGauge3D {
     // Rotate only the vessel for a living, cinematic look.
     this.outer.rotation.y += 0.004
 
-    // Ease liquid towards the target level.
     if (this._targetMid !== undefined) {
       const dMid = this._targetMid - this.liquid.position.y
       const dScale = this._targetCylHalf / LIQUID_HALF_HEIGHT - this.liquid.scale.y
       this.liquid.position.y += dMid * 0.1
       this.liquid.scale.y += dScale * 0.1
     }
-
+    // Keep liquid red, dimming as it empties.
+    const lightness = 0.15 + this.fraction * 0.35
+    this.liquid.material.color.setHSL(0, 0.85, lightness)
+    this.liquid.material.emissive.setHSL(0, 0.9, lightness * 0.4)
+    this.glow.intensity = 0.5 + this.fraction * 1.8
     this.renderer.render(this.scene, this.camera)
   }
 
