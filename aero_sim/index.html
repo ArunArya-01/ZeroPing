@@ -509,6 +509,19 @@
       .pred-dot.r3 {
         background: #dc1414;
       }
+      .pred-dot.gt {
+        background: #ffffff;
+      }
+      .pred-dot.openap {
+        background: rgba(255, 255, 255, 0.4);
+      }
+      .pred-row.improve .pred-val {
+        color: #46d7a0;
+        font-size: 14px;
+      }
+      .pred-row .pred-val.err {
+        color: rgba(255, 255, 255, 0.6);
+      }
       .pred-note {
         margin-top: 8px;
         font-size: 9px;
@@ -1119,20 +1132,26 @@
       </section>
 
       <section id="predPanel">
-        <div class="panel-label">Fuel Prediction Comparison</div>
-        <div class="pred-row"><span class="pred-label">Simulated Burn</span><span class="pred-val" id="predActual">—</span></div>
-        <div class="pred-row"><span class="pred-label">R3 Prediction</span><span class="pred-val" id="predR3">—</span></div>
+        <div class="panel-label">Fuel Prediction — Live Comparison</div>
+        <div class="pred-row"><span class="pred-label">Ground Truth</span><span class="pred-val" id="predGt">—</span></div>
+        <div class="pred-row"><span class="pred-label">OpenAP Baseline</span><span class="pred-val" id="predOpenap">—</span></div>
+        <div class="pred-row highlight"><span class="pred-label">AeroTwin R3</span><span class="pred-val" id="predR3">—</span></div>
         <div class="pred-sep"></div>
-        <div class="pred-row"><span class="pred-label">Error</span><span class="pred-val" id="predError">—</span></div>
-        <div class="pred-row"><span class="pred-label">Relative Error</span><span class="pred-val" id="predRelErr">—</span></div>
+        <div class="pred-row"><span class="pred-label">OpenAP Error</span><span class="pred-val err" id="predOpenapErr">—</span></div>
+        <div class="pred-row"><span class="pred-label">R3 Error</span><span class="pred-val err" id="predR3Err">—</span></div>
+        <div class="pred-sep"></div>
+        <div class="pred-row"><span class="pred-label">OpenAP RMSE</span><span class="pred-val" id="predOpenapRmse">—</span></div>
+        <div class="pred-row highlight"><span class="pred-label">R3 RMSE</span><span class="pred-val" id="predR3Rmse">—</span></div>
+        <div class="pred-row improve"><span class="pred-label">Improvement</span><span class="pred-val" id="predImprovement">—</span></div>
         <div class="pred-chart-wrap">
-          <canvas id="predChart" width="180" height="80"></canvas>
+          <canvas id="predChart" width="180" height="90"></canvas>
         </div>
         <div class="pred-legend-chart">
-          <span><span class="pred-dot actual"></span>Sim</span>
+          <span><span class="pred-dot gt"></span>Truth</span>
+          <span><span class="pred-dot openap"></span>OpenAP</span>
           <span><span class="pred-dot r3"></span>R3</span>
         </div>
-        <div class="pred-note">Synthetic data — no measured fuel used</div>
+        <div class="pred-note">Real PRC test flight — actual fuel labels</div>
       </section>
     </aside>
 
