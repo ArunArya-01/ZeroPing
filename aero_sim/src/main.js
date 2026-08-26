@@ -12,6 +12,7 @@ import { loadDemoFlight } from './data/routes.js'
 const SPEED_STEPS = [10, 50, 100, 250, 500, 1000, 2000]
 
 const state = {
+  viewer: null,
   speedIdx: 2,
   paused: false,
   cameraMode: 'overview',
@@ -20,13 +21,6 @@ const state = {
   intervals: [],
   totalFuelKg: 0,
   totalDurationS: 0,
-  // Cumulative tracking for RMSE.
-  cumGroundTruth: 0,
-  cumPhysics: 0,
-  cumR3: 0,
-  sumSqPhysicsErr: 0,
-  sumSqR3Err: 0,
-  count: 0,
   // Chart data.
   chartActual: [],
   chartPhysics: [],
@@ -38,13 +32,12 @@ function grab() {
   ;[
     'hudOrigin', 'hudOriginName', 'hudDest', 'hudDestName',
     'hudAircraft', 'hudDistance', 'hudElapsed', 'hudFuelUsed',
-    'hudFuelRemaining', 'hudFuelTotal', 'hudEngine', 'hudProgress',
+    'hudFuelRemaining', 'hudEngine', 'hudProgress',
     'progressBarFill', 'btnPause', 'speedDown', 'speedUp', 'speedLabel',
     'thrustVal', 'thrustFill', 'dragVal', 'dragFill', 'liftVal', 'liftFill',
-    'massTakeoff', 'massCurrent', 'massLanding', 'massFuelRem', 'massFuelBurn',
+    'massTakeoff', 'massCurrent', 'massLanding', 'hudFuelRemaining', 'massFuelBurn',
     'massBurnRate', 'massFuelFrac', 'massRate', 'massWingLoad', 'massPhase',
-    'predGt', 'predOpenap', 'predR3', 'predOpenapErr', 'predR3Err',
-    'predOpenapRmse', 'predR3Rmse', 'predImprovement', 'predChart',
+    'predGt', 'predOpenap', 'predR3', 'predOpenapErr', 'predR3Err', 'predR3Rel', 'predChart',
   ].forEach((id) => (els[id] = document.getElementById(id)))
 }
 
@@ -70,6 +63,7 @@ async function main() {
     selectionIndicator: false,
     fullscreenButton: false,
   })
+  state.viewer = viewer
   viewer.scene.globe.enableLighting = true
   viewer.scene.globe.atmosphereLightFactor = 1.2
   viewer.scene.skyAtmosphere.show = true
@@ -101,18 +95,14 @@ async function main() {
   state.running = true
 
   viewer.clock.onTick.addEventListener((clock) => tick(viewer, clock))
-  viewer.clock.onTick.addEventListener(() => {
-    const pos = state.plane.position.getValue(viewer.clock.currentTime)
-    if (!pos || state.cameraMode !== 'follow') return
-    viewer.camera.lookAt(pos, new Cesium.Cartesian3(0, 0, 15000))
-  })
+  viewer.clock.onTick.addEventListener((clock) => updateCamera(viewer, clock))
 }
 
 function buildScene(viewer, flight) {
   // Build a smooth great-circle path with realistic altitude profile.
-  const startLat = 51.5, startLon = -0.5   // London area
-  const endLat = 40.6, endLon = -73.8      // New York area
-  const nSamples = 200
+  const startLat = 51.47, startLon = -0.45   // London Heathrow
+  const endLat = 40.64, endLon = -73.78      // New York JFK
+  const nSamples = 300
 
   // Great-circle interpolation (slerp on sphere).
   const latLonAlt = []
@@ -125,16 +115,32 @@ function buildScene(viewer, flight) {
     Math.cos(phi1) * Math.cos(phi2) * Math.sin((lambda2 - lambda1) / 2) ** 2
   ))
 
+  // Smooth easing functions for altitude transitions.
+  const easeInOut = (t) => t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2
+  const easeOut = (t) => 1 - Math.pow(1 - t, 3)
+  const easeIn = (t) => t * t * t
+
   for (let i = 0; i <= nSamples; i++) {
     const f = i / nSamples
-    // Altitude profile: climb -> cruise -> descent.
+    // Realistic altitude profile with smooth transitions.
+    const cruiseAlt = 11000
     let alt
-    if (f < 0.08) {
-      alt = f / 0.08 * 11000  // climb
-    } else if (f > 0.85) {
-      alt = (1 - f) / 0.15 * 11000  // descent
+    if (f < 0.06) {
+      // Takeoff: ground to 2000m with ease-out.
+      alt = easeOut(f / 0.06) * 2000
+    } else if (f < 0.15) {
+      // Climb: 2000m to cruise with ease-in-out.
+      alt = 2000 + easeInOut((f - 0.06) / 0.09) * (cruiseAlt - 2000)
+    } else if (f > 0.90) {
+      // Descent: cruise to 2000m with ease-in-out.
+      const descFrac = (f - 0.90) / 0.08
+      alt = 2000 + (1 - easeInOut(descFrac)) * (cruiseAlt - 2000)
+    } else if (f > 0.97) {
+      // Approach: 2000m to ground with ease-in.
+      alt = (1 - easeIn((f - 0.97) / 0.03)) * 2000
     } else {
-      alt = 11000 + Math.sin(f * Math.PI * 3) * 200  // slight cruise variation
+      // Cruise: gentle altitude variation.
+      alt = cruiseAlt + Math.sin(f * Math.PI * 4) * 150 + Math.sin(f * Math.PI * 7) * 50
     }
 
     // Great-circle interpolation.
@@ -153,7 +159,7 @@ function buildScene(viewer, flight) {
     })
   }
 
-  // Route polyline (glow).
+  // Route polyline (glow) — only show the airborne portion.
   const routePositions = latLonAlt.map((p) => Cesium.Cartesian3.fromDegrees(p.lon, p.lat, p.alt))
   viewer.entities.add({
     polyline: {
@@ -161,7 +167,7 @@ function buildScene(viewer, flight) {
       width: 3,
       material: new Cesium.PolylineGlowMaterialProperty({
         glowPower: 0.25,
-        color: Cesium.Color.fromCssColorString('#dc1414').withAlpha(0.8),
+        color: Cesium.Color.fromCssColorString('#dc1414').withAlpha(0.7),
       }),
     },
   })
@@ -199,11 +205,12 @@ function buildScene(viewer, flight) {
     },
     path: {
       leadTime: 0,
-      trailTime: Math.min(totalSeconds * 0.3, 1200),
+      trailTime: Math.min(totalSeconds * 0.25, 1800),
       width: 3,
+      resolution: 1,
       material: new Cesium.PolylineGlowMaterialProperty({
-        glowPower: 0.2,
-        color: Cesium.Color.fromCssColorString('#dc1414').withAlpha(0.6),
+        glowPower: 0.25,
+        color: Cesium.Color.fromCssColorString('#dc1414').withAlpha(0.5),
       }),
     },
   })
@@ -221,6 +228,41 @@ function buildScene(viewer, flight) {
   })
 
   viewer.camera.flyTo({ destination: Cesium.Cartesian3.fromDegrees(-40, 48, 5000000) })
+}
+
+// Smooth camera tracking with lerping to avoid jumps.
+let lastCamTime = 0
+function updateCamera(viewer, clock) {
+  const pos = state.plane.position.getValue(clock.currentTime)
+  if (!pos || state.cameraMode !== 'follow') return
+
+  const now = performance.now()
+  const dt = Math.min((now - lastCamTime) / 1000, 0.1)
+  lastCamTime = now
+
+  // Smooth look-at with offset that follows behind and above the aircraft.
+  const offset = new Cesium.Cartesian3(0, -8000, 12000)
+  const targetPos = Cesium.Cartesian3.add(pos, offset, new Cesium.Cartesian3())
+
+  // Get current camera position and lerp toward target.
+  const cam = viewer.camera
+  const currentPos = cam.position
+  const lerpFactor = 1 - Math.exp(-3 * dt) // Smooth exponential interpolation
+
+  const newPos = new Cesium.Cartesian3(
+    currentPos.x + (targetPos.x - currentPos.x) * lerpFactor,
+    currentPos.y + (targetPos.y - currentPos.y) * lerpFactor,
+    currentPos.z + (targetPos.z - currentPos.z) * lerpFactor
+  )
+
+  cam.setView({
+    destination: newPos,
+    orientation: {
+      heading: Cesium.Math.toRadians(0),
+      pitch: Cesium.Math.toRadians(-25),
+      roll: 0,
+    },
+  })
 }
 
 function updateClock(viewer) {
@@ -317,7 +359,7 @@ function updateMassPanel(iv, cumGt) {
   els.massTakeoff.textContent = `${(takeoff / 1000).toFixed(1)} t`
   els.massCurrent.textContent = `${(current / 1000).toFixed(1)} t`
   els.massLanding.textContent = `${(landing / 1000).toFixed(1)} t`
-  els.massFuelRem.textContent = `${remaining.toFixed(0)} kg`
+  els.hudFuelRemaining.textContent = `${remaining.toFixed(0)} kg`
   els.massFuelBurn.textContent = `${cumGt.toFixed(0)} kg`
   els.massBurnRate.textContent = `${burnRate.toFixed(2)} kg/s`
   els.massFuelFrac.textContent = `${((remaining / takeoff) * 100).toFixed(1)}%`
@@ -333,22 +375,14 @@ function updatePredictionComparison(iv, idx, cumGt, cumPhys, cumR3) {
   const r3 = iv.r3Prediction
   const physErr = phys - gt
   const r3Err = r3 - gt
-
-  // Running RMSE.
-  state.sumSqPhysicsErr += physErr ** 2
-  state.sumSqR3Err += r3Err ** 2
-  state.count++
-  const physRmse = Math.sqrt(state.sumSqPhysicsErr / state.count)
-  const r3Rmse = Math.sqrt(state.sumSqR3Err / state.count)
+  const r3RelErr = gt > 0 ? (Math.abs(r3Err) / gt) * 100 : 0
 
   els.predGt.textContent = `${gt.toFixed(0)} kg`
   els.predOpenap.textContent = `${phys.toFixed(0)} kg`
   els.predR3.textContent = `${r3.toFixed(0)} kg`
   els.predOpenapErr.textContent = `${physErr >= 0 ? '+' : ''}${physErr.toFixed(0)} kg`
   els.predR3Err.textContent = `${r3Err >= 0 ? '+' : ''}${r3Err.toFixed(0)} kg`
-  els.predOpenapRmse.textContent = `${physRmse.toFixed(0)} kg`
-  els.predR3Rmse.textContent = `${r3Rmse.toFixed(0)} kg`
-  els.predImprovement.textContent = `${(physRmse - r3Rmse).toFixed(0)} kg`
+  els.predR3Rel.textContent = `${r3RelErr.toFixed(1)}%`
 
   // Chart data (sample every few intervals).
   if (state.chartActual.length <= idx) {
@@ -428,6 +462,20 @@ document.getElementById('launchBtn').addEventListener('click', () => {
     const e = document.getElementById('hudEngine')
     if (e) e.textContent = 'Error: ' + err.message
   })
+})
+
+// Back button: stop the viewer and return to home.
+document.getElementById('backBtn').addEventListener('click', () => {
+  // Stop the clock and destroy the viewer to free WebGL resources.
+  if (state.viewer) {
+    state.viewer.clock.shouldAnimate = false
+    state.viewer.destroy()
+    state.viewer = null
+  }
+  state.running = false
+  // Show home overlay, hide sim UI.
+  document.getElementById('homeOverlay').classList.remove('hidden')
+  document.getElementById('simUI').classList.remove('ready')
 })
 
 if (new URLSearchParams(location.search).get('autolaunch') === '1') {

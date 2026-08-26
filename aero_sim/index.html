@@ -266,64 +266,99 @@
         top: var(--inset);
         right: var(--inset);
         z-index: 30;
-        width: 216px;
+        width: 300px;
         display: flex;
         flex-direction: column;
-        gap: 14px;
+        gap: 12px;
+        max-height: calc(100vh - var(--inset) * 2 - 90px);
+        overflow-y: auto;
       }
 
-      /* Force meters (thrust / drag / lift) */
-      #forcePanel {
-        padding: 16px;
+      /* Section cards */
+      .panel-card {
+        padding: 14px 16px;
+        background: rgba(14, 14, 14, 0.85);
+        border: 1px solid var(--panel-border);
+        border-radius: var(--radius);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
       }
+      .panel-card.accent {
+        border-color: rgba(220, 20, 20, 0.4);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(220, 20, 20, 0.15);
+      }
+
+      .panel-label {
+        font-size: 10px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1.4px;
+        color: var(--muted);
+        margin-bottom: 12px;
+      }
+      .panel-label .badge {
+        float: right;
+        font-size: 9px;
+        font-weight: 600;
+        padding: 2px 6px;
+        border-radius: 4px;
+        letter-spacing: 0.5px;
+      }
+      .badge.live {
+        background: rgba(70, 215, 160, 0.2);
+        color: #46d7a0;
+      }
+      .badge.benchmark {
+        background: rgba(255, 255, 255, 0.1);
+        color: var(--muted);
+      }
+      .badge.ground-truth {
+        background: rgba(255, 255, 255, 0.15);
+        color: #ffffff;
+      }
+
+      /* Force meters (compact) */
       .force-meter {
-        margin-bottom: 14px;
+        margin-bottom: 10px;
       }
       .force-header {
         display: flex;
         justify-content: space-between;
         align-items: baseline;
-        margin-bottom: 5px;
+        margin-bottom: 4px;
       }
       .force-name {
-        font-size: 11px;
+        font-size: 10px;
         font-weight: 700;
         text-transform: uppercase;
-        letter-spacing: 1px;
+        letter-spacing: 0.8px;
         color: var(--text-dim);
       }
       .force-val {
-        font-size: 14px;
+        font-size: 13px;
         font-weight: 800;
         color: var(--text);
         font-variant-numeric: tabular-nums;
       }
       .force-track {
-        height: 8px;
-        border-radius: 5px;
+        height: 6px;
+        border-radius: 4px;
         background: rgba(255, 255, 255, 0.07);
         overflow: hidden;
       }
       .force-fill {
         height: 100%;
         width: 0%;
-        border-radius: 5px;
+        border-radius: 4px;
         transition: width 0.2s ease;
       }
-      .force-fill.thrust {
-        background: linear-gradient(90deg, #ff8c00, #dc1414);
-      }
-      .force-fill.drag {
-        background: linear-gradient(90deg, #4a90d9, #87ceeb);
-      }
-      .force-fill.lift {
-        background: linear-gradient(90deg, #dc1414, #ffffff);
-      }
+      .force-fill.thrust { background: linear-gradient(90deg, #ff8c00, #dc1414); }
+      .force-fill.drag { background: linear-gradient(90deg, #3a7bd5, #6daedd); }
+      .force-fill.lift { background: linear-gradient(90deg, #555, #aaa); }
       .force-legend {
         display: flex;
         justify-content: space-between;
-        margin-top: 14px;
-        padding-top: 12px;
+        margin-top: 10px;
+        padding-top: 8px;
         border-top: 1px solid var(--panel-border);
         font-size: 9px;
         text-transform: uppercase;
@@ -336,19 +371,19 @@
         gap: 4px;
       }
       .force-dot {
-        width: 8px;
-        height: 8px;
+        width: 7px;
+        height: 7px;
         border-radius: 2px;
         display: inline-block;
       }
-      .force-dot.thrust {
-        background: #dc1414;
-      }
-      .force-dot.drag {
-        background: #87ceeb;
-      }
-      .force-dot.lift {
-        background: #ffffff;
+      .force-dot.thrust { background: #dc1414; }
+      .force-dot.drag { background: #6daedd; }
+      .force-dot.lift { background: #aaa; }
+      .force-note {
+        margin-top: 8px;
+        font-size: 9px;
+        color: var(--muted);
+        opacity: 0.7;
       }
       .fuel-readout {
         margin-top: 12px;
@@ -403,24 +438,29 @@
       }
 
       /* R3 Dynamic Mass panel */
-      #massPanel {
-        padding: 14px 16px;
+      .mass-section-label {
+        font-size: 11px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        color: #ffffff;
+        margin: 10px 0 6px;
+        padding-bottom: 4px;
+        border-bottom: 1px solid var(--panel-border);
       }
+      .mass-section-label:first-child { margin-top: 0; }
       .mass-row {
         display: flex;
         justify-content: space-between;
         align-items: baseline;
-        padding: 5px 0;
+        padding: 4px 0;
       }
-      .mass-row.highlight .mass-val {
-        color: #ffffff;
-        font-size: 15px;
-      }
+      .mass-row.highlight .mass-val { color: #ffffff; font-size: 15px; }
       .mass-label {
         font-size: 10px;
         font-weight: 600;
         text-transform: uppercase;
-        letter-spacing: 0.6px;
+        letter-spacing: 0.5px;
         color: var(--muted);
       }
       .mass-val {
@@ -428,11 +468,6 @@
         font-weight: 700;
         color: var(--text-dim);
         font-variant-numeric: tabular-nums;
-      }
-      .mass-sep {
-        height: 1px;
-        background: var(--panel-border);
-        margin: 8px 0;
       }
       .mass-note {
         margin-top: 10px;
@@ -443,16 +478,28 @@
         opacity: 0.7;
       }
 
-      /* Fuel Prediction comparison panel */
-      #predPanel {
-        padding: 14px 16px;
+      /* Fuel Prediction panel */
+      .pred-section-label {
+        font-size: 11px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        margin: 10px 0 6px;
+        padding-bottom: 4px;
+        border-bottom: 1px solid var(--panel-border);
       }
+      .pred-section-label:first-child { margin-top: 0; }
+      .pred-section-label.ground-truth { color: #ffffff; }
+      .pred-section-label.benchmark { color: rgba(255,255,255,0.6); }
+      .pred-section-label.model { color: #dc1414; }
+      .pred-section-label.error { color: #46d7a0; }
       .pred-row {
         display: flex;
         justify-content: space-between;
         align-items: baseline;
         padding: 4px 0;
       }
+      .pred-row.highlight .pred-val { color: #ffffff; font-size: 15px; }
       .pred-label {
         font-size: 10px;
         font-weight: 600;
@@ -466,62 +513,35 @@
         color: var(--text-dim);
         font-variant-numeric: tabular-nums;
       }
-      .pred-sep {
-        height: 1px;
-        background: var(--panel-border);
-        margin: 8px 0;
-      }
+      .pred-val.err { color: rgba(255, 255, 255, 0.5); }
+      .pred-val.good { color: #46d7a0; }
       .pred-chart-wrap {
-        margin-top: 10px;
-        background: rgba(0, 0, 0, 0.25);
+        margin-top: 12px;
+        background: rgba(0, 0, 0, 0.3);
         border-radius: 6px;
-        padding: 4px;
+        padding: 6px;
+        border: 1px solid rgba(255, 255, 255, 0.05);
       }
       #predChart {
         display: block;
         width: 100%;
-        height: 80px;
+        height: 90px;
       }
       .pred-legend-chart {
         display: flex;
         justify-content: center;
-        gap: 16px;
-        margin-top: 6px;
+        gap: 14px;
+        margin-top: 8px;
         font-size: 9px;
         text-transform: uppercase;
         letter-spacing: 0.5px;
         color: var(--muted);
       }
-      .pred-legend-chart span {
-        display: flex;
-        align-items: center;
-        gap: 4px;
-      }
-      .pred-dot {
-        width: 8px;
-        height: 8px;
-        border-radius: 2px;
-        display: inline-block;
-      }
-      .pred-dot.actual {
-        background: rgba(255, 255, 255, 0.85);
-      }
-      .pred-dot.r3 {
-        background: #dc1414;
-      }
-      .pred-dot.gt {
-        background: #ffffff;
-      }
-      .pred-dot.openap {
-        background: rgba(255, 255, 255, 0.4);
-      }
-      .pred-row.improve .pred-val {
-        color: #46d7a0;
-        font-size: 14px;
-      }
-      .pred-row .pred-val.err {
-        color: rgba(255, 255, 255, 0.6);
-      }
+      .pred-legend-chart span { display: flex; align-items: center; gap: 4px; }
+      .pred-dot { width: 8px; height: 8px; border-radius: 2px; display: inline-block; }
+      .pred-dot.gt { background: #ffffff; }
+      .pred-dot.openap { background: rgba(255, 255, 255, 0.4); }
+      .pred-dot.r3 { background: #dc1414; }
       .pred-note {
         margin-top: 8px;
         font-size: 9px;
@@ -529,6 +549,74 @@
         text-align: center;
         letter-spacing: 0.3px;
         opacity: 0.7;
+      }
+
+      /* Benchmark Performance (static) */
+      .bench-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        padding: 5px 0;
+      }
+      .bench-row.highlight .bench-val {
+        color: #ffffff;
+        font-size: 14px;
+      }
+      .bench-row.improve .bench-val {
+        color: #46d7a0;
+      }
+      .bench-label {
+        font-size: 10px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: var(--muted);
+      }
+      .bench-val {
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--text-dim);
+        font-variant-numeric: tabular-nums;
+      }
+      .bench-sep {
+        height: 1px;
+        background: var(--panel-border);
+        margin: 8px 0;
+      }
+      .bench-note {
+        margin-top: 10px;
+        font-size: 9px;
+        color: var(--muted);
+        text-align: center;
+        letter-spacing: 0.3px;
+        opacity: 0.7;
+      }
+
+      /* Back button */
+      .back-btn {
+        position: fixed;
+        bottom: 80px;
+        left: var(--inset);
+        z-index: 40;
+        padding: 8px 14px;
+        font-size: 12px;
+        font-weight: 600;
+        font-family: inherit;
+        color: #b0b0b0;
+        background: rgba(18, 18, 18, 0.82);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.15s;
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+      .back-btn:hover {
+        color: #ffffff;
+        border-color: rgba(255, 255, 255, 0.3);
+        background: rgba(30, 30, 30, 0.9);
       }
 
       /* ================= TOP CENTER: camera ================= */
@@ -756,49 +844,128 @@
         text-align: center;
       }
 
-      /* How-it-works cards */
-      .home-cards {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
+      /* Research Pipeline */
+      .pipeline {
+        display: flex;
+        flex-direction: column;
         gap: 0;
       }
-      .home-card {
-        padding: 22px 20px;
-        text-align: left;
-        background: rgba(255, 255, 255, 0.03);
-        border: 1px solid rgba(255, 255, 255, 0.08);
+      .pipeline-step {
+        display: flex;
+        align-items: flex-start;
+        gap: 16px;
+        padding: 16px 18px;
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid rgba(255, 255, 255, 0.07);
         transition: background 0.2s, border-color 0.2s;
       }
-      .home-card:first-child {
-        border-radius: var(--radius) 0 0 var(--radius);
+      .pipeline-step:first-child {
+        border-radius: var(--radius) var(--radius) 0 0;
       }
-      .home-card:last-child {
-        border-radius: 0 var(--radius) var(--radius) 0;
+      .pipeline-step:last-child {
+        border-radius: 0 0 var(--radius) var(--radius);
       }
-      .home-card + .home-card {
-        border-left: none;
+      .pipeline-step + .pipeline-step {
+        border-top: none;
       }
-      .home-card:hover {
+      .pipeline-step:hover {
+        background: rgba(255, 255, 255, 0.04);
+      }
+      .pipeline-step.accent {
         background: rgba(220, 20, 20, 0.06);
-        border-color: rgba(220, 20, 20, 0.3);
+        border-color: rgba(220, 20, 20, 0.25);
       }
-      .home-card-num {
+      .pipeline-step.accent:hover {
+        background: rgba(220, 20, 20, 0.1);
+        border-color: rgba(220, 20, 20, 0.4);
+      }
+      .pipeline-num {
         font-size: 11px;
         font-weight: 800;
         letter-spacing: 1px;
         color: #dc1414;
-        margin-bottom: 12px;
+        min-width: 24px;
+        padding-top: 2px;
       }
-      .home-card h3 {
-        font-size: 15px;
+      .pipeline-body h3 {
+        font-size: 14px;
         font-weight: 700;
-        margin: 0 0 8px;
+        margin: 0 0 4px;
         color: #ffffff;
       }
-      .home-card p {
+      .pipeline-body p {
         font-size: 12px;
-        color: #909090;
-        line-height: 1.6;
+        color: #888;
+        line-height: 1.5;
+        margin: 0;
+      }
+      .pipeline-arrow {
+        text-align: center;
+        color: rgba(255, 255, 255, 0.2);
+        font-size: 12px;
+        padding: 4px 0;
+        line-height: 1;
+      }
+
+      /* Key Result */
+      .key-result {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 14px;
+      }
+      .kr-metric {
+        text-align: center;
+        padding: 20px 16px;
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid rgba(255, 255, 255, 0.07);
+        border-radius: var(--radius);
+      }
+      .kr-value {
+        font-size: 28px;
+        font-weight: 900;
+        color: #ffffff;
+        line-height: 1.1;
+      }
+      .kr-unit {
+        font-size: 14px;
+        font-weight: 600;
+        color: #dc1414;
+        margin-left: 2px;
+      }
+      .kr-label {
+        font-size: 10px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        color: #888;
+        margin-top: 8px;
+      }
+      .kr-note {
+        text-align: center;
+        font-size: 10px;
+        color: #606060;
+        margin-top: 14px;
+        letter-spacing: 0.3px;
+      }
+
+      /* Secondary CTA */
+      .home-secondary {
+        display: inline-block;
+        margin-top: 16px;
+        font-size: 12px;
+        font-weight: 600;
+        color: #888;
+        text-decoration: none;
+        padding: 8px 16px;
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 8px;
+        transition: color 0.15s, border-color 0.15s;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+      .home-secondary:hover {
+        color: #ffffff;
+        border-color: rgba(255, 255, 255, 0.4);
       }
 
       /* What you'll see */
@@ -872,19 +1039,10 @@
       }
 
       @media (max-width: 680px) {
-        .home-cards {
+        .home-show {
           grid-template-columns: 1fr;
         }
-        .home-card,
-        .home-card:first-child,
-        .home-card:last-child {
-          border-radius: 0;
-        }
-        .home-card + .home-card {
-          border-left: 1px solid rgba(255, 255, 255, 0.08);
-          border-top: none;
-        }
-        .home-show {
+        .key-result {
           grid-template-columns: 1fr;
         }
         .home-hero h1 {
@@ -936,72 +1094,115 @@
     <div id="homeOverlay">
       <div class="home-scroll">
         <header class="home-hero">
-          <div class="home-logo">AS</div>
+          <div class="home-logo">AF</div>
           <h1>AeroFlux</h1>
-          <p class="home-tagline">An Aviation Physics-Informed Machine Learning Framework for Fuel-Flow Prediction</p>
+          <p class="home-tagline">PHYSICS-GUIDED MACHINE LEARNING FOR AIRCRAFT FUEL CONSUMPTION PREDICTION</p>
           <p class="home-lede">
-            Watch a trained model predict fuel burn for every segment of a real
-            flight &mdash; rendered live on a 3D globe. A physics baseline plus
-            machine learning, distilled into a compact neural network that runs
-            right in your browser.
+            Predict aircraft fuel consumption from sparse flight data by combining aircraft-performance physics, dynamic mass representation, and machine learning.
           </p>
         </header>
 
         <section class="home-section">
-          <h2>How it works</h2>
-          <div class="home-cards">
-            <div class="home-card">
-              <div class="home-card-num">01</div>
-              <h3>Physics Baseline</h3>
-              <p>
-                OpenAP estimates fuel flow from aircraft type, true airspeed,
-                altitude, vertical rate, and mass &mdash; an interpretable
-                first-principles model.
-              </p>
+          <h2>Research Pipeline</h2>
+          <div class="pipeline">
+            <div class="pipeline-step">
+              <div class="pipeline-num">01</div>
+              <div class="pipeline-body">
+                <h3>Flight Data</h3>
+                <p>Fused ADS-B and ACARS telemetry from EUROCONTROL PRC 2025 challenge. Sparse, noisy, incomplete.</p>
+              </div>
             </div>
-            <div class="home-card">
-              <div class="home-card-num">02</div>
-              <h3>Residual Learning</h3>
-              <p>
-                Gradient-boosted models (XGBoost, LightGBM, CatBoost) learn the
-                gap between physics and reality &mdash; sparse telemetry,
-                missing air-data, unknown aircraft mass.
-              </p>
+            <div class="pipeline-arrow">&darr;</div>
+            <div class="pipeline-step">
+              <div class="pipeline-num">02</div>
+              <div class="pipeline-body">
+                <h3>Physics Baseline</h3>
+                <p>OpenAP first-principles fuel-flow estimate from aircraft type, speed, altitude, vertical rate, and reference mass.</p>
+              </div>
             </div>
-            <div class="home-card">
-              <div class="home-card-num">03</div>
-              <h3>Distillation</h3>
-              <p>
-                The frozen ensemble teacher trains a compact MLP student that
-                runs in-browser via ONNX Runtime Web &mdash; no server needed.
-              </p>
+            <div class="pipeline-arrow">&darr;</div>
+            <div class="pipeline-step accent">
+              <div class="pipeline-num">03</div>
+              <div class="pipeline-body">
+                <h3>Dynamic Mass</h3>
+                <p>Key R3 contribution: estimate aircraft mass in-flight from fuel-burn dynamics. Mass is rarely known but central to prediction.</p>
+              </div>
+            </div>
+            <div class="pipeline-arrow">&darr;</div>
+            <div class="pipeline-step">
+              <div class="pipeline-num">04</div>
+              <div class="pipeline-body">
+                <h3>R3 Ensemble</h3>
+                <p>Stacked gradient-boosted models (XGBoost, LightGBM, CatBoost) learn the residual between physics and reality.</p>
+              </div>
+            </div>
+            <div class="pipeline-arrow">&darr;</div>
+            <div class="pipeline-step">
+              <div class="pipeline-num">05</div>
+              <div class="pipeline-body">
+                <h3>Distilled Model</h3>
+                <p>Frozen teacher trains a compact MLP student. Runs in-browser via ONNX Runtime Web.</p>
+              </div>
+            </div>
+            <div class="pipeline-arrow">&darr;</div>
+            <div class="pipeline-step">
+              <div class="pipeline-num">06</div>
+              <div class="pipeline-body">
+                <h3>Fuel Prediction</h3>
+                <p>Per-interval fuel burn prediction validated against ground-truth labels.</p>
+              </div>
             </div>
           </div>
         </section>
 
         <section class="home-section">
-          <h2>What the simulation shows</h2>
+          <h2>Key Result</h2>
+          <div class="key-result">
+            <div class="kr-metric">
+              <div class="kr-value">221.33<span class="kr-unit">kg</span></div>
+              <div class="kr-label">R3 Combined RMSE</div>
+            </div>
+            <div class="kr-metric">
+              <div class="kr-value">~200<span class="kr-unit">&times;</span></div>
+              <div class="kr-label">Lower CPU Latency</div>
+            </div>
+            <div class="kr-metric">
+              <div class="kr-value">215.85<span class="kr-unit">kg</span></div>
+              <div class="kr-label">Student Final RMSE</div>
+            </div>
+          </div>
+          <p class="kr-note">Benchmark results on PRC 2025 test set. Not per-flight error.</p>
+        </section>
+
+        <section class="home-section">
+          <h2>What the Simulation Shows</h2>
           <div class="home-show">
             <div class="home-show-item">
-              <span class="dot red"></span>An animated aircraft following a real great-circle route
+              <span class="dot red"></span>Live aircraft trajectory on a 3D globe
             </div>
             <div class="home-show-item">
-              <span class="dot white"></span>Segments colored by predicted fuel burn
+              <span class="dot white"></span>Dynamic aircraft mass evolving over the flight
             </div>
             <div class="home-show-item">
-              <span class="dot"></span>A live 3D fuel gauge that depletes in real time
+              <span class="dot"></span>Fuel burn evolution across flight intervals
             </div>
             <div class="home-show-item">
-              <span class="dot"></span>Route picker, playback speed &amp; camera controls
+              <span class="dot"></span>R3 fuel prediction vs ground truth
+            </div>
+            <div class="home-show-item">
+              <span class="dot"></span>Prediction error and relative error
+            </div>
+            <div class="home-show-item">
+              <span class="dot"></span>Aircraft performance state (thrust, drag, lift)
             </div>
           </div>
         </section>
 
         <div class="home-cta">
-          <button class="home-launch" id="launchBtn">Launch Simulation →</button>
+          <button class="home-launch" id="launchBtn">LAUNCH SIMULATION &rarr;</button>
+          <a class="home-secondary" href="README.md">View Research</a>
           <p class="home-note">
-            Data: EUROCONTROL PRC 2025 challenge · Best ensemble RMSE 221 kg ·
-            Distilled student runs via ONNX
+            Data: EUROCONTROL PRC 2025 challenge &middot; R3 Combined RMSE 221.33 kg &middot; Distilled student via ONNX
           </p>
         </div>
       </div>
@@ -1010,6 +1211,9 @@
     <!-- ================= SIMULATION ================= -->
     <div id="simUI" aria-hidden="true">
     <div id="cesiumContainer"></div>
+
+    <!-- Back button -->
+    <button id="backBtn" class="back-btn" title="Back to Home">&larr; Home</button>
 
     <!-- Top center: camera mode -->
     <div id="cameraMode" class="glass">
@@ -1065,10 +1269,11 @@
       </section>
     </aside>
 
-    <!-- Right rail: force meters + legend -->
-    <aside id="rightRail" class="glass">
-      <section id="forcePanel">
-        <div class="panel-label">Aerodynamic Forces</div>
+    <!-- Right rail: forces + mass + prediction -->
+    <aside id="rightRail">
+      <!-- Aerodynamic Forces -->
+      <section class="panel-card">
+        <div class="panel-label">Aerodynamic Forces <span class="badge live">Live</span></div>
 
         <div class="force-meter">
           <div class="force-header">
@@ -1094,64 +1299,75 @@
           <div class="force-track"><div class="force-fill lift" id="liftFill"></div></div>
         </div>
 
-        <div class="force-legend">
-          <span><span class="force-dot thrust"></span>Forward</span>
-          <span><span class="force-dot drag"></span>Resist</span>
-          <span><span class="force-dot lift"></span>Support</span>
-        </div>
-
-        <div class="fuel-readout">
-          <span>Fuel <b id="hudFuelRemaining">—</b> kg</span>
-          <span>of <b id="hudFuelTotal">—</b></span>
-        </div>
+        <div class="force-note">Normalized to typical max &middot; flight-phase derived</div>
       </section>
 
-      <section id="legend">
-        <div class="panel-label">Segment Burn</div>
-        <div class="legend-row"><span class="dot green"></span>Low burn</div>
-        <div class="legend-row"><span class="dot orange"></span>Medium burn</div>
-        <div class="legend-row"><span class="dot red"></span>High burn</div>
-        <div class="legend-row"><span class="dot blue"></span>Aircraft</div>
+      <!-- R3 Dynamic Mass -->
+      <section class="panel-card accent">
+        <div class="panel-label">R3 Dynamic Mass <span class="badge live">Live</span></div>
+
+        <div class="mass-section-label">Aircraft State</div>
+        <div class="mass-row"><span class="mass-label">Takeoff Mass</span><span class="mass-val" id="massTakeoff">&mdash;</span></div>
+        <div class="mass-row highlight"><span class="mass-label">Current Mass</span><span class="mass-val" id="massCurrent">&mdash;</span></div>
+        <div class="mass-row"><span class="mass-label">Est. Landing Mass</span><span class="mass-val" id="massLanding">&mdash;</span></div>
+
+        <div class="mass-section-label">Fuel State</div>
+        <div class="mass-row"><span class="mass-label">Fuel Remaining</span><span class="mass-val" id="hudFuelRemaining">&mdash;</span></div>
+        <div class="mass-row"><span class="mass-label">Cumulative Burn</span><span class="mass-val" id="massFuelBurn">&mdash;</span></div>
+        <div class="mass-row"><span class="mass-label">Burn Rate</span><span class="mass-val" id="massBurnRate">&mdash;</span></div>
+        <div class="mass-row"><span class="mass-label">Fuel Fraction</span><span class="mass-val" id="massFuelFrac">&mdash;</span></div>
+
+        <div class="mass-section-label">Derived</div>
+        <div class="mass-row"><span class="mass-label">Mass Rate</span><span class="mass-val" id="massRate">&mdash;</span></div>
+        <div class="mass-row"><span class="mass-label">Wing Loading</span><span class="mass-val" id="massWingLoad">&mdash;</span></div>
+        <div class="mass-row"><span class="mass-label">Flight Phase</span><span class="mass-val" id="massPhase">&mdash;</span></div>
+
+        <div class="mass-note">Model-estimated from fuel burn &middot; not telemetry</div>
       </section>
 
-      <section id="massPanel">
-        <div class="panel-label">R3 Dynamic Mass</div>
-        <div class="mass-row"><span class="mass-label">Takeoff Mass</span><span class="mass-val" id="massTakeoff">—</span></div>
-        <div class="mass-row highlight"><span class="mass-label">Current Mass</span><span class="mass-val" id="massCurrent">—</span></div>
-        <div class="mass-row"><span class="mass-label">Est. Landing Mass</span><span class="mass-val" id="massLanding">—</span></div>
-        <div class="mass-sep"></div>
-        <div class="mass-row"><span class="mass-label">Fuel Remaining</span><span class="mass-val" id="massFuelRem">—</span></div>
-        <div class="mass-row"><span class="mass-label">Cumulative Burn</span><span class="mass-val" id="massFuelBurn">—</span></div>
-        <div class="mass-row"><span class="mass-label">Burn Rate</span><span class="mass-val" id="massBurnRate">—</span></div>
-        <div class="mass-sep"></div>
-        <div class="mass-row"><span class="mass-label">Fuel Fraction</span><span class="mass-val" id="massFuelFrac">—</span></div>
-        <div class="mass-row"><span class="mass-label">Mass Rate</span><span class="mass-val" id="massRate">—</span></div>
-        <div class="mass-row"><span class="mass-label">Wing Loading</span><span class="mass-val" id="massWingLoad">—</span></div>
-        <div class="mass-row"><span class="mass-label">Flight Phase</span><span class="mass-val" id="massPhase">—</span></div>
-        <div class="mass-note">Values are model-estimated, not measured telemetry</div>
-      </section>
+      <!-- Fuel Prediction: Current Flight -->
+      <section class="panel-card accent">
+        <div class="panel-label">Fuel Prediction &mdash; Current Flight <span class="badge live">Live</span></div>
 
-      <section id="predPanel">
-        <div class="panel-label">Fuel Prediction — Live Comparison</div>
-        <div class="pred-row"><span class="pred-label">Ground Truth</span><span class="pred-val" id="predGt">—</span></div>
-        <div class="pred-row"><span class="pred-label">OpenAP Baseline</span><span class="pred-val" id="predOpenap">—</span></div>
-        <div class="pred-row highlight"><span class="pred-label">AeroTwin R3</span><span class="pred-val" id="predR3">—</span></div>
+        <div class="pred-section-label ground-truth">Ground Truth (Measured)</div>
+        <div class="pred-row"><span class="pred-label">Actual Fuel</span><span class="pred-val" id="predGt">&mdash;</span></div>
+
+        <div class="pred-section-label benchmark">Baseline Prediction</div>
+        <div class="pred-row"><span class="pred-label">OpenAP Physics</span><span class="pred-val" id="predOpenap">&mdash;</span></div>
+
+        <div class="pred-section-label model">AeroTwin R3</div>
+        <div class="pred-row highlight"><span class="pred-label">R3 Prediction</span><span class="pred-val" id="predR3">&mdash;</span></div>
+
         <div class="pred-sep"></div>
-        <div class="pred-row"><span class="pred-label">OpenAP Error</span><span class="pred-val err" id="predOpenapErr">—</span></div>
-        <div class="pred-row"><span class="pred-label">R3 Error</span><span class="pred-val err" id="predR3Err">—</span></div>
-        <div class="pred-sep"></div>
-        <div class="pred-row"><span class="pred-label">OpenAP RMSE</span><span class="pred-val" id="predOpenapRmse">—</span></div>
-        <div class="pred-row highlight"><span class="pred-label">R3 RMSE</span><span class="pred-val" id="predR3Rmse">—</span></div>
-        <div class="pred-row improve"><span class="pred-label">Improvement</span><span class="pred-val" id="predImprovement">—</span></div>
+
+        <div class="pred-section-label error">Error Analysis</div>
+        <div class="pred-row"><span class="pred-label">OpenAP Abs Error</span><span class="pred-val err" id="predOpenapErr">&mdash;</span></div>
+        <div class="pred-row"><span class="pred-label">R3 Abs Error</span><span class="pred-val err" id="predR3Err">&mdash;</span></div>
+        <div class="pred-row highlight"><span class="pred-label">R3 Relative Error</span><span class="pred-val" id="predR3Rel">&mdash;</span></div>
+
         <div class="pred-chart-wrap">
-          <canvas id="predChart" width="180" height="90"></canvas>
+          <canvas id="predChart" width="260" height="80"></canvas>
         </div>
         <div class="pred-legend-chart">
           <span><span class="pred-dot gt"></span>Truth</span>
           <span><span class="pred-dot openap"></span>OpenAP</span>
           <span><span class="pred-dot r3"></span>R3</span>
         </div>
-        <div class="pred-note">Real PRC test flight — actual fuel labels</div>
+        <div class="pred-note">Real PRC test flight &middot; actual fuel labels per interval</div>
+      </section>
+
+      <!-- Benchmark Performance (static aggregate metrics) -->
+      <section class="panel-card">
+        <div class="panel-label">Benchmark Performance <span class="badge benchmark">Aggregate</span></div>
+
+        <div class="bench-row"><span class="bench-label">R3 Combined RMSE</span><span class="bench-val">221.33 kg</span></div>
+        <div class="bench-row highlight"><span class="bench-label">R3 Final RMSE</span><span class="bench-val">213.73 kg</span></div>
+        <div class="bench-row"><span class="bench-label">Baseline RMSE</span><span class="bench-val">228.25 kg</span></div>
+        <div class="bench-sep"></div>
+        <div class="bench-row"><span class="bench-label">R3 Rank</span><span class="bench-val">232.53</span></div>
+        <div class="bench-row improve"><span class="bench-label">Final Rank</span><span class="bench-val">213.73</span></div>
+
+        <div class="bench-note">Test-set aggregate &middot; not single-flight</div>
       </section>
     </aside>
 
