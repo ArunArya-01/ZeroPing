@@ -46,6 +46,11 @@ export class FuelPredictor {
 
   async init() {
     try {
+      // Tell onnxruntime-web where to find its wasm binaries.
+      // Single-threaded mode avoids SharedArrayBuffer / MountedFiles requirements.
+      ort.env.wasm.wasmPaths = 'https://cdn.jsdelivr.net/npm/onnxruntime-web@1.29.0/dist/'
+      ort.env.wasm.numThreads = 1
+      ort.env.wasm.simd = true
       const [preprocRes, modelRes] = await Promise.all([
         fetch('/models/large_mlp.preproc.json'),
         fetch('/models/large_mlp.onnx'),
@@ -56,8 +61,9 @@ export class FuelPredictor {
         throw new Error('model files not found')
       }
       const preproc = await preprocRes.json()
-      const modelBuf = await modelRes.arrayBuffer()
-      this.session = await ort.InferenceSession.create(modelBuf, {
+      // Pass the URL so onnxruntime-web can resolve the external data file
+      // (large_mlp.onnx.data) which holds the model weights.
+      this.session = await ort.InferenceSession.create('/models/large_mlp.onnx', {
         executionProviders: ['wasm'],
       })
       this.preproc = preproc
@@ -66,7 +72,8 @@ export class FuelPredictor {
         preproc.onehot_categories.reduce((acc, c) => acc + c.length, 0)
       this.engine = 'onnx'
       return true
-    } catch {
+    } catch (e) {
+      console.warn('[FuelPredictor] ONNX load failed, using physics fallback:', e)
       this.session = null
       this.engine = 'physics-demo'
       return false

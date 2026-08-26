@@ -48,6 +48,12 @@ def _infer_architecture(blob: dict) -> tuple[int, list[int]]:
     in_dim = blob.get("in_dim")
     hidden = blob.get("hidden_dims")
     if not in_dim or not hidden:
+        # Fall back to model_config if present.
+        cfg = blob.get("model_config") or blob.get("config")
+        if cfg:
+            in_dim = in_dim or cfg.get("in_dim")
+            hidden = hidden or cfg.get("hidden_dims")
+    if not in_dim or not hidden:
         raise ValueError(
             "Checkpoint lacks in_dim/hidden_dims metadata; export requires them to "
             "reconstruct the architecture. Check the checkpoint was written by the "
@@ -69,7 +75,7 @@ def export_checkpoint(
     import torch.nn as nn
 
     blob = torch.load(checkpoint, map_location="cpu", weights_only=False)
-    in_dim, hidden_dims = _infer_architecture(blob["model_config"] or blob)
+    in_dim, hidden_dims = _infer_architecture(blob)
 
     from aerotwin.distillation.mlp import StudentMLP
 

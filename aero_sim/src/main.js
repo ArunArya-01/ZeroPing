@@ -561,3 +561,8 @@ document.getElementById('launchBtn').addEventListener('click', () => {
     if (e) e.textContent = 'Error: ' + err.message
   })
 })
+
+// Allow autolaunch via ?autolaunch=1 for automated testing.
+if (new URLSearchParams(location.search).get('autolaunch') === '1') {
+  document.getElementById('launchBtn')?.click()
+}
