@@ -272,47 +272,96 @@
         gap: 14px;
       }
 
-      /* Fuel panel */
-      #fuelPanel {
+      /* Force meters (thrust / drag / lift) */
+      #forcePanel {
         padding: 16px;
-        text-align: center;
       }
-      #fuelGaugeWrap {
-        position: relative;
-        width: 100%;
-        height: 168px;
-        border-radius: var(--radius-sm);
-        overflow: hidden;
-        background: radial-gradient(circle at 50% 38%, rgba(220, 20, 20, 0.12), transparent 72%);
+      .force-meter {
+        margin-bottom: 14px;
       }
-      #fuelGaugeWrap canvas {
-        display: block;
-        margin: 0 auto;
-      }
-      #fuelPct {
-        font-size: 30px;
-        font-weight: 800;
-        letter-spacing: 0.5px;
-        margin-top: 6px;
-        transition: color 0.4s;
-      }
-      #fuelPct span {
-        font-size: 14px;
-        font-weight: 500;
-        color: var(--muted);
-      }
-      .fuel-sub {
+      .force-header {
         display: flex;
         justify-content: space-between;
+        align-items: baseline;
+        margin-bottom: 5px;
+      }
+      .force-name {
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: var(--text-dim);
+      }
+      .force-val {
+        font-size: 14px;
+        font-weight: 800;
+        color: var(--text);
+        font-variant-numeric: tabular-nums;
+      }
+      .force-track {
+        height: 8px;
+        border-radius: 5px;
+        background: rgba(255, 255, 255, 0.07);
+        overflow: hidden;
+      }
+      .force-fill {
+        height: 100%;
+        width: 0%;
+        border-radius: 5px;
+        transition: width 0.2s ease;
+      }
+      .force-fill.thrust {
+        background: linear-gradient(90deg, #ff8c00, #dc1414);
+      }
+      .force-fill.drag {
+        background: linear-gradient(90deg, #4a90d9, #87ceeb);
+      }
+      .force-fill.lift {
+        background: linear-gradient(90deg, #dc1414, #ffffff);
+      }
+      .force-legend {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 14px;
+        padding-top: 12px;
+        border-top: 1px solid var(--panel-border);
+        font-size: 9px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: var(--muted);
+      }
+      .force-legend span {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
+      .force-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 2px;
+        display: inline-block;
+      }
+      .force-dot.thrust {
+        background: #dc1414;
+      }
+      .force-dot.drag {
+        background: #87ceeb;
+      }
+      .force-dot.lift {
+        background: #ffffff;
+      }
+      .fuel-readout {
         margin-top: 12px;
         padding-top: 12px;
         border-top: 1px solid var(--panel-border);
+        display: flex;
+        justify-content: space-between;
         font-size: 10px;
         text-transform: uppercase;
         letter-spacing: 0.5px;
         color: var(--muted);
       }
-      .fuel-sub b {
+      .fuel-readout b {
         display: block;
         margin-top: 2px;
         font-size: 13px;
@@ -351,6 +400,122 @@
       }
       .dot.blue {
         background: rgba(255, 255, 255, 0.85);
+      }
+
+      /* R3 Dynamic Mass panel */
+      #massPanel {
+        padding: 14px 16px;
+      }
+      .mass-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        padding: 5px 0;
+      }
+      .mass-row.highlight .mass-val {
+        color: #ffffff;
+        font-size: 15px;
+      }
+      .mass-label {
+        font-size: 10px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
+        color: var(--muted);
+      }
+      .mass-val {
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--text-dim);
+        font-variant-numeric: tabular-nums;
+      }
+      .mass-sep {
+        height: 1px;
+        background: var(--panel-border);
+        margin: 8px 0;
+      }
+      .mass-note {
+        margin-top: 10px;
+        font-size: 9px;
+        color: var(--muted);
+        text-align: center;
+        letter-spacing: 0.3px;
+        opacity: 0.7;
+      }
+
+      /* Fuel Prediction comparison panel */
+      #predPanel {
+        padding: 14px 16px;
+      }
+      .pred-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        padding: 4px 0;
+      }
+      .pred-label {
+        font-size: 10px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: var(--muted);
+      }
+      .pred-val {
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--text-dim);
+        font-variant-numeric: tabular-nums;
+      }
+      .pred-sep {
+        height: 1px;
+        background: var(--panel-border);
+        margin: 8px 0;
+      }
+      .pred-chart-wrap {
+        margin-top: 10px;
+        background: rgba(0, 0, 0, 0.25);
+        border-radius: 6px;
+        padding: 4px;
+      }
+      #predChart {
+        display: block;
+        width: 100%;
+        height: 80px;
+      }
+      .pred-legend-chart {
+        display: flex;
+        justify-content: center;
+        gap: 16px;
+        margin-top: 6px;
+        font-size: 9px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: var(--muted);
+      }
+      .pred-legend-chart span {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
+      .pred-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 2px;
+        display: inline-block;
+      }
+      .pred-dot.actual {
+        background: rgba(255, 255, 255, 0.85);
+      }
+      .pred-dot.r3 {
+        background: #dc1414;
+      }
+      .pred-note {
+        margin-top: 8px;
+        font-size: 9px;
+        color: var(--muted);
+        text-align: center;
+        letter-spacing: 0.3px;
+        opacity: 0.7;
       }
 
       /* ================= TOP CENTER: camera ================= */
@@ -887,15 +1052,44 @@
       </section>
     </aside>
 
-    <!-- Right rail: fuel gauge + legend -->
+    <!-- Right rail: force meters + legend -->
     <aside id="rightRail" class="glass">
-      <section id="fuelPanel">
-        <div class="panel-label">Fuel Remaining</div>
-        <div id="fuelGaugeWrap"></div>
-        <div id="fuelPct">100<span>%</span></div>
-        <div class="fuel-sub">
-          <span>Left<b id="hudFuelRemaining">—</b></span>
-          <span>Total<b id="hudFuelTotal">—</b></span>
+      <section id="forcePanel">
+        <div class="panel-label">Aerodynamic Forces</div>
+
+        <div class="force-meter">
+          <div class="force-header">
+            <span class="force-name">Thrust</span>
+            <span class="force-val" id="thrustVal">0%</span>
+          </div>
+          <div class="force-track"><div class="force-fill thrust" id="thrustFill"></div></div>
+        </div>
+
+        <div class="force-meter">
+          <div class="force-header">
+            <span class="force-name">Drag</span>
+            <span class="force-val" id="dragVal">0%</span>
+          </div>
+          <div class="force-track"><div class="force-fill drag" id="dragFill"></div></div>
+        </div>
+
+        <div class="force-meter">
+          <div class="force-header">
+            <span class="force-name">Lift</span>
+            <span class="force-val" id="liftVal">0%</span>
+          </div>
+          <div class="force-track"><div class="force-fill lift" id="liftFill"></div></div>
+        </div>
+
+        <div class="force-legend">
+          <span><span class="force-dot thrust"></span>Forward</span>
+          <span><span class="force-dot drag"></span>Resist</span>
+          <span><span class="force-dot lift"></span>Support</span>
+        </div>
+
+        <div class="fuel-readout">
+          <span>Fuel <b id="hudFuelRemaining">—</b> kg</span>
+          <span>of <b id="hudFuelTotal">—</b></span>
         </div>
       </section>
 
@@ -905,6 +1099,40 @@
         <div class="legend-row"><span class="dot orange"></span>Medium burn</div>
         <div class="legend-row"><span class="dot red"></span>High burn</div>
         <div class="legend-row"><span class="dot blue"></span>Aircraft</div>
+      </section>
+
+      <section id="massPanel">
+        <div class="panel-label">R3 Dynamic Mass</div>
+        <div class="mass-row"><span class="mass-label">Takeoff Mass</span><span class="mass-val" id="massTakeoff">—</span></div>
+        <div class="mass-row highlight"><span class="mass-label">Current Mass</span><span class="mass-val" id="massCurrent">—</span></div>
+        <div class="mass-row"><span class="mass-label">Est. Landing Mass</span><span class="mass-val" id="massLanding">—</span></div>
+        <div class="mass-sep"></div>
+        <div class="mass-row"><span class="mass-label">Fuel Remaining</span><span class="mass-val" id="massFuelRem">—</span></div>
+        <div class="mass-row"><span class="mass-label">Cumulative Burn</span><span class="mass-val" id="massFuelBurn">—</span></div>
+        <div class="mass-row"><span class="mass-label">Burn Rate</span><span class="mass-val" id="massBurnRate">—</span></div>
+        <div class="mass-sep"></div>
+        <div class="mass-row"><span class="mass-label">Fuel Fraction</span><span class="mass-val" id="massFuelFrac">—</span></div>
+        <div class="mass-row"><span class="mass-label">Mass Rate</span><span class="mass-val" id="massRate">—</span></div>
+        <div class="mass-row"><span class="mass-label">Wing Loading</span><span class="mass-val" id="massWingLoad">—</span></div>
+        <div class="mass-row"><span class="mass-label">Flight Phase</span><span class="mass-val" id="massPhase">—</span></div>
+        <div class="mass-note">Values are model-estimated, not measured telemetry</div>
+      </section>
+
+      <section id="predPanel">
+        <div class="panel-label">Fuel Prediction Comparison</div>
+        <div class="pred-row"><span class="pred-label">Simulated Burn</span><span class="pred-val" id="predActual">—</span></div>
+        <div class="pred-row"><span class="pred-label">R3 Prediction</span><span class="pred-val" id="predR3">—</span></div>
+        <div class="pred-sep"></div>
+        <div class="pred-row"><span class="pred-label">Error</span><span class="pred-val" id="predError">—</span></div>
+        <div class="pred-row"><span class="pred-label">Relative Error</span><span class="pred-val" id="predRelErr">—</span></div>
+        <div class="pred-chart-wrap">
+          <canvas id="predChart" width="180" height="80"></canvas>
+        </div>
+        <div class="pred-legend-chart">
+          <span><span class="pred-dot actual"></span>Sim</span>
+          <span><span class="pred-dot r3"></span>R3</span>
+        </div>
+        <div class="pred-note">Synthetic data — no measured fuel used</div>
       </section>
     </aside>
 

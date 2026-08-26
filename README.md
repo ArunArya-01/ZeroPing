@@ -10,7 +10,7 @@
 
 ## Overview
 
-**AeroTwin** predicts interval-level aircraft fuel burn from real-world, fused ADS-B and ACARS telemetry (EUROCONTROL PRC 2025 challenge data). It evaluates a **hybrid physics + machine-learning** paradigm:
+**AeroFlux** predicts interval-level aircraft fuel burn from real-world, fused ADS-B and ACARS telemetry (EUROCONTROL PRC 2025 challenge data). It evaluates a **hybrid physics + machine-learning** paradigm:
 
 ```text
 predicted_fuel_kg = f(trajectory, aircraft, route, physics_fuel_kg, engineered_features)

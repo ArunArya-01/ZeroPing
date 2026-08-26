@@ -8,9 +8,16 @@ import 'cesium/Build/Cesium/Widgets/widgets.css'
 
 import { SAMPLE_ROUTES } from './data/routes.js'
 import { FuelPredictor } from './fuel.js'
-import { FuelGauge3D } from './threeScene.js'
 
 const SPEED_STEPS = [10, 50, 100, 250, 500, 1000, 2000]
+
+// Reference data per aircraft type (model-estimated, not measured).
+// OEW = Operating Empty Weight, wing area used for wing loading.
+const AIRCRAFT_DATA = {
+  A320: { oewKg: 42600, wingAreaM2: 122.6, maxFuelKg: 21600, payloadKg: 15000 },
+  B738: { oewKg: 41400, wingAreaM2: 124.6, maxFuelKg: 20800, payloadKg: 14500 },
+}
+const DEFAULT_AIRCRAFT = { oewKg: 45000, wingAreaM2: 130, maxFuelKg: 20000, payloadKg: 14000 }
 
 const state = {
   route: SAMPLE_ROUTES[0],
@@ -22,6 +29,14 @@ const state = {
   totalFuelKg: 0,
   totalDurationS: 0,
   running: false,
+  takeoffMassKg: 0,
+  currentMassKg: 0,
+  // Fuel prediction comparison (cumulative, for chart).
+  chartActual: [],
+  chartPredicted: [],
+  chartMaxFuel: 0,
+  // Physics-based "actual" fuel state.
+  actualFuelUsedKg: 0,
 }
 
 const els = {}
@@ -30,8 +45,12 @@ function grab() {
     'hudOrigin', 'hudOriginName', 'hudDest', 'hudDestName',
     'hudAircraft', 'hudDistance', 'hudElapsed', 'hudFuelUsed',
     'hudFuelRemaining', 'hudFuelTotal', 'hudEngine', 'hudProgress',
-    'progressBarFill', 'fuelPct', 'routeSelect', 'btnPause',
+    'progressBarFill', 'routeSelect', 'btnPause',
     'speedDown', 'speedUp', 'speedLabel',
+    'thrustVal', 'thrustFill', 'dragVal', 'dragFill', 'liftVal', 'liftFill',
+    'massTakeoff', 'massCurrent', 'massLanding', 'massFuelRem', 'massFuelBurn',
+    'massBurnRate', 'massFuelFrac', 'massRate', 'massWingLoad', 'massPhase',
+    'predActual', 'predR3', 'predError', 'predRelErr', 'predChart',
   ].forEach((id) => (els[id] = document.getElementById(id)))
 }
 
@@ -102,6 +121,16 @@ async function loadRoute(viewer, route) {
   state.segPredictions = await fuel.predictSegments(state.segments, route)
   state.totalFuelKg = state.segPredictions.reduce((a, p) => a + p.fuelKg, 0)
 
+  // Reset prediction comparison chart data.
+  state.chartActual = []
+  state.chartPredicted = []
+  state.actualFuelUsedKg = 0
+
+  // Estimate takeoff mass from aircraft type + fuel + typical payload.
+  const ac = AIRCRAFT_DATA[route.aircraftType] || DEFAULT_AIRCRAFT
+  state.takeoffMassKg = ac.oewKg + ac.payloadKg + state.totalFuelKg
+  state.currentMassKg = state.takeoffMassKg
+
   // Clear prior entities.
   viewer.entities.removeAll()
 
@@ -119,7 +148,6 @@ async function loadRoute(viewer, route) {
   els.hudFuelTotal.textContent = `${state.totalFuelKg.toFixed(0)} kg`
   els.hudProgress.textContent = '0%'
   els.progressBarFill.style.width = '0%'
-  els.fuelPct.innerHTML = '100<span>%</span>'
 
   // Route polyline with glow.
   const positions = route.waypoints.map((w) => Cesium.Cartesian3.fromDegrees(w.lon, w.lat, w.alt))
@@ -323,8 +351,10 @@ async function main() {
     els.hudElapsed.textContent = fmtTime(elapsed)
     els.hudFuelUsed.textContent = `${fuelUsed.toFixed(0)} kg`
     els.hudFuelRemaining.textContent = `${remaining.toFixed(0)} kg`
-    els.fuelPct.innerHTML = `${pct.toFixed(0)}<span>%</span>`
-    els.fuelPct.style.color = pct > 40 ? '#ffffff' : pct > 20 ? '#dc1414' : '#dc1414'
+
+    const thrustPct = updateForceMeters(seg)
+    updateMassPanel(seg, fuelUsed, remaining, state.totalFuelKg)
+    updatePredictionPanel(seg, segIdx, segFrac, thrustPct)
   })
 
   // Camera follow / overview.
@@ -334,13 +364,182 @@ async function main() {
     viewer.camera.lookAt(pos, new Cesium.Cartesian3(0, 0, 12000))
   })
 
-  // Three.js gauge.
-  const gauge = new FuelGauge3D(document.getElementById('fuelGaugeWrap'))
-  window.addEventListener('resize', () => gauge.onResize())
-  setInterval(() => {
-    const remaining = parseFloat(els.hudFuelRemaining.textContent) || 0
-    gauge.updateFuel(remaining / state.totalFuelKg)
-  }, 200)
+  // Force + mass + prediction panels initialized once after load.
+  const thrustPct = updateForceMeters(state.segments[0])
+  updateMassPanel(state.segments[0], 0, state.totalFuelKg, state.totalFuelKg)
+  updatePredictionPanel(state.segments[0], 0, 0, thrustPct)
+}
+
+// Compute thrust / drag / lift from flight state and update the meters.
+//
+// Physics (normalized to 0–100%):
+//   - Thrust: high in climb, moderate in cruise, low in descent. Scaled by
+//     vertical rate and fuel burn rate for the current segment.
+//   - Drag: proportional to air density x velocity squared. Higher at low
+//     altitude (dense air) and high speed.
+//   - Lift: in level flight equals weight; exceeds weight in climbs, drops in
+//     descents. Scaled by vertical rate and speed.
+function updateForceMeters(seg) {
+  if (!seg) return
+  const speedMs = seg.speedMps
+  const altM = (seg.altitudeStartM + seg.altitudeEndM) / 2
+  const vRate = (seg.altitudeEndM - seg.altitudeStartM) / Math.max(seg.durationS, 1)
+
+  // Air density ratio (sea level = 1) — exponential atmosphere approx.
+  const densityRatio = Math.exp(-altM / 8500)
+
+  // Thrust: base on flight phase. Climb needs most thrust, descent least.
+  const climbFactor = 0.45 + 0.55 * Math.max(0, Math.min(1, 0.5 + vRate / 12))
+  const thrust = Math.round(Math.min(100, climbFactor * 100))
+
+  // Drag: ~ density * speed^2, normalized. Cruise ~ 50-70%, high alt lower.
+  const dragRaw = densityRatio * Math.pow(speedMs / 240, 2)
+  const drag = Math.round(Math.min(100, Math.max(8, dragRaw * 90 + 10)))
+
+  // Lift: ~ weight in level flight. Climb > weight, descent < weight.
+  const liftFactor = 0.5 + 0.5 * Math.max(0, Math.min(1, 0.5 + vRate / 15))
+  const lift = Math.round(Math.min(100, liftFactor * 100))
+
+  els.thrustVal.textContent = `${thrust}%`
+  els.thrustFill.style.width = `${thrust}%`
+  els.dragVal.textContent = `${drag}%`
+  els.dragFill.style.width = `${drag}%`
+  els.liftVal.textContent = `${lift}%`
+  els.liftFill.style.width = `${lift}%`
+
+  return thrust
+}
+
+// Update the R3 Dynamic Mass panel from current flight state.
+//
+// All values are model-estimated from the fuel-burn predictions and reference
+// aircraft data — they are not direct aircraft telemetry.
+function updateMassPanel(seg, fuelUsed, remaining, totalFuel) {
+  if (!seg) return
+  const ac = AIRCRAFT_DATA[state.route.aircraftType] || DEFAULT_AIRCRAFT
+
+  const takeoffMass = state.takeoffMassKg
+  const currentMass = takeoffMass - fuelUsed
+  // Estimated landing mass: OEW + payload + 8% reserve fuel.
+  const reserveFuel = totalFuel * 0.08
+  const landingMass = ac.oewKg + ac.payloadKg + reserveFuel
+
+  // Fuel burn rate for current segment (kg/s).
+  const burnRate = state.segPredictions[Math.min(state.segPredictions.length - 1, 0)]
+  const segFuelRate = (burnRate?.fuelKg || 0) / Math.max(seg.durationS, 1)
+
+  // Fuel fraction: fuel mass as a fraction of takeoff mass.
+  const fuelFraction = remaining / takeoffMass
+
+  // Mass rate: negative of fuel burn rate (kg/s).
+  const massRate = -segFuelRate
+
+  // Wing loading: current weight / wing area (kg/m²).
+  const wingLoading = currentMass / ac.wingAreaM2
+
+  // Flight phase from vertical rate.
+  const vRate = (seg.altitudeEndM - seg.altitudeStartM) / Math.max(seg.durationS, 1)
+  let phase = 'Cruise'
+  if (vRate > 1.5) phase = 'Climb'
+  else if (vRate < -1.5) phase = 'Descent'
+  else if (seg.altitudeStartM < 500 && seg.altitudeEndM < 500) {
+    phase = vRate > 0 ? 'Takeoff' : 'Approach'
+  }
+
+  els.massTakeoff.textContent = `${(takeoffMass / 1000).toFixed(1)} t`
+  els.massCurrent.textContent = `${(currentMass / 1000).toFixed(1)} t`
+  els.massLanding.textContent = `${(landingMass / 1000).toFixed(1)} t`
+  els.massFuelRem.textContent = `${remaining.toFixed(0)} kg`
+  els.massFuelBurn.textContent = `${fuelUsed.toFixed(0)} kg`
+  els.massBurnRate.textContent = `${segFuelRate.toFixed(2)} kg/s`
+  els.massFuelFrac.textContent = `${(fuelFraction * 100).toFixed(1)}%`
+  els.massRate.textContent = `${massRate.toFixed(2)} kg/s`
+  els.massWingLoad.textContent = `${wingLoading.toFixed(0)} kg/m²`
+  els.massPhase.textContent = phase
+}
+
+// Update the Fuel Prediction comparison panel.
+//
+// "Simulated Burn" is a physics-based fuel burn derived from thrust x SFC
+// (specific fuel consumption) — a synthetic "actual" computed only from
+// current flight state, never from future data.
+// "R3 Prediction" is the AeroTwin model's predicted fuel for the segment.
+// Error = R3 - Simulated. Relative error = |error| / simulated * 100.
+function updatePredictionPanel(seg, segIdx, segFrac, thrustPct) {
+  if (!seg) return
+  const segPred = state.segPredictions[segIdx]
+  if (!segPred) return
+
+  // Physics-based simulated fuel for this segment (thrust x SFC x time).
+  // SFC ~ 0.06 kg/(kN·s) for a turbofan; thrust from percentage of max ~240 kN.
+  const maxThrustKn = 240
+  const sfc = 0.000018 // kg per newton-second
+  const thrustN = (thrustPct / 100) * maxThrustKn * 1000
+  const simBurnKg = thrustN * sfc * seg.durationS
+
+  // R3 predicted fuel for this segment.
+  const r3BurnKg = segPred.fuelKg
+
+  // Error metrics.
+  const error = r3BurnKg - simBurnKg
+  const relErr = simBurnKg > 0 ? (Math.abs(error) / simBurnKg) * 100 : 0
+
+  els.predActual.textContent = `${simBurnKg.toFixed(0)} kg`
+  els.predR3.textContent = `${r3BurnKg.toFixed(0)} kg`
+  els.predError.textContent = `${error >= 0 ? '+' : ''}${error.toFixed(0)} kg`
+  els.predRelErr.textContent = `${relErr.toFixed(1)}%`
+
+  // Accumulate for chart (sample at each segment boundary).
+  const prevActual = state.chartActual.length > 0 ? state.chartActual[state.chartActual.length - 1] : 0
+  const prevPred = state.chartPredicted.length > 0 ? state.chartPredicted[state.chartPredicted.length - 1] : 0
+
+  // Only push a new point when we move to a new segment (avoids chart clutter).
+  if (state.chartActual.length <= segIdx) {
+    state.chartActual.push(prevActual + simBurnKg)
+    state.chartPredicted.push(prevPred + r3BurnKg)
+    drawPredictionChart()
+  }
+}
+
+// Draw the cumulative fuel chart on the prediction panel canvas.
+function drawPredictionChart() {
+  const canvas = els.predChart
+  if (!canvas) return
+  const ctx = canvas.getContext('2d')
+  const W = canvas.width
+  const H = canvas.height
+  ctx.clearRect(0, 0, W, H)
+
+  const actual = state.chartActual
+  const predicted = state.chartPredicted
+  if (actual.length === 0) return
+
+  const maxVal = Math.max(actual[actual.length - 1], predicted[predicted.length - 1], 1)
+  state.chartMaxFuel = maxVal
+
+  // Draw predicted (red) line.
+  ctx.strokeStyle = '#dc1414'
+  ctx.lineWidth = 1.5
+  ctx.beginPath()
+  predicted.forEach((v, i) => {
+    const x = (i / Math.max(1, predicted.length - 1)) * (W - 8) + 4
+    const y = H - 6 - (v / maxVal) * (H - 12)
+    if (i === 0) ctx.moveTo(x, y)
+    else ctx.lineTo(x, y)
+  })
+  ctx.stroke()
+
+  // Draw simulated (white) line.
+  ctx.strokeStyle = 'rgba(255,255,255,0.7)'
+  ctx.lineWidth = 1.5
+  ctx.beginPath()
+  actual.forEach((v, i) => {
+    const x = (i / Math.max(1, actual.length - 1)) * (W - 8) + 4
+    const y = H - 6 - (v / maxVal) * (H - 12)
+    if (i === 0) ctx.moveTo(x, y)
+    else ctx.lineTo(x, y)
+  })
+  ctx.stroke()
 }
 
 // Boot the simulation: reveal the UI, then run the existing init flow.

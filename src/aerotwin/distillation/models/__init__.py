@@ -6,6 +6,7 @@ Use :func:`build_student` to construct models by name. The training loop
 
 from __future__ import annotations
 
+from aerotwin.distillation.mlp import StudentMLP
 from aerotwin.distillation.models.factory import (
     ARCHITECTURES,
     StudentConfig,
@@ -13,7 +14,6 @@ from aerotwin.distillation.models.factory import (
     list_architectures,
 )
 from aerotwin.distillation.models.ft_transformer import FTTransformer
-from aerotwin.distillation.mlp import StudentMLP
 
 __all__ = [
     "ARCHITECTURES",
