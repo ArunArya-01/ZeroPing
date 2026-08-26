@@ -1,0 +1,89 @@
+{
+  "run_name": "kd1",
+  "mode": "kd",
+  "alpha": 0.1,
+  "beta": 0.9,
+  "n_params": 2887425,
+  "device": "cuda",
+  "best_epoch": 78,
+  "best_val_rmse": 229.85177473989216,
+  "epochs_ran": 80,
+  "train_seconds": 293.60336542129517,
+  "train": {
+    "student": {
+      "rmse": 239.81984419684156,
+      "mae": 78.29035186767578,
+      "bias": -1.4484211206436157,
+      "r2": 0.9289089645059393
+    },
+    "teacher": {
+      "rmse": 251.78373587017313,
+      "mae": 81.63556671142578,
+      "bias": 0.7119617462158203,
+      "r2": 0.9216390029192993
+    },
+    "teacher_student_rmse_gap": -11.963891673331574,
+    "student_vs_teacher_rmse": 59.930639203252824
+  },
+  "val": {
+    "student": {
+      "rmse": 229.85177473989216,
+      "mae": 81.03558349609375,
+      "bias": -4.593453884124756,
+      "r2": 0.930599814864493
+    },
+    "teacher": {
+      "rmse": 244.14115486523167,
+      "mae": 83.26862335205078,
+      "bias": -2.839256525039673,
+      "r2": 0.9217026802981712
+    },
+    "teacher_student_rmse_gap": -14.289380125339505,
+    "student_vs_teacher_rmse": 60.91578780078724
+  },
+  "config": {
+    "mode": "kd",
+    "alpha": 0.1,
+    "beta": 0.9,
+    "lr": 0.001,
+    "weight_decay": 0.0001,
+    "batch_size": 2048,
+    "max_epochs": 80,
+    "patience": 12,
+    "min_delta": 0.05,
+    "scheduler_factor": 0.5,
+    "scheduler_patience": 4,
+    "grad_clip": 1.0,
+    "seed": 42,
+    "device": "auto",
+    "num_workers": 0,
+    "hidden_dims": [
+      1024,
+      512
+    ],
+    "dropout": 0.1,
+    "run_name": "kd1",
+    "consistency_lambda": 0.1,
+    "consistency_noise_scale": 0.015,
+    "n_num_features": 56,
+    "extras": {
+      "consistency_lambda": 0.1,
+      "consistency_noise_scale": 0.015,
+      "n_num_features": 56,
+      "intervention": "prediction_consistency",
+      "architecture": "large_mlp",
+      "kd_name": "kd1",
+      "alpha": 0.1,
+      "beta": 0.9,
+      "n_params": 2887425,
+      "in_dim": 582
+    }
+  },
+  "paths": {
+    "checkpoint": "C:\\Users\\mukun\\major project\\ZeroPing\\results\\distillation\\smoothness_causal\\runs\\large_cons_lam0.1\\best_model.pt",
+    "training_curve": "C:\\Users\\mukun\\major project\\ZeroPing\\results\\distillation\\smoothness_causal\\runs\\large_cons_lam0.1\\training_curve.csv",
+    "predictions": "C:\\Users\\mukun\\major project\\ZeroPing\\results\\distillation\\smoothness_causal\\runs\\large_cons_lam0.1\\predictions.parquet"
+  },
+  "kd_name": "kd1",
+  "in_dim": 582
+}

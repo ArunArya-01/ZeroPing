@@ -1,0 +1,132 @@
+{
+  "run_name": "kd1",
+  "mode": "kd",
+  "alpha": 0.1,
+  "beta": 0.9,
+  "n_params": 1445953,
+  "device": "cuda",
+  "best_epoch": 78,
+  "best_val_rmse": 238.97314193913365,
+  "epochs_ran": 80,
+  "train_seconds": 2245.78244304657,
+  "train": {
+    "student": {
+      "rmse": 257.0935953215845,
+      "mae": 84.75856018066406,
+      "bias": -19.75994873046875,
+      "r2": 0.9182990469790757
+    },
+    "teacher": {
+      "rmse": 251.78373587017313,
+      "mae": 81.63556671142578,
+      "bias": 0.7119617462158203,
+      "r2": 0.9216390029192993
+    },
+    "teacher_student_rmse_gap": 5.3098594514113415,
+    "student_vs_teacher_rmse": 94.87614088261725
+  },
+  "val": {
+    "student": {
+      "rmse": 238.97314193913365,
+      "mae": 85.68050384521484,
+      "bias": -22.598417282104492,
+      "r2": 0.9249824125246421
+    },
+    "teacher": {
+      "rmse": 244.14115486523167,
+      "mae": 83.26862335205078,
+      "bias": -2.839256525039673,
+      "r2": 0.9217026802981712
+    },
+    "teacher_student_rmse_gap": -5.168012926098015,
+    "student_vs_teacher_rmse": 86.56778473825952
+  },
+  "config": {
+    "mode": "kd",
+    "alpha": 0.1,
+    "beta": 0.9,
+    "lr": 0.001,
+    "weight_decay": 0.0001,
+    "batch_size": 1024,
+    "max_epochs": 80,
+    "patience": 12,
+    "min_delta": 0.05,
+    "scheduler_factor": 0.5,
+    "scheduler_patience": 4,
+    "grad_clip": 1.0,
+    "seed": 42,
+    "device": "auto",
+    "num_workers": 0,
+    "hidden_dims": [
+      1024,
+      512
+    ],
+    "dropout": 0.1,
+    "run_name": "kd1",
+    "extras": {
+      "ablation": "nophysics",
+      "architecture": "ft_transformer",
+      "removed_features": [
+        "ref_mass_kg",
+        "mean_potential_energy_j",
+        "mean_kinetic_energy_j",
+        "mean_specific_energy_jpkg",
+        "specific_energy_start",
+        "specific_energy_end",
+        "energy_change_jpkg",
+        "energy_rate_jpkg_s",
+        "climb_efficiency",
+        "energy_efficiency",
+        "cumulative_energy_change_jpkg",
+        "physics_fuel_kg",
+        "r3_tow_kg",
+        "r3_landing_mass_kg",
+        "r3_mass_start_kg",
+        "r3_mass_end_kg",
+        "r3_mean_mass_kg",
+        "r3_min_mass_kg",
+        "r3_max_mass_kg",
+        "r3_mass_std_kg",
+        "r3_mass_consumed_kg",
+        "r3_mass_rate_kgps",
+        "r3_fuel_fraction",
+        "r3_remaining_fuel_frac",
+        "r3_phase_mass_kg",
+        "r3_cruise_mass_kg",
+        "r3_wing_loading_cur",
+        "r3_oew_base_kg",
+        "r3_mean_pe_j",
+        "r3_mean_ke_j",
+        "r3_fuel_mass_efficiency",
+        "r3_tow_mtow_ratio",
+        "r3_cruise_mass_fuel_ratio"
+      ],
+      "kwargs": {
+        "d_token": 192,
+        "n_blocks": 3,
+        "n_heads": 8,
+        "attention_dropout": 0.2,
+        "ffn_dropout": 0.1,
+        "n_num_features": 23,
+        "cat_cardinalities": [
+          26,
+          9,
+          249,
+          242
+        ]
+      },
+      "kd_name": "kd1",
+      "alpha": 0.1,
+      "beta": 0.9,
+      "n_params": 1445953,
+      "in_dim": 549
+    }
+  },
+  "paths": {
+    "checkpoint": "C:\\Users\\mukun\\major project\\ZeroPing\\results\\distillation\\mechanism_validation\\physics_ablation\\ft_nophysics\\best_model.pt",
+    "training_curve": "C:\\Users\\mukun\\major project\\ZeroPing\\results\\distillation\\mechanism_validation\\physics_ablation\\ft_nophysics\\training_curve.csv",
+    "predictions": "C:\\Users\\mukun\\major project\\ZeroPing\\results\\distillation\\mechanism_validation\\physics_ablation\\ft_nophysics\\predictions.parquet"
+  },
+  "kd_name": "kd1",
+  "in_dim": 549
+}
