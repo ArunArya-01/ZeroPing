@@ -10,7 +10,7 @@
 
 ## Overview
 
-**AeroFlux** predicts interval-level aircraft fuel burn from real-world, fused ADS-B and ACARS telemetry (EUROCONTROL PRC 2025 challenge data). It evaluates a **hybrid physics + machine-learning** paradigm:
+**AeroFlux** predicts interval-level aircraft fuel burn from real-world, fused ADS-B and ACARS telemetry (EUROCONTROL PRC 2025 challenge data). It tests a **hybrid physics + machine-learning** approach:
 
 ```text
 predicted_fuel_kg = f(trajectory, aircraft, route, physics_fuel_kg, engineered_features)
@@ -18,18 +18,18 @@ predicted_fuel_kg = f(trajectory, aircraft, route, physics_fuel_kg, engineered_f
 
 - **Physics baseline.** [OpenAP](https://github.com/junzis/openap) provides an interpretable fuel-flow estimate from aircraft type, inferred true airspeed, altitude, vertical rate, and reference mass.
 - **Residual learning.** Gradient-boosted models (XGBoost, LightGBM, CatBoost) learn the structure remaining in operational data — sparse telemetry, missing air-data, and unknown aircraft mass.
-- **Rigorous evaluation.** Flight-level train/test splits prevent interval leakage; flight-clustered bootstrap tests quantify significance.
-- **Credibility via external validation.** A second-dataset audit pipeline (NASA DASHlink + OpenSky) tests whether findings *replicate* outside the training distribution.
+- **Leakage-safe evaluation.** Flight-level train/test splits prevent interval leakage; flight-clustered bootstrap tests quantify significance.
+- **External validation.** A second-dataset audit pipeline (NASA DASHlink + OpenSky) checks whether findings replicate outside the training distribution.
 
-**Frozen teacher Combined RMSE: 221.33 kg** (R3 ensemble with dynamic mass; Rank 232.53 · Final 213.73). **Final held-out teacher (student parity): 213.62 kg** — do not confuse Combined with Final. Remaining Combined gap to winner (~201 kg): ~20 kg.
+**Best ensemble (R3, dynamic mass, held-out): 221.33 kg Combined RMSE**, roughly 20 kg above the top competition entry on the same metric (~201 kg). A separate "Final" held-out score (213.62 kg, student-parity setting) uses a different scoring scope than "Combined" — see [`docs/`](docs/) for the exact definitions and how the two are computed.
 
 ---
 
 ## Why This Project Exists
 
-Aviation fuel burn is notoriously hard to predict at the interval (segment) level because operational telemetry — such as ADS-B and ACARS — is sparse, noisy, and incomplete. Aircraft mass is often unknown, air-data fields are frequently missing, and flights are subject to weather and routing variability that cannot be captured by physics theory alone.
+This project tests whether combining a first-principles physics baseline (OpenAP) with gradient-boosted residual models improves fuel-burn prediction accuracy over either approach alone, using real operational telemetry.
 
-This project exists to answer a practical question: *can combining a first-principles physics baseline with modern machine learning close the gap to operational reality?* Instead of relying on either approach alone, it uses the physics model to capture the interpretable bulk of fuel consumption and trains ML models to learn whatever remains unexplained — the residual structure in real flight data.
+Aviation fuel burn is hard to predict at the interval (segment) level because operational telemetry — ADS-B and ACARS — is sparse, noisy, and incomplete. Aircraft mass is often unknown, air-data fields are frequently missing, and flights are subject to weather and routing variability that physics theory alone does not capture. The approach here uses the physics model to account for the interpretable bulk of fuel consumption, and trains ML models to learn whatever remains unexplained — the residual structure in real flight data.
 
 ## What the Project Does
 
@@ -37,18 +37,26 @@ At a high level, the project:
 
 1. **Loads real telemetry** — fused ADS-B and ACARS data from the PRC 2025 challenge, covering flights, aircraft, routes, and fuel labels.
 2. **Builds physics baselines** — computes an interpretable fuel-flow estimate using OpenAP, given aircraft type, inferred true airspeed, altitude, vertical rate, and reference mass.
-3. **Engineers features** — derives energy-state, operational, weather-proxy, and dynamic-mass features that help explain fuel burn beyond basic physics.
+3. **Engineers features** — derives energy-state, operational, weather-proxy, and dynamic-mass features intended to explain fuel burn beyond basic physics.
 4. **Trains hybrid models** — gradient-boosted models (XGBoost, LightGBM, CatBoost) learn direct fuel predictions and fuel-flow residuals, assembled into a stacked ensemble with a ridge meta-learner.
-5. **Guards against leakage** — splits data by flight and uses flight-clustered bootstrap testing so reported metrics reflect genuine generalization, not accidental information leakage.
+5. **Guards against leakage** — splits data by flight and uses flight-clustered bootstrap testing so reported metrics reflect generalization rather than incidental information leakage.
 6. **Validates externally** — an independent audit pipeline on NASA DASHlink and OpenSky data checks whether learned patterns replicate outside the training set.
-7. **Distills into efficient students** — the frozen teacher ensemble's soft labels train smaller neural students (MLP and FT-Transformer) for deployment.
-8. **Deploys as universal models** — students are exportable to open ONNX format and served by a compiled Rust binary with no Python runtime at inference.
+7. **Distills into smaller students** — the frozen teacher ensemble's soft labels train smaller neural students (MLP and FT-Transformer) intended for lower-latency inference.
+8. **Provides a deployment path** — students are exportable to the open ONNX format and can be served by a compiled Rust binary without a Python runtime at inference time.
 
 ## Key Results
 
-- **Best ensemble (R3, dynamic mass):** 221.33 kg Combined RMSE.
-- **Official baselines:** Large MLP deploy baseline at 225.95 kg Combined (0.26 ms CPU inference) vs the R3 teacher at 221.33 kg.
-- **Cross-dataset validation** confirms the hybrid (physics + features) approach reduces error significantly versus physics alone, with statistically significant improvements from energy features and fuel-flow modeling.
+- **Best ensemble (R3, dynamic mass):** 221.33 kg Combined RMSE on held-out data.
+- **Deployment baseline:** a large MLP student reaches 225.95 kg Combined RMSE with 0.26 ms CPU inference latency, versus 221.33 kg for the full R3 teacher ensemble — a modest accuracy cost for a large latency reduction.
+- **Cross-dataset validation** (NASA DASHlink + OpenSky) shows the hybrid approach outperforms the physics-only baseline. The improvement attributable to energy-state features and fuel-flow modeling reaches statistical significance under the flight-clustered bootstrap test; see [`docs/`](docs/) for effect sizes and test details.
+
+## Limitations
+
+- **Dataset scope.** Results are based on the EUROCONTROL PRC 2025 challenge dataset and two external audit datasets (DASHlink, OpenSky). Coverage across aircraft types, routes, and operating conditions is limited to what those datasets contain, and generalization beyond them is untested.
+- **Gap to state of the art.** The best model here (221.33 kg Combined RMSE) remains ~20 kg behind the top result on the same challenge leaderboard; the hybrid approach narrows but does not close that gap.
+- **Combined vs. Final scoring.** These are two distinct evaluation scopes reported in this repo and are not directly comparable; see `docs/` before quoting either number out of context.
+- **AeroSim is a demo, not a validated tool.** The browser-based 3D simulator is a visualization/demonstration interface for the trained model. It is not a validated flight-planning or operational decision-making tool, and falls back to a physics approximation when model artifacts are unavailable.
+- **Distillation trade-off.** Student models (MLP, FT-Transformer) trade a small amount of accuracy for large inference-speed gains; they inherit any blind spots present in the frozen teacher ensemble rather than being independently validated.
 
 ## Design Principles
 
@@ -128,13 +136,13 @@ flowchart TB
 
 ---
 
-## ONNX Deployment (Universal Models)
+## ONNX Deployment (Framework-Agnostic Inference)
 
 Trained distillation students (e.g. the Large MLP) can be exported to the open
 **ONNX** format and served by a **compiled Rust binary** — no Python, PyTorch, or
-scikit-learn at inference time. The same `.onnx` artifact runs on any ONNX
-Runtime, making the models framework-agnostic and portable across Python,
-Rust, web/JavaScript, C++, and edge devices.
+scikit-learn required at inference time. The same `.onnx` artifact runs on any
+ONNX Runtime, so the models are not tied to a single language or framework and
+can run on Python, Rust, web/JavaScript, C++, or edge devices.
 
 ```text
 best_model.pt (PyTorch)
@@ -167,19 +175,20 @@ so raw feature rows map to the same model input the student saw in training.
 
 See `rust/aerotwin-onnx-serving/README.md` for full build/run details.
 
-### AeroSim — Interactive Web Simulator
+### AeroSim — Interactive Web Simulator (Demo)
 
-**`aero_sim/`** is a browser-based 3D flight simulation built with CesiumJS,
+**`aero_sim/`** is a browser-based 3D flight simulation demo built with CesiumJS,
 Three.js, and ONNX Runtime Web. It animates an aircraft flying between two
-airports along a real route while predicting **per-segment fuel burn directly
-from the trained AeroTwin model in the browser**. CesiumJS renders the globe,
-route, and an auto-following aircraft; per-segment markers are color-coded by
-predicted burn (green → red) with fuel-kg labels; and a Three.js fuel-tank
-overlay animates remaining fuel as the flight progresses. A live HUD shows
-progress, fuel used, fuel remaining, and distance. It reuses the same
-`large_mlp.onnx` + `preproc.json` artifacts as the Rust server (placed under
+airports along a real route while predicting per-segment fuel burn from the
+trained AeroTwin model in the browser. CesiumJS renders the globe, route, and
+an auto-following aircraft; per-segment markers are color-coded by predicted
+burn (green → red) with fuel-kg labels; and a Three.js fuel-tank overlay
+animates remaining fuel as the flight progresses. A live HUD shows progress,
+fuel used, fuel remaining, and distance. It reuses the same `large_mlp.onnx` +
+`preproc.json` artifacts as the Rust server (placed under
 `aero_sim/public/models/`); when they are absent it falls back to a physics
-approximation so the demo always runs.
+approximation so the demo still runs. **This is a demonstration interface, not
+a validated flight-planning tool.**
 
 See `aero_sim/README.md` for full setup details.
 
@@ -198,10 +207,10 @@ The repository is organized into focused domains:
 - **`tests/`** — unit and integration tests guarding the core logic.
 - **`docs/`** — status reports, RMSE audits, benchmark-parity checks, research paper drafts, and external-validation guides.
 - **`scripts/`** — build and run utilities.
-- **`aero_sim/`** — browser-based 3D flight fuel-burn simulator (CesiumJS + Three.js + ONNX Runtime Web).
+- **`aero_sim/`** — browser-based 3D flight fuel-burn simulator demo (CesiumJS + Three.js + ONNX Runtime Web).
 
 ---
 
 ## License
 
-ZeroPing / AeroTwin is released under the [MIT License](LICENSE).
+AeroFlux is released under the [MIT License](LICENSE).
