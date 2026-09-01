@@ -2,7 +2,7 @@
 
 # AeroFlux
 
-**An Aviation Physics-Informed Machine Learning Framework for Fuel-Flow Prediction**
+**How much does combining first-principles physics with machine learning improve fuel-burn prediction?**
 
 </div>
 
